@@ -105,6 +105,7 @@ map_regional_telework %>%
   geom_sf() +
   facet_wrap(. ~ year) +
   scale_fill_viridis_c("Homeworking\nindex", begin = 0, end = 1, na.value = "grey70") +
+  # scale_fill_fermenter("Homeworking\nindex", palette = "YlGnBu") +
   coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
   theme(legend.position = "top") +
   labs(
@@ -118,10 +119,10 @@ ggsave("../Figures/homeworking over time.pdf", width = 8.27, height = 11.69)
 # Interactive slider map
   mapview(
     map_regional_telework %>% filter(year == 2021),
-    label = "NAME_LATN",
-    zcol = "homework_index",
-    legend = FALSE,
-    at = seq(0, 0.6, 0.1),
+    label = "NAME_LATN", # Label (tooltip) that appears on hover: the Latin name of NUTS region
+    zcol = "homework_index", # The variable whose gradient is colored in the cartogram
+    legend = FALSE, # No legend for 2019; common legend for 2019-2021
+    at = seq(0, 0.6, 0.1), # Defines fill color scale range and increment 
     layer.name = "Homeworking 2019"
   ) |
   mapview(
