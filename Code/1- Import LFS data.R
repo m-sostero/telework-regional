@@ -24,7 +24,7 @@ LFS <- LFS_raw %>%
   select(-`_merge`, -ilostat)
 
 # Export LFS in fast binary format .feather
-write_feather(LFS_raw, "../Data/lfs.feather")
+write_feather(LFS, "../Data/LFS.feather")
 
 rm(LFS_raw)
 gc()

@@ -17,7 +17,7 @@ theme_set(theme_minimal()) # set minimalist theme as default for ggplot
 
 # Load LFS, regional telework data, and NUTS maps -------------------------
 
-LFS <- read_feather("../Data/lfs.feather")
+LFS <- read_feather("../Data/LFS.feather")
 
 regional_telework <- read_dta("../Data/regions.dta") %>% mutate(NUTS_ID = reg)
 
