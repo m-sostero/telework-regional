@@ -59,4 +59,4 @@ estat_map_nuts2_2016 <- get_eurostat_geospatial(
 
 map_nuts <- bind_rows(estat_map_nuts0, estat_map_nuts1, estat_map_nuts2, estat_map_nuts2_2016)
 
-write_rds(map_nuts, "../Data/map_nuts.rds")
+write_rds(map_nuts, "Data/map_nuts.rds")

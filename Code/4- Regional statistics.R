@@ -17,11 +17,11 @@ theme_set(theme_minimal()) # set minimalist theme as default for ggplot
 
 # Load LFS, regional telework data, and NUTS maps -------------------------
 
-LFS <- read_feather("../Data/LFS.feather")
+LFS <- read_feather("Data/LFS.feather")
 
-regional_telework <- read_dta("../Data/regions.dta") %>% mutate(NUTS_ID = reg)
+regional_telework <- read_dta("Data/regions.dta") %>% mutate(NUTS_ID = reg)
 
-map_nuts <- read_rds("../Data/map_nuts.rds")
+map_nuts <- read_rds("Data/map_nuts.rds")
 
 # Which NUTS codes are not valid regions either at the NUTS-2 (2021 or 2016) nor NUTS-1, or NUTS-0 level?
 regional_telework %>%
@@ -67,12 +67,12 @@ map_regional_telework %>%
     caption = "Homeworking index constructed from LFS;\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
   )
 
-ggsave("../Figures/homeworking over time_gradient.pdf", width = 8.27, height = 11.69)
+ggsave("Figures/homeworking over time_gradient.pdf", width = 8.27, height = 11.69)
 
 last_plot() +
   scale_fill_viridis_b("Homeworking\nindex")
 # scale_fill_fermenter("Homeworking\nindex", palette = "YlGnBu")
-ggsave("../Figures/homeworking over time_binned.pdf", width = 8.27, height = 11.69)
+ggsave("Figures/homeworking over time_binned.pdf", width = 8.27, height = 11.69)
 
 # Interactive slider map
 mapview(
@@ -119,4 +119,4 @@ map_regional_telework_change %>%
     caption = "Homeworking index constructed from LFS;\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
   )
 
-ggsave("../Figures/homeworking change.pdf", width = 8.27, height = 11.69)
+ggsave("Figures/homeworking change.pdf", width = 8.27, height = 11.69)

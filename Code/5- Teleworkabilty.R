@@ -6,9 +6,9 @@ library("arrow") # read/write arrow .feather files
 
 # Occupational teleworkability statistics ---------------------------------------
 
-teleworkability <- read_dta("../Data/Teleworkability indices.dta")
+teleworkability <- read_dta("Data/Teleworkability indices.dta")
 
-occupational_variables <- read_dta("../Data/occup.dta") %>%
+occupational_variables <- read_dta("Data/occup.dta") %>%
   as_factor() %>%
   arrange(country, year, isco08_3d)
 

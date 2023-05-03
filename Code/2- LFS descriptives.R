@@ -19,10 +19,10 @@ theme_set(theme_minimal()) # set minimalist theme as default for ggplot
 
 
 # Load LFS data, already encoded
-LFS <- read_feather("../Data/LFS.feather")
+LFS <- read_feather("Data/LFS.feather")
 
 # Load ISCO-08 labels
-labels_isco <- read_tsv("../Metadata/ISCO-08.txt") %>% 
+labels_isco <- read_tsv("Metadata/ISCO-08.txt") %>% 
   mutate(occup_group = if_else(str_length(code) == 1, occupation, NA_character_)) %>% 
   fill(occup_group, .direction = "down") %>% 
   mutate(occup_group = factor(occup_group) %>% fct_inorder())
