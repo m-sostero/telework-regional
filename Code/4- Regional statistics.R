@@ -10,6 +10,11 @@ library("sf") # Simple Features format of maps-as-tables
 library("mapview") # Interactive maps
 library("leafem") # Decorate interactive maps
 library("leaflet.extras2") # Extra utilities to combine interactive maps
+
+library("geofacet")
+
+library("plotly") # Interative charts
+
 library("RColorBrewer") # Color gradients for plots
 library("scales") # graph scales (percent, comma, currency)
 theme_set(theme_minimal()) # set minimalist theme as default for ggplot
@@ -43,7 +48,7 @@ regional_telework %>%
   anti_join(map_nuts) %>%
   distinct(NUTS_ID)
 
-# Join values for regional telework with map
+# Join values for regional telework with NUTS maps
 map_regional_telework <- inner_join(map_nuts, regional_telework, by = "NUTS_ID", multiple = "all") %>%
   select(-id, -LEVL_CODE, -NUTS_NAME, -FID, -geo, -ends_with("_TYPE")) %>%
   mutate_at(c("physicalinteraction", "socialinteraction", "homework_index"), ~ round(., 2))
@@ -120,3 +125,155 @@ map_regional_telework_change %>%
   )
 
 ggsave("Figures/homeworking change.pdf", width = 8.27, height = 11.69)
+
+
+# Compute homework and teleworkability by (year, NUTS, degurba, urbrur ----
+
+LFS <- LFS %>%
+  mutate(
+    homework_index = case_when(
+      homework == "Person mainly works at home" ~ 1, 
+      homework == "Person sometimes works at home" ~ 0.5, 
+      homework == "Person never works at home"  ~ 0 
+    ),
+    degurba = factor(degurba, levels = c("Rural areas", "Towns and suburbs", "Cities")),
+  ) %>% 
+  relocate(homework_index, .after = "homework")
+
+# Homework index by degurba ----
+hw_degurba <- LFS %>%  
+  group_by(year, country, degurba) %>% 
+  summarise(
+    homework_index = weighted.mean(homework_index, w = coeffy, na.rm = TRUE)
+  ) 
+
+hw_degurba %>% 
+  pivot_wider(names_from = degurba, values_from = homework_index) %>% 
+  view("Homework by degurba")
+
+
+plot_hw_degurba <- hw_degurba %>% 
+  filter(year == 2019) %>% 
+  ggplot(aes(x = degurba, y = homework_index, group = country, color = country)) +
+  geom_point() + geom_line() + 
+  scale_y_continuous(labels = label_percent()) +
+  labs( title = "2019: Most countries have more homeworking in cities\n than in towns-sururbs, than in rural areas")
+
+ggplotly(plot_hw_degurba)
+
+hw_degurba %>% 
+  filter(country %in% c("IE", "NL", "IT", "RO")) %>% 
+  mutate(year = factor(year)) %>% 
+  ggplot(aes(x = degurba, y = homework_index, group = year, color = year)) +
+  facet_grid(~ country) + 
+  # scale_color_brewer(palette = "Blues") +
+  scale_color_viridis_d() +
+  geom_point() + geom_line() +
+  scale_y_continuous(labels = percent_format()) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+hw_degurba %>% 
+  mutate(year = factor(year)) %>% 
+  ggplot(aes(x = degurba, y = homework_index, group = year, color = year)) +
+  geom_point() + geom_line() +
+  facet_geo(~ country, grid = "eu_grid1", scales = "free_y") +
+  # scale_color_brewer(palette = "Blues") +
+  scale_color_viridis_d() +
+  scale_y_continuous(labels = percent_format()) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+
+
+# Homework index by urbrur ----
+hw_urbrur <- LFS %>%  
+  group_by(year, country, urbrur) %>% 
+  summarise(
+    homework_index = weighted.mean(homework_index, w = coeffy, na.rm = TRUE)
+  ) 
+
+hw_urbrur %>% 
+  pivot_wider(names_from = urbrur, values_from = homework_index) %>% 
+  view("Homework by urbrur")
+
+
+plot_hw_urbrur <- hw_urbrur %>% 
+  filter(year == 2019) %>% 
+  ggplot(aes(x = urbrur, y = homework_index, group = country, color = country)) +
+  geom_point() + geom_line() + 
+  scale_y_continuous(labels = label_percent()) +
+  labs( title = "2019: Most countries have more homeworking in cities\n than in towns-sururbs, than in rural areas")
+
+ggplotly(plot_hw_urbrur)
+
+hw_urbrur %>% 
+  filter(country %in% c("IE", "DE", "IT", "RO")) %>% 
+  mutate(year = factor(year)) %>% 
+  ggplot(aes(x = urbrur, y = homework_index, group = year, color = year)) +
+  facet_grid(~ country) + 
+  # scale_color_brewer(palette = "Blues") +
+  scale_color_viridis_d() +
+  geom_point() + geom_line() +
+  scale_y_continuous(labels = percent_format()) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+hw_urbrur %>% 
+  mutate(year = factor(year)) %>% 
+  ggplot(aes(x = urbrur, y = homework_index, group = year, color = year)) +
+  geom_point() + geom_line() +
+  facet_geo(~ country, grid = "eu_grid1", scales = "free_y") +
+  # scale_color_brewer(palette = "Blues") +
+  scale_color_viridis_d() +
+  scale_y_continuous(labels = percent_format()) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+
+# Homework index by urbrur ----
+hw_urbrur <- LFS %>%  
+  group_by(year, country, urbrur) %>% 
+  summarise(
+    homework_index = weighted.mean(homework_index, w = coeffy, na.rm = TRUE)
+  ) 
+
+hw_urbrur %>% 
+  pivot_wider(names_from = urbrur, values_from = homework_index) %>% 
+  view("Homework by urbrur")
+
+
+plot_hw_urbrur <- hw_urbrur %>% 
+  filter(year == 2019) %>% 
+  ggplot(aes(x = urbrur, y = homework_index, group = country, color = country)) +
+  geom_point() + geom_line() + 
+  scale_y_continuous(labels = label_percent()) +
+  labs( title = "2019: Most countries have more homeworking in cities\n than in towns-sururbs, than in rural areas")
+
+ggplotly(plot_hw_urbrur)
+
+hw_urbrur %>% 
+  filter(country %in% c("IE", "DE", "IT", "RO")) %>% 
+  mutate(year = factor(year)) %>% 
+  ggplot(aes(x = urbrur, y = homework_index, group = year, color = year)) +
+  facet_grid(~ country) + 
+  # scale_color_brewer(palette = "Blues") +
+  scale_color_viridis_d() +
+  geom_point() + geom_line() +
+  scale_y_continuous(labels = percent_format()) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+hw_urbrur %>% 
+  mutate(year = factor(year)) %>% 
+  ggplot(aes(x = urbrur, y = homework_index, group = year, color = year)) +
+  geom_point() + geom_line() +
+  facet_geo(~ country, grid = "eu_grid1", scales = "free_y") +
+  # scale_color_brewer(palette = "Blues") +
+  scale_color_viridis_d() +
+  scale_y_continuous(labels = percent_format()) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+
+
+
+
+
+
+
+
