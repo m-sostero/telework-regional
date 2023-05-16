@@ -106,7 +106,7 @@ LFS_country_occup %>%
     title = "Occupational structure of EU countries",
     subtitle = "Share of employed population in ISCO 1-digit occupation groups",
     y = "Share of total employed population",
-    caption = "Source, EU-LFS"
+    caption = "Source: EU-LFS"
   )
 
 
