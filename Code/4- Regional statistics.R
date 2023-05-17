@@ -219,28 +219,24 @@ hw_degurba_freq <- LFS %>%
   group_by(year, country, degurba, homework) %>% 
   summarise(total = sum(coeffy, na.rm = TRUE), .groups = "drop") %>%
   left_join(LFS_employed, by = c("year", "country")) %>% 
-  mutate(share = total / total_pop) %>% 
+  mutate(
+    share = total / total_pop,
+    homework = fct_recode(homework, never = "Person never works at home", sometimes = "Person sometimes works at home", mainly = "Person mainly works at home") %>% fct_rev()
+    ) %>% 
   left_join(labels_country, by = c("country" = "country_code"))
 
 hw_degurba_freq %>% 
   filter(country == "IE", !is.na(homework)) %>% 
-  mutate(
-    year = factor(year),
-    homework = fct_recode(homework, never = "Person never works at home", sometimes = "Person sometimes works at home", mainly = "Person mainly works at home") %>% fct_rev()
-    ) %>% 
+  mutate(year = factor(year)) %>%
   ggplot(aes(x = homework, y = share, group = year, fill = year)) + geom_col(position = "dodge") +
   facet_wrap(~ degurba) +
   scale_fill_viridis_d() +
   scale_y_continuous(labels = percent_format()) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) 
 
-
 hw_degurba_freq %>% 
   filter(country == "IE", !is.na(homework)) %>% 
-  mutate(
-    year = factor(year),
-    homework = fct_recode(homework, never = "Person never works at home", sometimes = "Person sometimes works at home", mainly = "Person mainly works at home") 
-  ) %>% 
+  mutate(year = factor(year)) %>%
   ggplot(aes(x = year, y = share, group = homework, fill = homework)) + geom_col(position = "stack") +
   facet_wrap(~ degurba) +
   scale_fill_brewer(palette = "PuBu", direction = -1) +
@@ -250,11 +246,9 @@ hw_degurba_freq %>%
 
 hw_degurba_freq %>% 
   filter(country == "IE", !is.na(homework)) %>% 
-  mutate(
-    year = factor(year),
-    homework = fct_recode(homework, never = "Person never works at home", sometimes = "Person sometimes works at home", mainly = "Person mainly works at home") 
-  ) %>% 
-  ggplot(aes(x = year, y = total, group = homework, fill = homework)) + geom_col(position = "stack") +
+  mutate(year = factor(year)) %>% 
+  ggplot(aes(x = year, y = total, group = homework, fill = homework)) +
+  geom_col(position = "stack") +
   facet_wrap(~ degurba) +
   scale_fill_brewer("People working\nform home", palette = "PuBu", direction = -1) +
   scale_y_continuous(labels = comma_format(accuracy = 1, scale = 1000)) +
@@ -267,10 +261,7 @@ hw_degurba_freq %>%
 
 hw_degurba_freq %>% 
   filter(country == "NL", !is.na(homework)) %>% 
-  mutate(
-    year = factor(year),
-    homework = fct_recode(homework, never = "Person never works at home", sometimes = "Person sometimes works at home", mainly = "Person mainly works at home") 
-  ) %>% 
+  mutate(year = factor(year)) %>% 
   ggplot(aes(x = year, y = total, group = homework, fill = homework)) + geom_col(position = "stack") +
   facet_wrap(~ degurba) +
   scale_fill_brewer("People working\nform home", palette = "PuBu", direction = -1) +
