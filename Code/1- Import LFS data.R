@@ -21,7 +21,16 @@ LFS <- LFS_raw %>%
   # Remove redundant observations created by previous merge in STATA, and delete `merge` variable itself
   filter(`_merge` != 2) %>%
   filter(ilostat == "Employed") %>%
-  select(-`_merge`, -ilostat)
+  select(-`_merge`, -ilostat) %>% 
+  # Encode homework index
+  mutate(
+    homework_index = case_when(
+      homework == "Person mainly works at home" ~ 1, 
+      homework == "Person sometimes works at home" ~ 0.5, 
+      homework == "Person never works at home"  ~ 0 
+    )
+  ) %>% 
+  relocate(homework_index, .after = "homework")
 
 # Export LFS in fast binary format .feather
 write_feather(LFS, "Data/LFS.feather")

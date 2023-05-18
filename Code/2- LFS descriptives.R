@@ -27,6 +27,18 @@ labels_isco <- read_tsv("Metadata/ISCO-08.txt") %>%
   fill(occup_group, .direction = "down") %>% 
   mutate(occup_group = factor(occup_group) %>% fct_inorder())
 
+
+# coeffy by country -------------------------------------------------------
+
+#TODO: why coeffy missing (NL in 2021, FI, DK all years?)
+LFS %>%
+  group_by(country, year) %>%
+  summarise(miss_weights = sum(is.na(coeffy)/n())) %>%
+  filter(miss_weights > 0) %>% 
+  pivot_wider(values_from = miss_weights, names_from = year, values_fill = 0) %>%
+  mutate(across(`2018`:`2021`, ~ percent(., accuracy = 0.1))) %>%
+  view()
+
 # Plot LFS respondents by country, over time ------------------------------
 LFS %>%
   group_by(year, country) %>%
@@ -108,53 +120,4 @@ LFS_country_occup %>%
     y = "Share of total employed population",
     caption = "Source: EU-LFS"
   )
-
-
-# Telework frequencies by occupation, year, country -----------------------
-
-occup_tw_freq <- LFS %>%
-  filter(!isco1d %in% "Non response", !is.na(isco1d)) %>%
-  group_by(year, country, isco08_3d) %>%
-  summarise(
-    tw_never = sum((homework == "Person never works at home") * coeffy) / sum(coeffy, na.rm = TRUE),
-    tw_some  = sum((homework == "Person sometimes works at home") * coeffy) / sum(coeffy, na.rm = TRUE),
-    tw_main  = sum((homework == "Person mainly works at home") * coeffy) / sum(coeffy, na.rm = TRUE),
-    .groups = "drop"
-  ) %>% 
-  left_join(labels_isco, by = c("isco08_3d" = "code"))
-
-occup_tw_freq %>%
-  filter(year == 2019) %>%
-  mutate(tw_any = 1 - tw_never) %>%
-  group_by(isco08_3d) %>%
-  summarise(
-    tw_any_min = min(tw_any, na.rm = TRUE),
-    tw_any_max = max(tw_any, na.rm = TRUE)
-  ) %>%
-  ggplot(aes(x = isco08_3d, ymin = tw_any_min, ymax = tw_any_max)) +
-  geom_errorbar() +
-  coord_flip() +
-  scale_x_reverse() +
-  labs(
-    x = "Share"
-  )
-
-plot_occup_tw_freq <- occup_tw_freq %>%
-  filter(year == 2019) %>%
-  mutate(tw_any = 1 - tw_never) %>%
-  group_by(isco08_3d, occupation, occup_group) %>%
-  summarise(var_tw = var(tw_any,na.rm = TRUE) %>% round(3), .groups = "drop") %>%
-  ggplot(aes(x = isco08_3d, y = var_tw, color = occup_group, label = occupation)) +
-  geom_point() +
-  coord_flip() +
-  scale_x_reverse() +
-  scale_color_brewer("Occupation\n(ISCO 2008, 1-digit)", palette = "Paired", na.value = "grey50") +
-  labs(
-    title = "How much does the rate of telework vary for the same occupation, across EU countries?",
-    subtitle = "Variance in share of the of any telework, by occupation",
-    x = "Occupation (ISCO 03, 3-digit)",
-    y = "Variance in share of the of any telework"
-  )
-
-ggplotly(plot_occup_tw_freq)
 
