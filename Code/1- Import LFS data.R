@@ -29,7 +29,11 @@ LFS <- LFS_raw %>%
       homework == "Person never works at home"  ~ 0 
     )
   ) %>% 
-  relocate(homework_index, .after = "homework")
+  relocate(homework_index, .after = "homework") %>% 
+  # Create isco_3d_code, a string version of isco08_3d, left-padded with zeroes to reach 3-digit
+  # Fixes problem with armed forces occupations, starting with 0
+  mutate(isco_3d_code = str_pad(isco08_3d, width = 3, side = "left", pad = "0")) %>% 
+  relocate(isco_3d_code, .after = "isco08_3d") 
 
 # Export LFS in fast binary format .feather
 write_feather(LFS, "Data/LFS.feather")

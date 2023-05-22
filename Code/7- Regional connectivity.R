@@ -33,7 +33,7 @@ left_join(map_nuts, nuts2_internet, by = c("NUTS_ID" = "region_code")) %>%
     caption = "QoG EU Regional dataset, variable eu_is_iacc_nuts2"
   )
 
-ggsave("Figures/nuts_internet_2019.pdf", width = 12, height = 10, units = "cm", bg = "white")
+ggsave("Figures/nuts_internet_2019.pdf", width = 12, height = 10, units = "cm") # bg = "white")
 
 left_join(map_nuts, nuts2_internet, by = c("NUTS_ID" = "region_code")) %>%
   # Apply quantile transformation here mutate()
@@ -47,7 +47,7 @@ left_join(map_nuts, nuts2_internet, by = c("NUTS_ID" = "region_code")) %>%
     caption = "QoG EU Regional dataset, variable eu_is_bacc_nuts2"
   )
 
-ggsave("Figures/nuts_broadband_2019.pdf", width = 12, height = 10, units = "cm", bg = "white")
+ggsave("Figures/nuts_broadband_2019.pdf", width = 12, height = 10, units = "cm") #, bg = "white")
 
 # Interactive map of internet or broadband access by NUTS-2 regions
 
