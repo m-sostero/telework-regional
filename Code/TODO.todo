@@ -1,8 +1,9 @@
 TODO:
 
-- Unpack descriptives of highest and lowest TW areas: by nuts, degurba, urbur (x Country):
+[x] Unpack descriptives of highest and lowest TW areas: by nuts, degurba, urbur (x Country):
  - scatter homework index x telework ~ degurba
- - summarise increase in telework at the territorial level (develop summary stat)
+ - scatter homework index x telework (unit = region) ~ degurba 
+ [X] summarise increase in telework at the territorial level (develop summary stat)
 - ANOVA by block: country | region/urb (including connectivity) | occup | sector 
 - variance of actual TW for same occupations across countries/regions; "convergence" analysis
 - compute teleworkability (and gap to actual telework) by NUTS-2 (urburb) based on LFS; change of over time

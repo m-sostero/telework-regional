@@ -1,7 +1,6 @@
-library("tidyverse") # collection of packages for working with data
+# Load common packages
+source("Code/0- Load packages.R")
 
-library("haven") # read/write STATA dta data
-library("arrow") # read/write arrow .feather files
 
 # Import LFS data produced by Code/Regional2023.do
 LFS_raw <- read_dta("Data/LFSreg2018_21finalr.dta")

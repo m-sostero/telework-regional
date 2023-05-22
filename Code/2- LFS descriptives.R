@@ -1,21 +1,5 @@
-library("tidyverse") # collection of packages for working with data
-
-library("haven") # read/write STATA dta data
-library("arrow") # read/write arrow .feather files
-
-library("janitor") # convenience functions to clean and adorn summary tables
-
-library("sf") # Simple Features format of maps-as-tables
-library("geofacet") # Arrange plot facets according to (EU) map position
-library("mapview") # Interactive maps
-library("leafem") # Decorate interactive maps
-library("leaflet.extras2") # Extra utilities to combine interactive maps
-library("RColorBrewer") # Color gradients for plots
-library("scales") # graph scales (percent, comma, currency)
-
-library("plotly") # Interactive plots
-
-theme_set(theme_minimal()) # set minimalist theme as default for ggplot
+# Load common packages
+source("Code/0- Load packages.R")
 
 
 # Load LFS data, already encoded

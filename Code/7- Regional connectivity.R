@@ -4,7 +4,7 @@ library("sf") # Simple Features format of maps-as-tables
 library("mapview") # Interactive maps
 library("leafem") # Decorate interactive maps
 library("leaflet.extras2") # Extra utilities to combine interactive maps
-theme_set(theme_minimal()) # set minimalist theme as default for ggplot
+
 
 # Load Eurostat maps
 map_nuts <- read_rds("Data/map_nuts.rds")
