@@ -1,6 +1,5 @@
-# Load common packages
+# Load common packages and labels ----
 source("Code/0- Load packages.R")
-
 
 
 # Load LFS, regional telework data, and NUTS maps -------------------------
@@ -26,7 +25,7 @@ hw_degurba %>%
   pivot_wider(names_from = degurba, values_from = homework_index) %>% 
   mutate(across(`Rural areas`:Cities, ~ round(.*100, 1))) %>% 
   view("Telework by degurba, weighted")
-  # write_xlsx("Tables/Telework_degurba.xlsx")
+  # write_xlsx("Tables/LFS_telework_degurba.xlsx")
 
 
 # Geofacet, grouped by degurba
@@ -34,7 +33,7 @@ hw_degurba %>%
   mutate(year = factor(year)) %>% 
   ggplot(aes(x = year, y = homework_index, group = degurba, color = degurba)) +
   geom_point() + geom_line() +
-  facet_geo(~ country, grid = eu_grid, scales = "free_y") +
+  facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") + 
   # scale_color_manual("Degree of urbanisation", values = c("#33A02C", "#A6CEE3", "#1F78B4"), breaks = c("Rural areas", "Towns and suburbs", "Cities")) +
   scale_color_brewer("Degree of urbanisation", palette = "Set2") +
   guides(color = guide_legend(reverse = TRUE)) +
@@ -49,6 +48,8 @@ hw_degurba %>%
   )
 
 ggsave("Figures/Telework_degurba_EU.pdf", height = 8, width = 13)
+ggsave("Figures/Telework_degurba_EU.png", height = 8, width = 13, bg = "white")
+
 
 # Zoom in on selected countries
 selected_countries <- c("DE", "FR", "IT", "ES", "IE", "NL", "SE", "RO")
@@ -80,6 +81,7 @@ plot_hw_degurba <- hw_degurba %>%
 plot_hw_degurba + guides(color = guide_legend(reverse = TRUE), size = guide_legend(label.hjust = 1)) 
 
 ggsave("Figures/Telework_degurba_selected.pdf", height = 6, width = 9)
+ggsave("Figures/Telework_degurba_selected.png", height = 6, width = 9, bg = "white")
 
 ggplotly(plot_hw_degurba)
 
@@ -106,6 +108,7 @@ hw_degurba %>%
   )
 
 ggsave("Figures/Telework_changes_degurba.pdf", height = 6, width = 9)
+ggsave("Figures/Telework_changes_degurba.png", height = 6, width = 9, bg = "white")
 
 
 # Frequency of telework by degurba -----------------------------
@@ -143,6 +146,7 @@ hw_degurba_freq %>%
   )
 
 ggsave("Figures/Telework_intensity_degurba_selected.pdf", height = 6, width = 9)
+ggsave("Figures/Telework_intensity_degurba_selected.png", height = 6, width = 9, bg = "white")
 
 
 # Ireland, number of people
@@ -161,6 +165,7 @@ hw_degurba_freq %>%
   )
 
 ggsave("Figures/Telework_intensity_degurba_ireland.pdf", height = 6, width = 9)
+ggsave("Figures/Telework_intensity_degurba_ireland.png", height = 6, width = 9, bg = "white")
 
 
 # Homework index by urbrur ----
@@ -174,7 +179,7 @@ hw_urbrur <- LFS %>%
 hw_urbrur %>%
   pivot_wider(names_from = urbrur, values_from = homework_index) %>% 
   select(year, country, country_name, levels(hw_urbrur$urbrur)) %>% 
-  # write_xlsx("Tables/telework_urbrur.xlsx")
+  # write_xlsx("Tables/LFS_telework_urbrur.xlsx")
   view("Telework by urbrur")
 
 # Geofacet, grouped by urbrur
@@ -182,7 +187,7 @@ hw_urbrur %>%
   mutate(year = factor(year)) %>%
   ggplot(aes(x = year, y = homework_index, group = urbrur, color = urbrur)) +
   geom_point() + geom_line() +
-  facet_geo(~ country, grid = eu_grid, scales = "free_y") +
+  facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
   scale_color_manual("Type of region\n(urbrur)",
     values = c("#1F78B4", "#A6CEE3", "#B2DF8A", "#33A02C", "#FB9A99"), 
     breaks = c("Capital region", "Mainly urban", "Intermediate", "Mainly rural", "Regions undifferentiated")
@@ -198,6 +203,7 @@ hw_urbrur %>%
   )
 
 ggsave("Figures/Telework_urbrur_eu.pdf", height = 8, width = 11)
+ggsave("Figures/Telework_urbrur_eu.png", height = 8, width = 11, bg = "white")
 
 
 # Zoom in on selected countries, see "capital premium"
@@ -230,3 +236,4 @@ hw_urbrur %>%
   )
 
 ggsave("Figures/Telework_urbrur_selected.pdf", height = 6, width = 9)
+ggsave("Figures/Telework_urbrur_selected.png", height = 6, width = 9, bg = "white")

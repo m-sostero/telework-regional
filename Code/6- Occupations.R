@@ -1,4 +1,4 @@
-# Load common packages
+# Load common packages and labels ----
 source("Code/0- Load packages.R")
 
 
@@ -17,8 +17,6 @@ occupational_variables <- read_dta("Data/occup.dta") %>%
   arrange(country, year, isco08_3d)
 
 map_nuts <- read_rds("Data/map_nuts.rds")
-
-labels_isco <- read_rds("Metadata/labels_isco.rds") %>% mutate(code = as.character(code))
 
 tw_hw_degurba <- LFS %>%
   left_join(teleworkability, by = "isco_3d_code") %>% 
@@ -51,6 +49,7 @@ plot_tw_hw_degurba <- tw_hw_degurba %>%
 plot_tw_hw_degurba
 
 ggsave("Figures/Correlation_teleworkability_telework_degurba.pdf", height = 6, width = 9)
+ggsave("Figures/Correlation_teleworkability_telework_degurba.png", height = 6, width = 9, bg = "white")
 
 ggplotly(plot_tw_hw_degurba)
   
@@ -80,6 +79,7 @@ occupational_variables %>%
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
 
 ggsave("Figures/Correlation_teleworkability_telework_selected.pdf", height = 6, width = 9)
+ggsave("Figures/Correlation_teleworkability_telework_selected.png", height = 6, width = 9, bg = "white")
 
 
 tw_hw_degurba <- LFS %>%
@@ -92,6 +92,8 @@ tw_hw_degurba <- LFS %>%
   ) %>% 
   left_join(teleworkability, by = "isco_3d_code") 
 
+#TODO
+# Ireland
 tw_hw_degurba %>%
   filter(country %in% c("IE")) %>% 
   ggplot(aes(x = physicalinteraction, y = homework_index,  group = degurba, color = degurba, size = coeffy)) + 
@@ -147,6 +149,7 @@ hw_occupation_freq %>%
   )
 
 ggsave("Figures/Telework_intensity_occup_ireland.pdf", height = 6, width = 9)
+ggsave("Figures/Telework_intensity_occup_ireland.png", height = 6, width = 9, bg = "white")
 
 
 # Telework index by occupation, year, country -----------------------
@@ -188,22 +191,19 @@ occup_homework_country %>%
   )
 
 ggsave("Figures/Variation_telework_occupation_boxplot.pdf", height = 6, width = 12)
+ggsave("Figures/Variation_telework_occupation_boxplot.png", height = 6, width = 12, bg = "white")
 
 
-# Choropleth of teleworking rates for specific occupations ----
+# Teleworking rates for specific occupations ----
 
-# Homeworking rates by 2-digit occupation and NUTS-2 region
-homework_occup_region <- LFS %>%
+occup_homework_freq <- LFS %>%
+  # Exclude non-responses, missing, and armed forces
+  filter(!isco1d %in% "Non response", !is.na(isco1d), isco1d != "Armed forces") %>%
   # Aggregate at ISCO 2-digit level
-  mutate(isco_2d_code = str_sub(isco_3d_code, 1,2)) %>%
+  mutate(isco_2d_code = str_sub(isco_3d_code, 1, 2)) %>%
   # Exclude ISCO 2-digit codes ending in 0 (which are actually 1-digit codes)
-  filter(!is.na(isco_2d_code), !str_detect(isco_2d_code, "0$"), ) %>%  
-  group_by(year, reg, isco_2d_code) %>% 
-  summarise(
-    homework_index = (sum(homework_index*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
-    n_obs = n(),
-    .groups = "drop"
-  ) %>% 
+  filter(!is.na(isco_2d_code), !str_detect(isco_2d_code, "0$")) %>%
+  # Sanitise NUTS names %>% 
   rename(NUTS_ID = reg) %>%
   # Manually fix some NUTS codes for AT, DE, NL
   mutate(
@@ -211,39 +211,24 @@ homework_occup_region <- LFS %>%
     NUTS_ID = str_replace_all(NUTS_ID, "(?<=AT\\d)0", ""),
     NUTS_ID = str_replace_all(NUTS_ID, "(?<=DE.)0", ""),
     NUTS_ID = str_replace_all(NUTS_ID, "NL00", "NL")
-  )
-
-# how many observations per region?
-homework_occup_region$n_obs %>% summary()
-
-# Join values for regional telework with NUTS maps
-map_homework_occup_region <- inner_join(map_nuts, homework_occup_region, by = "NUTS_ID", multiple = "all") %>%
-  select(-id, -LEVL_CODE, -NUTS_NAME, -FID, -geo, -ends_with("_TYPE"))
-
-
-occup_homework_freq <- LFS %>%
-  # Exclude non-responses, missing, and armed forces
-  filter(!isco1d %in% "Non response", !is.na(isco1d), isco1d != "Armed forces") %>%
-  # Aggregate at ISCO 2-digit level
-  mutate(isco_2d_code = str_sub(isco_3d_code, 1,2)) %>%
-  # Exclude ISCO 2-digit codes ending in 0 (which are actually 1-digit codes)
-  filter(!is.na(isco_2d_code), !str_detect(isco_2d_code, "0$"), ) %>%
-  group_by(year, reglab, isco_2d_code) %>%
+  ) %>% 
+  group_by(year, NUTS_ID, isco_2d_code) %>%
   summarise(
     homework_index = (sum(homework_index*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
     n_obs = n(),
     .groups = "drop"
   ) %>% 
   left_join(labels_isco, by = c("isco_2d_code" = "code")) %>% 
-  arrange(isco_2d_code) %>% 
+  arrange(year, isco_2d_code) %>% 
   mutate(
     occupation_label = paste0(isco_2d_code, ": ", occupation),
     occupation_label = factor(occupation_label) %>% fct_inorder() %>% fct_rev()
   )
 
-occup_homework_freq
+map_homework_occup_region <- inner_join(map_nuts, occup_homework_freq, by = "NUTS_ID", multiple = "all") %>%
+  select(-id, -LEVL_CODE, -NUTS_NAME, -FID, -geo, -ends_with("_TYPE"))
 
-
+# Choropleth for ISCO 24
 map_homework_occup_region %>%
   filter(isco_2d_code == "24") %>% 
   filter(n_obs > 30) %>%
@@ -263,42 +248,4 @@ map_homework_occup_region %>%
   )
 
 ggsave("Figures/telework_isco24_countries.pdf", height = 8, width = 9)
-
-
-
-
-
-
-
-occup_homework_freq <- LFS %>%
-  # Exclude non-responses, missing, and armed forces
-  filter(!isco1d %in% "Non response", !is.na(isco1d), isco1d != "Armed forces") %>%
-  # Aggregate at ISCO 2-digit level
-  mutate(isco_2d_code = str_sub(isco_3d_code, 1,2)) %>%
-  # Exclude ISCO 2-digit codes ending in 0 (which are actually 1-digit codes)
-  filter(!is.na(isco_2d_code), !str_detect(isco_2d_code, "0$")) %>%
-  # Sanitise NUTS names %>% 
-  rename(NUTS_ID = reg) %>%
-  # Manually fix some NUTS codes for AT, DE, NL
-  mutate(
-    # Strip last 0 from AT and DE, which are not in the NUTS specs
-    NUTS_ID = str_replace_all(NUTS_ID, "(?<=AT\\d)0", ""),
-    NUTS_ID = str_replace_all(NUTS_ID, "(?<=DE.)0", ""),
-    NUTS_ID = str_replace_all(NUTS_ID, "NL00", "NL")
-  ) %>% 
-  group_by(year, NUTS_ID, isco_2d_code) %>%
-  summarise(
-    homework_index = (sum(homework_index*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
-    n_obs = n(),
-    .groups = "drop"
-  ) %>% 
-  left_join(labels_isco, by = c("isco_2d_code" = "code")) %>% 
-  arrange(isco_2d_code) %>% 
-  mutate(
-    occupation_label = paste0(isco_2d_code, ": ", occupation),
-    occupation_label = factor(occupation_label) %>% fct_inorder() %>% fct_rev()
-  )
-
-map_homework_occup_region <- inner_join(map_nuts, occup_homework_freq, by = "NUTS_ID", multiple = "all") %>%
-  select(-id, -LEVL_CODE, -NUTS_NAME, -FID, -geo, -ends_with("_TYPE"))
-
+ggsave("Figures/telework_isco24_countries.png", height = 8, width = 9, bg = "white")

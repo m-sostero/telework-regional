@@ -1,17 +1,9 @@
-# Load common packages
+# Load common packages and labels ----
 source("Code/0- Load packages.R")
 
 
 # Load LFS data, already encoded
 LFS <- read_feather("Data/LFS.feather")
-
-# Load ISCO-08 labels
-labels_isco <- read_tsv("Metadata/ISCO-08.txt") %>% 
-  mutate(occup_group = if_else(str_length(code) == 1, occupation, NA_character_)) %>% 
-  fill(occup_group, .direction = "down") %>% 
-  mutate(occup_group = factor(occup_group) %>% fct_inorder())
-
-write_rds(labels_isco, "Metadata/labels_isco.rds")
 
 
 # coeffy by country -------------------------------------------------------
@@ -19,24 +11,34 @@ write_rds(labels_isco, "Metadata/labels_isco.rds")
 #TODO: why coeffy missing (NL in 2021, FI, DK all years?)
 LFS %>%
   group_by(country, year) %>%
-  summarise(miss_weights = sum(is.na(coeffy)/n())*100 ) %>%
-  filter(miss_weights > 0.01) %>% 
+  summarise(miss_weights = sum(is.na(coeffy)/n())*100, .groups = "drop") %>%
+  filter(miss_weights > 1) %>% 
   pivot_wider(values_from = miss_weights, names_from = year, values_fill = 0) %>%
-  view("% missing weights") %>% 
-  xtable(.)
+  view("% missing weights")
+  # write_xlsx("Tables/LFS_missing_weights.xlsx")
+  # xtable(.)
   
 
 
 # Plot LFS respondents by country, over time ------------------------------
-LFS %>%
+LFS_respondents <- LFS %>%
   group_by(year, country) %>%
-  summarise(n_obs = n(), .groups = "drop") %>%
+  summarise(n_obs = n(), .groups = "drop") %>% 
+  left_join(labels_country, by = c("country" = "country_code"))
+
+LFS_respondents %>%
+  pivot_wider(names_from = year, values_from = n_obs) %>% 
+  view("LFS respondents")
+  # write_xlsx("Tables/LFS_respondents.xlsx")
+
+LFS_respondents %>%
   ggplot(aes(x = year, y = n_obs)) +
   geom_point() +
   geom_line() +
-  facet_geo(~country, grid = eu_grid) +
+  facet_geo(~ country, grid = eu_grid, label = "name") +
   # scale_y_continuous(labels = comma_format()) +
   scale_y_log10(labels = comma_format()) +
+  theme(panel.spacing = unit(1, "lines")) +
   labs(
     title = "Number of respondents to the LFS by country, over the years", 
     y = "Number of respondents (log scale)",
@@ -44,6 +46,7 @@ LFS %>%
   )
 
 ggsave("Figures/LFS_respondents_time.pdf", height = 8, width = 11)
+ggsave("Figures/LFS_respondents_time.png", height = 8, width = 11, bg = "white")
 
 
 # Tabulate degurba --------------------------------------------------------
@@ -58,7 +61,7 @@ LFS_pop_degurba <- LFS %>%
   pivot_wider(names_from = "degurba", values_from = "total") %>%
   adorn_percentages()
 
-# write_xlsx(LFS_pop_degurba, "Tables/LFS_pop_degurba.xlsx")
+# write_xlsx(LFS_pop_degurba, "Tables/LFS_population_degurba.xlsx")
 
 LFS_pop_degurba %>%
   adorn_pct_formatting() %>%
@@ -74,7 +77,7 @@ LFS %>%
     total = sum(coeffy, na.rm = T),
     .groups = "drop"
   )
-# write_xlsx("Tables/LFS_pop_urbur.xlsx")
+# write_xlsx("Tables/LFS_population_urbur.xlsx")
 
 
 # ISCO codes by country ---------------------------------------------------
@@ -82,7 +85,10 @@ LFS %>%
 # number of respondents by ISCO 3-digit
 LFS %>%
   count(isco_3d_code, country) %>% 
-  pivot_wider(names_from = country, values_from = n) %>% 
+  pivot_wider(names_from = country, values_from = n, names_sort = TRUE) %>% 
+  left_join(labels_isco, by = c("isco_3d_code" = "code")) %>% 
+  select(isco_3d_code, occupation, everything(), -occup_group) %>% 
+  # write_xlsx("Tables/LFS_respondents_ISCO3d.xlsx")
   view("ISCO 3-digit codes by country")
 
 # number of respondents by ISCO 2-digit
@@ -106,11 +112,11 @@ LFS %>%
   distinct(isco08_3d) %>%
   filter(str_length(isco08_3d) < 3) 
 
-# Those are armed forces (ISCO 0)
+# Those are armed forces (ISCO 0), they have been corrected in isco_3d_code
 LFS %>%
-  distinct(country, isco08_3d, .keep_all = TRUE) %>% 
+  distinct(country, isco08_3d, isco_3d_code, .keep_all = TRUE) %>% 
   filter(isco08_3d %in% c(0, 10, 11, 20, 30, 21, 31)) %>%
-  select(year, country, isco08_3d, isco2d, isco1d)
+  select(year, country, isco08_3d, isco_3d_code, isco2d, isco1d)
 
 
 
@@ -124,9 +130,11 @@ LFS %>%
     total = sum(coeffy, na.rm = T),
     .groups = "drop"
   ) %>%
-  pivot_wider(names_from = "country", values_from = "total") %>%
+  pivot_wider(names_from = "country", values_from = "total") %>% 
   adorn_percentages(denominator = "col") %>%
   adorn_pct_formatting()
+
+# write_xlsx("Tables/LFS_occup_ISCO3d.xlsx")
 
 
 # Plot occupational structure by country ----------------------------------
@@ -157,4 +165,5 @@ LFS_occup_structure <- LFS_country_occup %>%
   )
 
 ggsave("Figures/LFS_occup_structure.pdf", height = 8, width = 11)
+ggsave("Figures/LFS_occup_structure.png", height = 8, width = 11, bg = "white")
 

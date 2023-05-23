@@ -21,19 +21,28 @@ LFS <- LFS_raw %>%
   filter(`_merge` != 2) %>%
   filter(ilostat == "Employed") %>%
   select(-`_merge`, -ilostat) %>% 
-  # Encode homework index
+  # Encode homework index, using John's coefficients
   mutate(
     homework_index = case_when(
-      homework == "Person mainly works at home" ~ 1, 
-      homework == "Person sometimes works at home" ~ 0.5, 
+      homework == "Person mainly works at home" ~ 0.75, 
+      homework == "Person sometimes works at home" ~ 0.25, 
       homework == "Person never works at home"  ~ 0 
     )
   ) %>% 
   relocate(homework_index, .after = "homework") %>% 
   # Create isco_3d_code, a string version of isco08_3d, left-padded with zeroes to reach 3-digit
-  # Fixes problem with armed forces occupations, starting with 0
+  # Fixes problem with armed forces occupations, which start with 0
   mutate(isco_3d_code = str_pad(isco08_3d, width = 3, side = "left", pad = "0")) %>% 
-  relocate(isco_3d_code, .after = "isco08_3d") 
+  relocate(isco_3d_code, .after = "isco08_3d") %>% 
+  # Fix NUTS codes, some of which end with 0 where they shouldn't
+  mutate(
+    # Strip last 0 from AT and DE, which are not in the NUTS specs
+    reg = str_replace_all(reg, "(?<=AT\\d)0", ""),
+    reg = str_replace_all(reg, "(?<=DE.)0", ""),
+    # NL00 is just "NL"
+    reg = str_replace_all(reg, "NL00", "NL")
+  )
+  
 
 # Export LFS in fast binary format .feather
 write_feather(LFS, "Data/LFS.feather")
