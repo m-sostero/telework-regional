@@ -6,6 +6,7 @@ source("Code/0- Load packages.R")
 
 LFS <- read_feather("Data/LFS.feather") 
 
+
 # Telework index by degurba -----------------------------------------------
 
 hw_degurba <- LFS %>%
@@ -129,7 +130,7 @@ hw_degurba_freq <- LFS %>%
   left_join(labels_country, by = c("country" = "country_code"))
 
 
-# Ireland, share of employed population
+# Telework intensity by degurba, selected countries
 hw_degurba_freq %>%
   filter(country %in% selected_countries, !is.na(homework)) %>%
   mutate(year = factor(year), degurba = degurba %>% fct_rev()) %>%
@@ -149,7 +150,7 @@ ggsave("Figures/Telework_intensity_degurba_selected.pdf", height = 6, width = 9)
 ggsave("Figures/Telework_intensity_degurba_selected.png", height = 6, width = 9, bg = "white")
 
 
-# Ireland, number of people
+# Telework intensity by degurba in Ireland, number of people
 hw_degurba_freq %>% 
   filter(country == "IE", !is.na(homework)) %>% 
   mutate(year = factor(year), degurba = fct_rev(degurba)) %>% 
@@ -237,3 +238,49 @@ hw_urbrur %>%
 
 ggsave("Figures/Telework_urbrur_selected.pdf", height = 6, width = 9)
 ggsave("Figures/Telework_urbrur_selected.png", height = 6, width = 9, bg = "white")
+
+
+# Telework intensity by urbrur ----
+
+hw_urbrur_freq <- LFS %>%
+  mutate(urbrur = fct_rev(urbrur)) %>% 
+  group_by(year, country, urbrur, homework) %>% 
+  summarise(total = sum(coeffy, na.rm = TRUE), .groups = "drop") %>%
+  left_join(LFS_total, by = c("year", "country")) %>% 
+  mutate(
+    share = total / total_pop,
+    homework = fct_recode(homework, never = "Person never works at home", sometimes = "Person sometimes works at home", usually = "Person mainly works at home") %>% fct_rev()
+  ) %>% 
+  left_join(labels_country, by = c("country" = "country_code"))
+
+
+hw_degurba_freq <- LFS %>%
+  mutate(degurba = fct_rev(degurba)) %>% 
+  group_by(year, country, degurba, homework) %>% 
+  summarise(total = sum(coeffy, na.rm = TRUE), .groups = "drop") %>%
+  left_join(LFS_total, by = c("year", "country")) %>% 
+  mutate(
+    share = total / total_pop,
+    homework = fct_recode(homework, never = "Person never works at home", sometimes = "Person sometimes works at home", usually = "Person mainly works at home") %>% fct_rev()
+  ) %>% 
+  left_join(labels_country, by = c("country" = "country_code"))
+
+
+# Telework intensity by urbrur, selected countries
+hw_urbrur_freq %>%
+  filter(country %in% selected_countries, country != "NL", !is.na(homework)) %>%
+  mutate(year = factor(year), urbrur = urbrur %>% fct_rev()) %>%
+  ggplot(aes(x = year, y = share, group = homework, fill = homework)) +
+  geom_col(position = "stack") +
+  facet_grid(urbrur ~ country_name) +
+  scale_fill_brewer("Work at home", palette = "PuBu") +
+  scale_y_continuous(labels = percent_format()) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Rise in telework comes mostly from those doing so 'usually', rather than 'sometimes'",
+    subtitle = "Number of employed people by degree of urbanisation and frequency of work from home",
+    y = "Share of people employed\n(by country and year)"
+  )
+
+ggsave("Figures/Telework_intensity_urbrur_selected.pdf", height = 6, width = 9)
+ggsave("Figures/Telework_intensity_urbrur_selected.png", height = 6, width = 9, bg = "white")
