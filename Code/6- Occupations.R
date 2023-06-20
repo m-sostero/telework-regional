@@ -105,7 +105,7 @@ tw_hw_degurba %>%
   coord_equal() +
   guides(size = "none") +
   labs(
-    title = "Telework is reaching its potential",
+    title = "Ireland: telework is reaching its potential",
     subtitle = "Correlation between physical teleworkability and actual telework for ISCO 3-digit occupations",
     x = "Phyisical teleworkability index", y = "Actual telework"
   ) +
@@ -138,14 +138,15 @@ hw_occupation_freq %>%
     isco1d = fct_relabel(isco1d, ~str_wrap(., 30))
     ) %>% 
   ggplot(aes(x = year, y = total, group = homework, fill = homework)) +
-  geom_col(position = "fill") +
+  # geom_col(position = "fill") +
+  geom_col(position = "stack") +
   facet_wrap(~ isco1d, ncol = 3) +
+  # scale_y_continuous(labels = percent_format()) +
   scale_fill_brewer("Work at home", palette = "PuBu") +
-  scale_y_continuous(labels = percent_format()) +
   labs(
     title = "Ireland",
-    subtitle = "Teleworkability intensity, by occupation",
-    y = "Share of employees, by telework frequency"
+    subtitle = "Telework intensity, by occupation",
+    y = "Number of employees (thousands)\nby telework frequency"
   )
 
 ggsave("Figures/Telework_intensity_occup_ireland.pdf", height = 6, width = 9)
@@ -242,10 +243,10 @@ map_homework_occup_region %>%
   coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
   # theme(legend.position = "top") +
   labs(
-    title = "Telework index for ISCO 24: Business and Administration Professionals",
-    subtitle = "Average values of the homeworking index by region",
+    title = "Rates of telework vary across EU regions, even for the same occupation, and the gap increased over time",
+    subtitle = "NUTS-1 average of the homeworking index for ISCO 24: Business and Administration Professionals",
     caption = "Telework index constructed from LFS;\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
   )
 
-ggsave("Figures/telework_isco24_countries.pdf", height = 8, width = 9)
-ggsave("Figures/telework_isco24_countries.png", height = 8, width = 9, bg = "white")
+ggsave("Figures/Telework_isco24_countries.pdf", height = 8, width = 9)
+ggsave("Figures/Telework_isco24_countries.png", height = 8, width = 9, bg = "white")
