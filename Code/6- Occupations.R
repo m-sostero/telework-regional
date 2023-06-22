@@ -2,21 +2,26 @@
 source("Code/0- Load packages.R")
 
 
-# Occupational teleworkability statistics ---------------------------------------
-
+# Import data ----
 LFS <- read_feather("Data/LFS.feather") 
 
+map_nuts <- read_rds("Data/map_nuts.rds")
+
+# Occupational teleworking indices
 teleworkability <- read_dta("Data/Teleworkability indices.dta") %>%
   mutate(
     isco_3d_code = as.character(isco08_3d),
     physicalinteraction = physicalinteraction/1000
   )
 
+# Occupation-level aggregates
 occupational_variables <- read_dta("Data/occup.dta") %>%
   as_factor() %>%
   arrange(country, year, isco08_3d)
 
-map_nuts <- read_rds("Data/map_nuts.rds")
+
+
+# Telework(ability) by degurba --------------------------------------------
 
 tw_hw_degurba <- LFS %>%
   left_join(teleworkability, by = "isco_3d_code") %>% 
@@ -29,8 +34,9 @@ tw_hw_degurba <- LFS %>%
     .groups = "drop"
   ) 
 
-plot_tw_hw_degurba <- tw_hw_degurba %>%  
+tw_hw_degurba %>%  
   ggplot(aes(x = teleworkability, y = homework_index, size = coeffy, label = reglab)) +
+  geom_point( shape = 1) +
   geom_point(aes(color = degurba), shape = 1) +
   geom_smooth(method = lm) +
   scale_size_area() +
@@ -46,12 +52,41 @@ plot_tw_hw_degurba <- tw_hw_degurba %>%
     x = "Phyisical teleworkability index", y = "Homeworking index"
   )
 
-plot_tw_hw_degurba
-
 ggsave("Figures/Correlation_teleworkability_telework_degurba.pdf", height = 6, width = 9)
 ggsave("Figures/Correlation_teleworkability_telework_degurba.png", height = 6, width = 9, bg = "white")
 
-ggplotly(plot_tw_hw_degurba)
+
+# Telework(ability) by employment status ----------------------------------
+
+tw_hw_stapro <- LFS %>%
+  left_join(teleworkability, by = "isco_3d_code") %>% 
+  group_by(year, country, reglab, stapro) %>% 
+  summarise(
+    homework_index = (sum(homework_index*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
+    teleworkability = (sum(physicalinteraction*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
+    coeffy = sum(coeffy, na.rm = TRUE),
+    n_obs = n(),
+    .groups = "drop"
+  ) 
+
+tw_hw_stapro %>%  
+  ggplot(aes(x = teleworkability, y = homework_index, group = stapro, color = stapro)) +
+  geom_point(aes(size = coeffy), shape = 1, alpha = 0.5) +
+  geom_smooth(method = lm) +
+  scale_size_area() +
+  facet_grid(~ year) +
+  scale_color_brewer("Employment status", palette = "Set1") +
+  coord_equal() +
+  guides(size = "none") +
+  theme(panel.spacing = unit(1, "lines")) +
+  labs(
+    title = "Telework for employees is cathing up with the self-employed",
+    subtitle = "Correlation between physical teleworkability and actual telework for NUTS-2 regions",
+    x = "Phyisical teleworkability index", y = "Homeworking index"
+  )
+
+ggsave("Figures/Correlation_teleworkability_telework_stapro.pdf", height = 4, width = 9)
+ggsave("Figures/Correlation_teleworkability_telework_stapro.png", height = 4, width = 9, bg = "white")
   
 
 

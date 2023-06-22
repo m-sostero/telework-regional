@@ -21,6 +21,7 @@ LFS %>%
 
 
 # Plot LFS respondents by country, over time ------------------------------
+
 LFS_respondents <- LFS %>%
   group_by(year, country) %>%
   summarise(n_obs = n(), .groups = "drop") %>% 
@@ -49,13 +50,35 @@ ggsave("Figures/LFS_respondents_time.pdf", height = 8, width = 11)
 ggsave("Figures/LFS_respondents_time.png", height = 8, width = 11, bg = "white")
 
 
+
+# Employees vs self-employed ----------------------------------------------
+
+LFS %>% 
+  group_by(country, year, stapro) %>%
+  summarise(total = sum(coeffy, na.rm = TRUE)) %>% 
+  ggplot(aes(x = year, y = total, fill = stapro)) +
+  geom_col() +
+  scale_fill_discrete("Professional status") +
+  facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
+  theme(panel.spacing = unit(1, "lines")) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Employees and self-employed by country, over the years", 
+    y = "Number of people",
+    x = NULL
+  )
+
+ggsave("Figures/LFS_stapro_eu.pdf", height = 8, width = 11)
+ggsave("Figures/LFS_stapro_eu.png", height = 8, width = 11, bg = "white")
+
+
 # Tabulate degurba --------------------------------------------------------
 # share of population living in cities, towns, or rural areas
 
 LFS_pop_degurba <- LFS %>%
   group_by(reglab, degurba) %>%
   summarise(
-    total = sum(coeffy, na.rm = T),
+    total = sum(coeffy, na.rm = TRUE),
     .groups = "drop"
   ) %>%
   pivot_wider(names_from = "degurba", values_from = "total") %>%
@@ -159,9 +182,9 @@ LFS_occup_structure <- LFS_country_occup %>%
   scale_y_continuous(labels = percent_format()) +
   labs(
     title = "Occupational structure of EU countries",
-    subtitle = "Share of employed population in ISCO 1-digit occupation groups",
-    y = "Share of total employed population",
-    caption = "Source: EU-LFS"
+    subtitle = "Share of working population in ISCO 1-digit occupation groups (employed and self-employed)",
+    y = "Share of total working population",
+    caption = "Source: EU-LFS."
   )
 
 ggsave("Figures/LFS_occup_structure.pdf", height = 8, width = 11)

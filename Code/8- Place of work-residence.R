@@ -82,7 +82,7 @@ view(work_region)
 write_xlsx(work_region, "Tables/LFS_work_in_region.xlsx")
 
 
-# Telework by place of work vs residence ----------------------------------
+# Workers by place of work vs residence ----------------------------------
 
 # code work_location as the region or country of work vs residence
 LFS <- LFS %>% 
@@ -90,11 +90,16 @@ LFS <- LFS %>%
     work_location = case_when(
       # region of residence is the same as the region of residence (or includes it, in case the granularity of reg < regw)
       str_detect(regw, paste0("^", reg)) ~ "Region of residence",
+      # Work in own MS, but different region than residence
       ctryw == "Work in own MS" & !str_detect(regw, paste0("^", reg)) ~ "Other region in country of residence",
+      # Work in another MS
       ctryw %in% c("Work in another EU MS or UK", "Work in EEA", "Work in other European country", "Work in ROW", "Work in another country") ~ "Other country",
+      # Missing region/country of residence, or no reply
       is.na(regw) | is.na(ctryw) | ctryw == "Not stated" ~ "Not stated"
     ) %>% factor(levels = c("Region of residence", "Other region in country of residence", "Other country", "Not stated"))
   )
+
+write_feather(LFS, "Data/LFS.feather")
 
 # Summary statistics of place of work
 work_location <- LFS %>%
@@ -142,7 +147,7 @@ hw_location <- LFS %>%
   filter(work_location != "Not stated") %>%
   group_by(year, country, work_location) %>% 
   summarise(
-    homework_index = (sum(homework_index*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)), 
+    homework_index = (sum(homework_index*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
     n_obs = n(),
     population = sum(coeffy, na.rm = TRUE),
     .groups = "drop"
@@ -153,9 +158,10 @@ hw_location <- LFS %>%
 hw_location %>% 
   mutate(year = factor(year)) %>% 
   ggplot(aes(x = year, y = homework_index, group = work_location, color = work_location)) +
-  geom_point() + geom_line() +
+  geom_point(aes(size = population)) + geom_line() +
   facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") + 
   scale_color_brewer("Place of work", palette = "Set1", direction = -1) +
+  scale_size_area("Number of people") + #, trans = "log10", breaks = c(10^c(1:5))) +
   # guides(color = guide_legend(reverse = TRUE)) +
   scale_y_continuous(labels = percent_format()) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust  = 1)) +
@@ -176,21 +182,15 @@ ggsave("Figures/Telework_residence_eu.png", height = 8, width = 13, bg = "white"
 # Are any values of `reg` (region of residence) not valid NUTS codes?
 LFS %>% 
   count(reg) %>%
-  anti_join(map_nuts, by = c("reg" = "NUTS_ID"))
+  anti_join(labels_nuts, by = c("reg" = "NUTS_ID"))
 
 # Are any values of `reg` (region of work) not valid NUTS codes?
 LFS %>% 
   count(regw) %>%
-  anti_join(map_nuts, by = c("regw" = "NUTS_ID")) %>% 
+  anti_join(labels_nuts, by = c("regw" = "NUTS_ID")) %>% 
   view()
 # Yes, many country codes + 00
 
-# How many cases of work outside their region of residence?
-LFS %>% 
-  count(reg, regw) %>% 
-  filter(reg != regw) %>% 
-  arrange(desc(n)) %>% 
-  view()
 
 #TODO: Ask John if region_2d (residence) is indeed the original variable (not always at 2-digit)
 # region_2dw is more often observed at 2-digits
@@ -200,13 +200,13 @@ LFS %>%
   view()
 
 LFS %>% 
-  count(country, region_2d, region_2dw) %>%
+  count(country, reg, region_2d, regw, region_2dw) %>%
   arrange(country, desc(n)) %>% 
   view()
 
 # In many cases, reg is 1-digit and regw is 2-digit,
 # so we check whether the string of regw starts with that of reg
-reg_residence_work <- LFS %>% 
+LFS %>% 
   count(country, reg, regw) %>% 
   mutate(
     reg_residence_work = if_else(str_detect(regw, paste0("^", reg)), TRUE, FALSE)

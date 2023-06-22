@@ -19,7 +19,8 @@ LFS <- LFS_raw %>%
   mutate(stapro = fct_recode(stapro, Employed = "£mployed")) %>%
   # Remove redundant observations created by previous merge in STATA, and delete `merge` variable itself
   filter(`_merge` != 2) %>%
-  filter(ilostat == "Employed") %>%
+  # Include only employees and self-employed (exclude Family workers and a few NAs)
+  filter(stapro %in% c("Employed", "Self-employed")) %>%
   select(-`_merge`, -ilostat) %>% 
   # Encode homework index, using John's coefficients
   mutate(
