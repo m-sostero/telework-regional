@@ -2,10 +2,17 @@
 source("Code/0- Load packages.R")
 
 
-# Load LFS, regional telework data, and NUTS maps -------------------------
+# Load data -------------------------
 
+# Labour Force Survey microdata, cleaned
 LFS <- read_feather("Data/LFS.feather") 
 
+# Occupational teleworking indices
+teleworkability <- read_dta("Data/Teleworkability indices.dta") %>%
+  mutate(
+    isco_3d_code = as.character(isco08_3d),
+    physicalinteraction = physicalinteraction/1000
+  )
 
 # Telework index by degurba -----------------------------------------------
 
@@ -25,8 +32,8 @@ hw_degurba %>%
   select(year, country, country_name, degurba, homework_index) %>% 
   pivot_wider(names_from = degurba, values_from = homework_index) %>% 
   mutate(across(`Rural areas`:Cities, ~ round(.*100, 1))) %>% 
-  view("Telework by degurba, weighted")
-  # write_xlsx("Tables/LFS_telework_degurba.xlsx")
+  # view("Telework by degurba, weighted")
+  write_xlsx("Tables/LFS_telework_degurba.xlsx")
 
 
 # Geofacet, grouped by degurba
@@ -112,7 +119,7 @@ ggsave("Figures/Telework_changes_degurba.pdf", height = 6, width = 9)
 ggsave("Figures/Telework_changes_degurba.png", height = 6, width = 9, bg = "white")
 
 
-# Frequency of telework by degurba -----------------------------
+# Telework intensity by degurba -----------------------------
 
 LFS_total <- LFS %>%
   group_by(year, country) %>% 
@@ -130,7 +137,7 @@ hw_degurba_freq <- LFS %>%
   left_join(labels_country, by = c("country" = "country_code"))
 
 
-# Telework intensity by degurba, selected countries
+# Telework intensity by degurba, selected countries -----
 hw_degurba_freq %>%
   filter(country %in% selected_countries, !is.na(homework)) %>%
   mutate(year = factor(year), degurba = degurba %>% fct_rev()) %>%
@@ -150,7 +157,7 @@ ggsave("Figures/Telework_intensity_degurba_selected.pdf", height = 6, width = 9)
 ggsave("Figures/Telework_intensity_degurba_selected.png", height = 6, width = 9, bg = "white")
 
 
-# Telework intensity by degurba in Ireland, number of people
+# Telework intensity by degurba in Ireland, number of people ----
 hw_degurba_freq %>% 
   filter(country == "IE", !is.na(homework)) %>% 
   mutate(year = factor(year), degurba = fct_rev(degurba)) %>% 
@@ -169,7 +176,7 @@ ggsave("Figures/Telework_intensity_degurba_ireland.pdf", height = 6, width = 9)
 ggsave("Figures/Telework_intensity_degurba_ireland.png", height = 6, width = 9, bg = "white")
 
 
-# Homework index by urbrur ----
+# Telework index by urbrur ----
 
 hw_urbrur <- LFS %>%  
   mutate(urbrur = replace_na(urbrur, "Regions undifferentiated") %>% fct_rev()) %>% 
@@ -284,3 +291,39 @@ hw_urbrur_freq %>%
 
 ggsave("Figures/Telework_intensity_urbrur_selected.pdf", height = 6, width = 9)
 ggsave("Figures/Telework_intensity_urbrur_selected.png", height = 6, width = 9, bg = "white")
+
+
+# Telework(ability) by degurba --------------------------------------------
+
+tw_hw_degurba <- LFS %>%
+  left_join(teleworkability, by = "isco_3d_code") %>% 
+  group_by(year, country, reglab, degurba) %>% 
+  summarise(
+    homework_index = (sum(homework_index*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
+    teleworkability = (sum(physicalinteraction*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
+    coeffy = sum(coeffy, na.rm = TRUE),
+    n_obs = n(),
+    .groups = "drop"
+  ) 
+
+tw_hw_degurba %>%  
+  ggplot(aes(x = teleworkability, y = homework_index, size = coeffy, label = reglab)) +
+  geom_point( shape = 1) +
+  geom_point(aes(color = degurba), shape = 1) +
+  geom_smooth(method = lm) +
+  scale_size_area() +
+  facet_grid(degurba ~ year) +
+  scale_color_brewer("Degree of urbanisation", palette = "Set2", guide = "none") +
+  coord_equal() +
+  guides(size = "none") +
+  theme(panel.spacing = unit(1, "lines")) +
+  # theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  labs(
+    title = "Increasing correlation between teleworkability and homeworking, similar across location types",
+    subtitle = "Correlation between physical teleworkability and actual telework for EU27 NUTS-2 regions",
+    x = "Phyisical teleworkability index", y = "Homeworking index"
+  )
+
+ggsave("Figures/Correlation_teleworkability_telework_degurba.pdf", height = 6, width = 9)
+ggsave("Figures/Correlation_teleworkability_telework_degurba.png", height = 6, width = 9, bg = "white")
+

@@ -1,7 +1,7 @@
 # Load common packages and labels ----
 source("Code/0- Load packages.R")
 
-library("lfe")
+library("fixest")
 
 # Load data ---------------------------------------------------------------
 
@@ -25,11 +25,34 @@ LFS %>%
   anti_join(occupational_variables, by = "isco_3d_code") 
 # Mostly armed forces, plus rare elementary occupation (950); overall, ok
 
+# Create LFS table for regression ---------------------------
 
 LFS_regression <- LFS %>% 
   # Exclude BG, MT, SI, because they report ISCO at 1-digit level
   filter(!country %in% c("BG", "MT", "SI")) %>% 
-  left_join(occupational_variables, by = "isco_3d_code")
+  # Add telework values for occupations
+  left_join(occupational_variables, by = "isco_3d_code") %>% 
+  # Define homework_any for people working from home at least some of the time
+  mutate(homework_any = if_else(homework_index > 0, 1, 0)) %>%
+  relocate(homework_any, .after = homework_index)
 
+# Export in R .feather format
+write_feather(LFS_regression, "Data/LFS_regression.feather")
+
+# Export in Stata .dta format
 write_dta(LFS_regression, "Data/LFS_regression.dta")
+
+
+# Regressions -------------------------------------------------------------
+
+feols(homework_index ~ physicalinteraction, data =  LFS_regression)
+
+feols(homework_index ~ physicalinteraction | csw0(country, year), data =  LFS_regression) %>% etable()
+
+feols(homework_any ~ physicalinteraction | csw0(country, year), data =  LFS_regression) %>% etable()
+
+
+
+
+
 

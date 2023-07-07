@@ -2,25 +2,12 @@
 source("Code/0- Load packages.R")
 
 
-# Load LFS data, already encoded
+# Load data ---------------------------------------------------------------
+
+# Load LFS data, encoded
 LFS <- read_feather("Data/LFS.feather")
 
-
-# coeffy by country -------------------------------------------------------
-
-#TODO: why coeffy missing (NL in 2021, FI, DK all years?)
-LFS %>%
-  group_by(country, year) %>%
-  summarise(miss_weights = sum(is.na(coeffy)/n())*100, .groups = "drop") %>%
-  filter(miss_weights > 1) %>% 
-  pivot_wider(values_from = miss_weights, names_from = year, values_fill = 0) %>%
-  view("% missing weights")
-  # write_xlsx("Tables/LFS_missing_weights.xlsx")
-  # xtable(.)
-  
-
-
-# Plot LFS respondents by country, over time ------------------------------
+# LFS respondents by country, over time ------------------------------
 
 LFS_respondents <- LFS %>%
   group_by(year, country) %>%
@@ -50,6 +37,18 @@ ggsave("Figures/LFS_respondents_time.pdf", height = 8, width = 11)
 ggsave("Figures/LFS_respondents_time.png", height = 8, width = 11, bg = "white")
 
 
+# missing population weights (coeffy) by country --------------------------
+
+#TODO: why coeffy missing (NL in 2021, FI, DK all years?)
+LFS %>%
+  group_by(country, year) %>%
+  summarise(miss_weights = sum(is.na(coeffy)/n())*100, .groups = "drop") %>%
+  filter(miss_weights > 1) %>% 
+  pivot_wider(values_from = miss_weights, names_from = year, values_fill = 0) %>%
+  view("% missing weights")
+# write_xlsx("Tables/LFS_missing_weights.xlsx")
+# xtable(.)
+
 
 # Employees vs self-employed ----------------------------------------------
 
@@ -72,7 +71,7 @@ ggsave("Figures/LFS_stapro_eu.pdf", height = 8, width = 11)
 ggsave("Figures/LFS_stapro_eu.png", height = 8, width = 11, bg = "white")
 
 
-# Tabulate degurba --------------------------------------------------------
+# degurba --------------------------------------------------------
 # share of population living in cities, towns, or rural areas
 
 LFS_pop_degurba <- LFS %>%
@@ -91,7 +90,7 @@ LFS_pop_degurba %>%
   view("degurba by NUTS-2")
 
 
-# Tabulate urbrur ---------------------------------------------------------
+# urbrur ---------------------------------------------------------
 # Total population by NUTS-2, with prevailing urban-rural region type
 
 LFS %>%
@@ -164,7 +163,7 @@ LFS %>%
 
 LFS_country_occup <- LFS %>%
   filter(year == 2021) %>%
-  filter( !isco1d %in% "Non response", !is.na(isco1d)) %>%
+  filter(!isco1d %in% "Non response", !is.na(isco1d)) %>%
   group_by(country, isco1d) %>%
   summarise(
     total = sum(coeffy, na.rm = T),
@@ -175,14 +174,14 @@ LFS_country_occup <- LFS %>%
     share = total / country_total
   )
 
-LFS_occup_structure <- LFS_country_occup %>%
+LFS_country_occup %>%
   ggplot(aes(x = country, y = share, fill = isco1d)) +
   geom_col() +
   scale_fill_brewer("Occupation (ISCO 2008, 1-digit)", palette = "Paired") +
   scale_y_continuous(labels = percent_format()) +
   labs(
     title = "Occupational structure of EU countries",
-    subtitle = "Share of working population in ISCO 1-digit occupation groups (employed and self-employed)",
+    subtitle = "Share of working population in ISCO 1-digit occupation groups (employees and self-employed)",
     y = "Share of total working population",
     caption = "Source: EU-LFS."
   )

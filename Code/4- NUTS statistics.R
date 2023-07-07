@@ -2,16 +2,16 @@
 source("Code/0- Load packages.R")
 
 
-# Load LFS, regional telework data, and NUTS maps -------------------------
+# Load data ---------------------------------------------------------------
 
+# Labour Force Survey microdata, cleaned
 LFS <- read_feather("Data/LFS.feather") 
 
+# Maps for NUTS regions
 map_nuts <- read_rds("Data/map_nuts.rds")
 
 
-
 # Telework by region ------------------------------------------------------
-
 
 # Are NUTS codes from `reg` found in the maps?
 LFS %>%

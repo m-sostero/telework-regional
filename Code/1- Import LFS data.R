@@ -11,18 +11,19 @@ LFS <- LFS_raw %>%
     across(where(is.numeric), ~ na_if(., 999)),
     across(where(is.character), ~ na_if(., "99")),
     across(where(is.character), ~ na_if(., "999")),
+    across(where(is.character), ~ na_if(., "")),
     absreas = na_if(absreas, 99)
   ) %>%
   # Encode categorical variables from STATA as factors in R
   as_factor() %>%
   # Correct typo in stapro levels
-  mutate(stapro = fct_recode(stapro, Employed = "£mployed")) %>%
-  # Remove redundant observations created by previous merge in STATA, and delete `merge` variable itself
+  mutate(stapro = fct_recode(stapro, Employee = "£mployed")) %>%
+  # Remove redundant observations created by previous merge in STATA
   filter(`_merge` != 2) %>%
-  # Include only employees and self-employed (exclude Family workers and a few NAs)
-  filter(stapro %in% c("Employed", "Self-employed")) %>%
-  select(-`_merge`, -ilostat) %>% 
-  # Encode homework index, using John's coefficients
+  # Include only employees and self-employed (exclude "Family workers" and a few NAs)
+  filter(stapro %in% c("Employee", "Self-employed")) %>%
+  select(-`_merge`) %>% 
+  # Encode homework index, using agreed-upon coefficients
   mutate(
     homework_index = case_when(
       homework == "Person mainly works at home" ~ 0.75, 
@@ -32,7 +33,7 @@ LFS <- LFS_raw %>%
   ) %>% 
   relocate(homework_index, .after = "homework") %>% 
   # Create isco_3d_code, a string version of isco08_3d, left-padded with zeroes to reach 3-digit
-  # Fixes problem with armed forces occupations, which start with 0
+  # This fixes problem with armed forces occupations, which start with 0
   mutate(isco_3d_code = str_pad(isco08_3d, width = 3, side = "left", pad = "0")) %>% 
   relocate(isco_3d_code, .after = "isco08_3d") %>% 
   # Fix NUTS codes, some of which end with 0 where they shouldn't
