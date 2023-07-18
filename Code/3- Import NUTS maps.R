@@ -1,12 +1,5 @@
-library("tidyverse") # collection of packages for working with data
-
-library("eurostat") # Get data and maps from Eurostat API
-library("geofacet") # Arrange plot facets according to (EU) map position
-
-# EU country names and codes from geofacet library ----
-labels_country <- geofacet::eu_grid1 %>%
-  as_tibble() %>%
-  select(country_name = name, country_id = code)
+# Load common packages and labels ----
+load("Code/0- Load packages.R")
 
 # Load maps in SF format from Eurostat, at NUTS-1,2,3 resolution ----
 
@@ -59,4 +52,4 @@ estat_map_nuts2_2016 <- get_eurostat_geospatial(
 
 map_nuts <- bind_rows(estat_map_nuts0, estat_map_nuts1, estat_map_nuts2, estat_map_nuts2_2016)
 
-write_rds(map_nuts, "../Data/map_nuts.rds")
+write_rds(map_nuts, "Data/map_nuts.rds")
