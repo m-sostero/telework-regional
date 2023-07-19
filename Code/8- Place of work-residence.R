@@ -15,74 +15,7 @@ labels_nuts <- read_rds("Data/map_nuts.rds") %>%
   select(-geometry) %>% 
   distinct(NUTS_ID, .keep_all = TRUE)
 
-
-# Country of residence vs work ---------------------------------
-
-# Reclassify `ctryw` (country of work) as "Own country", "Abroad", NA
-LFS <- LFS %>% 
-  mutate(work_abroad = case_when(
-    ctryw == "Work in own MS" ~ "Own country",
-    ctryw %in% c("Work in another EU MS or UK", "Work in EEA", "Work in other European country", "Work in ROW", "Work in another country") ~ "Abroad",
-    ctryw %in% c("Not stated", "Not applicable") | is.na(ctryw) ~ NA_character_
-  ) %>% factor(levels = c("Own country", "Abroad"))
-  )
-
-# Share of people working abroad, by country ----
-
-work_country <- LFS %>%
-  group_by(year, country, work_abroad) %>% 
-  summarise(
-    n_people = sum(coeffy, na.rm = TRUE), .groups = "drop",
-    n_obs = n()
-    ) %>% 
-  complete(year, country, work_abroad, fill = list(n_people = 0, n_obs = 0))
-
-# Plot share of people working abroad
-work_country %>% 
-  group_by(year, country) %>%
-  mutate(share_people = n_people/sum(n_people)) %>%
-  ungroup() %>%
-  filter(work_abroad == "Abroad") %>% 
-  mutate(year = factor(year)) %>% 
-  ggplot(aes(x = year, y = share_people, group = country)) +
-  geom_point(aes(size = n_obs)) + geom_line() +
-  facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
-  scale_y_continuous(labels = percent_format()) +
-  scale_size_area("Number of respondents", breaks = c(100, 500, 1000, 2000, 3000)) +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust  = 1)) +
-  labs(
-    title = "?",
-    subtitle = "Share of employed people working abroad, by country, over time",
-    x = "Year",
-    y = "Share of employed people working abroad",
-    source = "EU Labour Force Survey,\nown elaboration"
-  )
-
-ggsave("Figures/LFS_work_abroad_eu.pdf", height = 8, width = 13)
-ggsave("Figures/LFS_work_abroad_eu.png", height = 8, width = 13, bg = "white")
-
-# Count observations for people working abroad
-work_country %>% 
-  select(-n_people) %>% 
-  pivot_wider(names_from = work_abroad, values_from = n_obs) 
-
-
-# Region of work vs residence ---------------------------------------------
-
-# Encode variable if  region of residence is the same as the region of residence
-# (or includes it, in case the granularity of reg < regw)
-work_region <- LFS %>% 
-  mutate(work_in_region = if_else(str_detect(regw, paste0("^", reg)), TRUE, FALSE)) %>% 
-  count(country, reg, regw, work_in_region) %>% 
-  arrange(country, desc(n)) %>% 
-  rename(n_obs = n)
-
-view(work_region)
-
-write_xlsx(work_region, "Tables/LFS_work_in_region.xlsx")
-
-
-# Workers by place of work vs residence ----------------------------------
+# work_location: place of work vs residence ----------------------------------
 
 # code work_location as the region or country of work vs residence
 LFS <- LFS %>% 
@@ -99,9 +32,11 @@ LFS <- LFS %>%
     ) %>% factor(levels = c("Region of residence", "Other region in country of residence", "Other country", "Not stated"))
   )
 
+# Export data
 write_feather(LFS, "Data/LFS.feather")
 
-# Summary statistics of place of work
+
+# Summary statistics of place of work -----------------------------------------
 work_location <- LFS %>%
   group_by(year, country, work_location) %>% 
   summarise(
@@ -141,6 +76,21 @@ ggsave("Figures/LFS_residence_work_eu.pdf", height = 8, width = 13)
 ggsave("Figures/LFS_residence_work_eu.png", height = 8, width = 13, bg = "white")
 
 
+# Region of work vs residence ---------------------------------------------
+
+# Encode variable if  region of residence is the same as the region of residence
+# (or includes it, in case the granularity of reg < regw)
+work_region <- LFS %>% 
+  mutate(work_in_region = if_else(str_detect(regw, paste0("^", reg)), TRUE, FALSE)) %>% 
+  count(country, reg, regw, work_in_region) %>% 
+  arrange(country, desc(n)) %>% 
+  rename(n_obs = n)
+
+view(work_region)
+
+write_xlsx(work_region, "Tables/LFS_work_in_region.xlsx")
+
+
 # Telework by location of work (region or country of work vs residence) ----
 
 hw_location <- LFS %>% 
@@ -175,6 +125,59 @@ hw_location %>%
 
 ggsave("Figures/Telework_residence_eu.pdf", height = 8, width = 13)
 ggsave("Figures/Telework_residence_eu.png", height = 8, width = 13, bg = "white")
+
+
+
+# Country of residence vs work ---------------------------------
+
+# Reclassify `ctryw` (country of work) as "Own country", "Abroad", NA
+LFS <- LFS %>% 
+  mutate(work_abroad = case_when(
+    ctryw == "Work in own MS" ~ "Own country",
+    ctryw %in% c("Work in another EU MS or UK", "Work in EEA", "Work in other European country", "Work in ROW", "Work in another country") ~ "Abroad",
+    ctryw %in% c("Not stated", "Not applicable") | is.na(ctryw) ~ NA_character_
+  ) %>% factor(levels = c("Own country", "Abroad"))
+  )
+
+# Share of people working abroad, by country ----
+
+work_country <- LFS %>%
+  group_by(year, country, work_abroad) %>% 
+  summarise(
+    n_people = sum(coeffy, na.rm = TRUE), .groups = "drop",
+    n_obs = n()
+  ) %>% 
+  complete(year, country, work_abroad, fill = list(n_people = 0, n_obs = 0))
+
+# Plot share of people working abroad
+work_country %>% 
+  group_by(year, country) %>%
+  mutate(share_people = n_people/sum(n_people)) %>%
+  ungroup() %>%
+  filter(work_abroad == "Abroad") %>% 
+  mutate(year = factor(year)) %>% 
+  ggplot(aes(x = year, y = share_people, group = country)) +
+  geom_point(aes(size = n_obs)) + geom_line() +
+  facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
+  scale_y_continuous(labels = percent_format()) +
+  scale_size_area("Number of respondents", breaks = c(100, 500, 1000, 2000, 3000)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust  = 1)) +
+  labs(
+    title = "?",
+    subtitle = "Share of employed people working abroad, by country, over time",
+    x = "Year",
+    y = "Share of employed people working abroad",
+    source = "EU Labour Force Survey,\nown elaboration"
+  )
+
+ggsave("Figures/LFS_work_abroad_eu.pdf", height = 8, width = 13)
+ggsave("Figures/LFS_work_abroad_eu.png", height = 8, width = 13, bg = "white")
+
+# Count observations for people working abroad
+work_country %>% 
+  select(-n_people) %>% 
+  pivot_wider(names_from = work_abroad, values_from = n_obs) 
+
 
 
 # Check NUTS codes for `reg`, `regw`, `region_2d` ------------------------------
