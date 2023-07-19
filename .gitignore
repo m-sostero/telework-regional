@@ -2,6 +2,9 @@
 # Large binary data files
 Data/*
 
+# Shadow files
+._* 
+
 ### R ###
 
 # History files
