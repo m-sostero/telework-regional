@@ -47,7 +47,7 @@ LFS <- LFS_raw %>%
   
 
 # Export LFS in fast binary format .feather
-write_feather(LFS, "/Data/LFS.feather")
+write_feather(LFS, "Data/LFS.feather")
 
 rm(LFS_raw)
 gc()

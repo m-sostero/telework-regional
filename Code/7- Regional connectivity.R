@@ -9,52 +9,38 @@ library("leaflet.extras2") # Extra utilities to combine interactive maps
 # Load Eurostat maps
 map_nuts <- read_rds("Data/map_nuts.rds")
 
-# Regional connectivity statistics ----------------------------------------
+# Import Eurostat statistics on share of households with internet access by NUTS regions
+nuts_broadband <- read_tsv("Data/isoc_r_broad_h_page_tabular.tsv", na = ":") %>% 
+  separate(`freq,unit,geo\\TIME_PERIOD`, into = c("freq", "unit", "NUTS_ID"), sep = ",") %>% 
+  select(NUTS_ID, `2017`:`2021`) %>% 
+  # Reshape in "long" format, to join by NUTS x year later 
+  pivot_longer(
+    cols = `2017`:`2021`,
+    names_to = "year", values_to = "broadband_shh"
+    ) %>% 
+  mutate(year = as.numeric(year), broadband_shh = as.numeric(broadband_shh)) %>% 
+  # Fill missing values during the years with previous values for the same region
+  group_by(NUTS_ID) %>% 
+  fill(broadband_shh, .direction = "downup") %>% 
+  ungroup()
 
-# EU regional QOG dataset, contains stats on internet access by region
-quog_eureg <- read_csv("Data/qog_eureg_wide2_nov20.csv")
+write_rds(nuts_broadband, "Data/nuts_broadband.rds")
 
-# IACC is internet access by region
-quog_eureg %>% select(region_code, region_name, year, contains("iacc"))
+# Plot regional connectivity statistics ----------------------------------------
 
-nuts2_internet <- quog_eureg %>%
-  select(region_code, region_name, year, eu_is_iacc_nuts2, eu_is_bacc_nuts2) %>%
-  filter(year == 2019)
-
-left_join(map_nuts, nuts2_internet, by = c("NUTS_ID" = "region_code")) %>%
-  # Apply quantile transformation here mutate()
-  ggplot(aes(fill = eu_is_iacc_nuts2)) +
+nuts_broadband %>% 
+  filter(year >= 2018) %>% 
+  inner_join(map_nuts, ., by = "NUTS_ID", relationship = "many-to-many") %>%
+  ggplot(aes(fill = broadband_shh)) +
   geom_sf() +
+  facet_wrap(~ year, ncol = 2) +
   scale_fill_fermenter("% households", palette = "Blues", direction = 1, na.value = "grey80") +
   coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
   labs(
     title = "Share of households with internet access",
     subtitle = "By NUTS-2 region, in 2019",
-    caption = "QoG EU Regional dataset, variable eu_is_iacc_nuts2"
+    caption = "QoG EU Regional dataset, variable isoc_r_broad_h"
   )
 
-ggsave("Figures/nuts_internet_2019.pdf", width = 12, height = 10, units = "cm") # bg = "white")
+ggsave("Figures/nuts_broadband_2019.pdf", width = 12, height = 10, units = "cm") # bg = "white")
 
-left_join(map_nuts, nuts2_internet, by = c("NUTS_ID" = "region_code")) %>%
-  # Apply quantile transformation here mutate()
-  ggplot(aes(fill = eu_is_bacc_nuts2)) +
-  geom_sf() +
-  scale_fill_fermenter("% households", palette = "Blues", direction = 1, na.value = "grey80") +
-  coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
-  labs(
-    title = "Share of households with broadband internet access",
-    subtitle = "By NUTS-2 region, in 2019",
-    caption = "QoG EU Regional dataset, variable eu_is_bacc_nuts2"
-  )
-
-ggsave("Figures/nuts_broadband_2019.pdf", width = 12, height = 10, units = "cm") #, bg = "white")
-
-# Interactive map of internet or broadband access by NUTS-2 regions
-
-inner_join(map_nuts, nuts2_internet, by = c("NUTS_ID" = "region_code")) %>%
-  select(NUTS_ID, NAME_LATN, year, eu_is_bacc_nuts2, eu_is_iacc_nuts2, geometry) %>%
-  mapview(
-    label = "NAME_LATN",
-    zcol = "eu_is_bacc_nuts2",
-    legend = TRUE
-  )
