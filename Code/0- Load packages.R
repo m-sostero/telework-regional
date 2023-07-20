@@ -35,11 +35,17 @@ labels_country <- geofacet::eu_grid1 %>%
 # Edit EU grid for cartogram to remove UK
 eu_grid <- eu_grid1 %>% filter(code != "UK")
 
-# ISCO-08 occupation labels at 1-4 digits, with corresponding 1-digit group
-labels_isco <- read_tsv("Metadata/ISCO-08.txt", col_types = "cc") %>% 
-  mutate(occup_group = if_else(str_length(code) == 1, occupation, NA_character_)) %>% 
-  fill(occup_group, .direction = "down") %>% 
-  mutate(occup_group = factor(occup_group) %>% fct_inorder())
+# # ISCO-08 occupation labels at 1-4 digits, with corresponding 1-digit group
+if (file.exists("Metadata/labels_isco.rds")){
+  labels_isco <- read_rds("Metadata/labels_isco.rds")
+  # generate from text file, see below)
+} else {
+  labels_isco <- read_tsv("Metadata/ISCO-08.txt", col_types = "cc") %>%
+    mutate(occup_group = if_else(str_length(code) == 1, occupation, NA_character_)) %>%
+    fill(occup_group, .direction = "down") %>%
+    mutate(occup_group = factor(occup_group) %>% fct_inorder())
+  
+  write_rds(labels_isco, "Metadata/labels_isco.rds")
+}
 
-write_rds(labels_isco, "Metadata/labels_isco.rds")
 
