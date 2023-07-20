@@ -122,41 +122,43 @@ fvset base 6 country
 
 **# Estimate models, year by year, incrementally ***************************
 
-* Create lists of variables to add incrementally to specifications
-vl create twy = (physicalinteraction socialinteraction)
-vl create individual = (yw pw ow ym om lowed highed nonnat)
-vl create work = (ftpt stapro temporary work_location)
+* Create lists of controls to add incrementally to specifications
+* NB: run this in the same command as the with the loop with the regression below 
+* Otherwise it doesn't work (BS, I know)
+local twy physicalinteraction socialinteraction
+local individual yw pw ow ym om lowed highed nonnat
+local work ftpt i.stapro temporary i.work_location
+local region i.degurba capital broadband_shh
 
 eststo clear
 
-forval i = 2018(1)2021 {
+* Notice that we're using country fixed effects everywhere
+* (I tried with xtreg, but it doesn't support individual weights)
+
+forval y = 2018(1)2021 {
 	* B1: teleworkability indices
-	quietly: reg homework_any $twy [pw=coeffy] if year == `i'
-	eststo B1_`i', title("`i'")
+	qui reg homework_any `twy' i.country [pw=coeffy] if year == `y'
+	eststo B1_`y', title("`y'")
 	
 	* B2: (B1) + individual characteristics
-	quietly: reg homework_any $twy $individual [pw=coeffy] if year == `i'
-	eststo B2_`i', title("`i'")
+	qui reg homework_any `twy' `individual' i.country [pw=coeffy] if year == `y'
+	eststo B2_`y', title("`y'")
 	
 	* B3: (B2) + work characteristics
-	quietly: reg homework_any $twy $individual i.($work) [pw=coeffy] if year == `i'
-	eststo B3_`i', title("`i'")
+	qui reg homework_any `twy' `individual' `work' i.country [pw=coeffy] if year == `y'
+	eststo B3_`y', title("`y'")
 	
-	* B4: (B3) + regional characteristics (not a varlist, because they are of different types)
-	quietly: reg homework_any $twy $individual i.($work) i.degurba capital broadband_shh [pw=coeffy] if year == `i'
-	eststo B4_`i', title("`i'")
-	
-	* B5: (B4) + country
-	quietly: reg homework_any $twy $individual i.($work) i.degurba capital broadband_shh i.country [pw=coeffy] if year == `i'
-	eststo B5_`i', title("`i'")
+	* B4: (B3) + regional characteristics
+	qui reg homework_any `twy' `individual' `work' `region' i.country [pw=coeffy] if year == `y'
+	eststo B4_`y', title("`y'")
 }
 
 
 * Preview the different model blocks
 // NB: This syntax for model titles requires a recent version of esttab
 // ssc install estout, replace
-forval b = 1/5 {
-	esttab B`b'_*, nonotes not r2 lab compress obslast mlabels(,title)
+forval b = 1/4 {
+	esttab B`b'_*, nonotes not r2 lab compress obslast mlabels(,title) drop(*country*)
 }
 
 esttab B1_* using ind_models_any.tsv, nonotes not r2 lab compress obslast mlabels(,titles) tab replace
@@ -177,3 +179,34 @@ eststo All
 esttab, nonotes drop(*) nocons not r2 lab compress obslast mlabels(,titles)
 esttab using occ_models_any.tsv, nonotes drop(*) nocons not r2 lab compress obslast tab append
 eststo clear
+
+
+**# Estimate pooled models, present side-by-side -------------------------------------
+
+local twy c.physicalinteraction c.socialinteraction
+local individual yw pw ow ym om lowed highed nonnat
+local work ftpt i.stapro temporary i.work_location
+local region i.degurba capital broadband_shh
+
+* P1: teleworkability indices
+qui reg homework_any (`twy')##i.year i.country [pw=coeffy]
+eststo P1
+
+* P2: (P1) + individual characteristics
+qui reg homework_any (`twy')##i.year `individual' i.country [pw=coeffy] 
+eststo P2
+
+* P3: (P2) + work characteristics
+qui reg homework_any (`twy')##i.year `individual' `work' i.country [pw=coeffy] 
+eststo P3
+
+* P4: (P3) + regional characteristics 
+qui reg homework_any (`twy')##i.year `individual' `work' `region' i.country [pw=coeffy]
+eststo P4
+
+* P5: (P4) - teleworkability indicators (for comparison) 
+qui reg homework_any i.year `individual' `work' `region' i.country [pw=coeffy]
+eststo P5
+
+esttab P*, nonotes not r2 lab compress obslast drop(*country*)
+
