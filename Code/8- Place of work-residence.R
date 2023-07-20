@@ -76,21 +76,6 @@ ggsave("Figures/LFS_residence_work_eu.pdf", height = 8, width = 13)
 ggsave("Figures/LFS_residence_work_eu.png", height = 8, width = 13, bg = "white")
 
 
-# Region of work vs residence ---------------------------------------------
-
-# Encode variable if  region of residence is the same as the region of residence
-# (or includes it, in case the granularity of reg < regw)
-work_region <- LFS %>% 
-  mutate(work_in_region = if_else(str_detect(regw, paste0("^", reg)), TRUE, FALSE)) %>% 
-  count(country, reg, regw, work_in_region) %>% 
-  arrange(country, desc(n)) %>% 
-  rename(n_obs = n)
-
-view(work_region)
-
-write_xlsx(work_region, "Tables/LFS_work_in_region.xlsx")
-
-
 # Telework by location of work (region or country of work vs residence) ----
 
 hw_location <- LFS %>% 
@@ -128,20 +113,11 @@ ggsave("Figures/Telework_residence_eu.png", height = 8, width = 13, bg = "white"
 
 
 
-# Country of residence vs work ---------------------------------
 
-# Reclassify `ctryw` (country of work) as "Own country", "Abroad", NA
-LFS <- LFS %>% 
-  mutate(work_abroad = case_when(
-    ctryw == "Work in own MS" ~ "Own country",
-    ctryw %in% c("Work in another EU MS or UK", "Work in EEA", "Work in other European country", "Work in ROW", "Work in another country") ~ "Abroad",
-    ctryw %in% c("Not stated", "Not applicable") | is.na(ctryw) ~ NA_character_
-  ) %>% factor(levels = c("Own country", "Abroad"))
-  )
-
-# Share of people working abroad, by country ----
+# Diagnostic: share of people working on own country or abroad ------------------------
 
 work_country <- LFS %>%
+  mutate(work_abroad = fct_recode(work_location, "Own country" = "Region of residence", "Own country" = "Other region in country of residence")) %>% 
   group_by(year, country, work_abroad) %>% 
   summarise(
     n_people = sum(coeffy, na.rm = TRUE), .groups = "drop",
@@ -154,7 +130,7 @@ work_country %>%
   group_by(year, country) %>%
   mutate(share_people = n_people/sum(n_people)) %>%
   ungroup() %>%
-  filter(work_abroad == "Abroad") %>% 
+  filter(work_abroad == "Other country") %>% 
   mutate(year = factor(year)) %>% 
   ggplot(aes(x = year, y = share_people, group = country)) +
   geom_point(aes(size = n_obs)) + geom_line() +
@@ -172,11 +148,6 @@ work_country %>%
 
 ggsave("Figures/LFS_work_abroad_eu.pdf", height = 8, width = 13)
 ggsave("Figures/LFS_work_abroad_eu.png", height = 8, width = 13, bg = "white")
-
-# Count observations for people working abroad
-work_country %>% 
-  select(-n_people) %>% 
-  pivot_wider(names_from = work_abroad, values_from = n_obs) 
 
 
 
