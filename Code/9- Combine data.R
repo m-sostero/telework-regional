@@ -1,13 +1,13 @@
 # Load common packages and labels ----
 source("Code/0- Load packages.R")
 
-library("fuzzyjoin")
+library("fuzzyjoin") # Regex-based matching, used for NUTS codes
+library("labelled") # work with variable labels (Stata)
 
 # Load data ---------------------------------------------------------------
 
 # Labour Force Survey microdata, cleaned, with work location
 LFS <- read_feather("Data/LFS.feather")
-
 
 # Teleworkability values for ISCO occupation. 
 # The 3-digit values come from Sostero et al. 
@@ -36,17 +36,17 @@ nuts_broadband <- read_rds("Data/nuts_broadband.rds") %>%
   select(-NUTS_length)
 
 # Make list of NUTS x year regions, as they appear in the LFS (different NUTS levels by country)
-LFS_regions <- LFS_regions %>% count(year, reg) %>% select(-n)
+LFS_regions <- LFS %>% count(year, reg) %>% select(-n)
 
 # Match LFS NUTS regions with the regional broadband statistics, at highest granularity available
 LFS_regions_broadband <- regex_left_join(LFS_regions, nuts_broadband, by = c("reg" = "NUTS_ID", "year" = "year")) %>% 
   distinct(year.x, reg, .keep_all = TRUE) %>%  
   select(year = year.x, reg, broadband_shh)
 
-# Is any LFS NUTS region exluded? No
+# Check: Is any LFS NUTS region excluded? No
 regex_anti_join(LFS_regions, nuts_broadband, by = c("reg" = "NUTS_ID", "year" = "year")) 
 
-# Show which LFS NUTS are matched at a different (more aggregate) level, for lack of more granular data
+# Diagnostic: Show which LFS NUTS are matched at a different (more aggregate) level, for lack of more granular data
 regex_left_join(LFS_regions, nuts_broadband, by = c("reg" = "NUTS_ID", "year" = "year")) %>% 
   distinct(year.x, reg, .keep_all = TRUE) %>% 
   distinct(year.x, reg, .keep_all = TRUE) %>% filter(reg != NUTS_ID) %>% 
@@ -66,11 +66,23 @@ LFS_regression <- LFS %>%
   # Define homework_any for people working from home at least some of the time
   mutate(homework_any = if_else(homework_index > 0, 1, 0)) %>%
   relocate(homework_any, .after = homework_index) %>% 
-  # Multiply teleworkability indicator by 1000, like Enrique
-  mutate(across(c(physicalinteraction, socialinteraction), ~ .x * 1000)) %>% 
   # Now that the ISCO matching with strings is complete, remove isco_3d_code (values identical to isco08_3d, which is numeric)
   select(-isco_3d_code)
 
+# Add variable labels (for exporting later with Stata)
+var_label(LFS_regression) <- list(
+  urbrur = "Regional typology (NUTS)",
+  degurba = "Degree of urbanisation (LAU)",
+  work_location = "Place of work",
+  ftpt = "Full- or part-time work",
+  broadband_shh = "Regional broadband coverage",
+  physicalinteraction = "TWY: physical",
+  socialinteraction = "TWY: social",
+  homework_index = "Homeworking frequency",
+  homework_any = "Homeworking, binary"
+)
+
+var_label(LFS_regression)
 
 # Export datasets for regression ------------------------------------------
 

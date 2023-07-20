@@ -52,7 +52,7 @@ hw_degurba %>%
     subtitle = "Teleworking frequency by degree of urbanisation of respondents' place of residence, over the years",
     x = "Year",
     y = "Teleworking frequency index\n(different scales)",
-    source = "EU Labour Force Survey,\n own elaboration"
+    caption = "Source: EU Labour Force Survey,\n own elaboration"
   )
 
 ggsave("Figures/Telework_degurba_EU.pdf", height = 8, width = 13)
@@ -83,7 +83,7 @@ plot_hw_degurba <- hw_degurba %>%
     subtitle = "Selected countries",
     x = "Degree of urbanisation",
     y = "Teleworking frequency index",
-    source = "EU Labour Force Survey,\n own elaboration"
+    caption = "Source: EU Labour Force Survey,\n own elaboration"
   )
 
 plot_hw_degurba + guides(color = guide_legend(reverse = TRUE), size = guide_legend(label.hjust = 1)) 
@@ -207,7 +207,7 @@ hw_urbrur %>%
     subtitle = "Teleworking frequency by respondent's region type, over the years",
     x = "Year",
     y = "Teleworking frequency index\n(different scales)",
-    source = "EU Labour Force Survey,\n own elaboration"
+    caption = "Source: EU Labour Force Survey,\n own elaboration"
   )
 
 ggsave("Figures/Telework_urbrur_eu.pdf", height = 8, width = 11)
@@ -240,7 +240,7 @@ hw_urbrur %>%
     subtitle = "Selected countries",
     x = "Degree of urbanisation",
     y = "Teleworking frequency index",
-    source = "EU Labour Force Survey,\n own elaboration"
+    caption = "Source: EU Labour Force Survey,\n own elaboration"
   )
 
 ggsave("Figures/Telework_urbrur_selected.pdf", height = 6, width = 9)
