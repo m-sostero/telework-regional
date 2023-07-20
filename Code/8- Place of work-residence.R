@@ -5,36 +5,13 @@ source("Code/0- Load packages.R")
 # Load data ---------------------------------------------------------------
 
 # Labour Force Survey microdata, cleaned
-LFS <- read_feather("Data/LFS.feather") %>% 
-  # Code empty region of work as explicit missing value
-  mutate(regw = na_if(regw, ""))
+LFS <- read_feather("Data/LFS.feather") 
 
 # Official region NUTS codes and names
 labels_nuts <- read_rds("Data/map_nuts.rds") %>%
   as_tibble() %>% 
   select(-geometry) %>% 
   distinct(NUTS_ID, .keep_all = TRUE)
-
-# work_location: place of work vs residence ----------------------------------
-
-# code work_location as the region or country of work vs residence
-LFS <- LFS %>% 
-  mutate(
-    work_location = case_when(
-      # region of residence is the same as the region of residence (or includes it, in case the granularity of reg < regw)
-      str_detect(regw, paste0("^", reg)) ~ "Region of residence",
-      # Work in own MS, but different region than residence
-      ctryw == "Work in own MS" & !str_detect(regw, paste0("^", reg)) ~ "Other region in country of residence",
-      # Work in another MS
-      ctryw %in% c("Work in another EU MS or UK", "Work in EEA", "Work in other European country", "Work in ROW", "Work in another country") ~ "Other country",
-      # Missing region/country of residence, or no reply
-      is.na(regw) | is.na(ctryw) | ctryw == "Not stated" ~ "Not stated"
-    ) %>% factor(levels = c("Region of residence", "Other region in country of residence", "Other country", "Not stated"))
-  )
-
-# Export data
-write_feather(LFS, "Data/LFS.feather")
-
 
 # Summary statistics of place of work -----------------------------------------
 work_location <- LFS %>%
@@ -50,7 +27,7 @@ work_location %>%
   select(-n_people) %>% 
   pivot_wider(names_from = work_location, values_from = n_obs)
 
-# Plot share of people working abroad, or not stated
+# Plot share of people working outside region of residence -------------------
 work_location %>% 
   group_by(year, country) %>%
   mutate(share_people = n_people/sum(n_people)) %>%
@@ -65,30 +42,14 @@ work_location %>%
   scale_size_area("Number of respondents", breaks = c(100, 500, 1000, 2000, 3000)) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust  = 1)) +
   labs(
-    title = "?",
-    subtitle = "Share of employed people working outside region of residence, over time",
+    title = "Share of employed people working outside region of residence, over time",
     x = "Year",
     y = "Share of employed people working outside region of residence\n(different scales)",
-    source = "EU Labour Force Survey,\n own elaboration"
+    caption = "source: EU Labour Force Survey,\n own elaboration"
   )
 
 ggsave("Figures/LFS_residence_work_eu.pdf", height = 8, width = 13)
 ggsave("Figures/LFS_residence_work_eu.png", height = 8, width = 13, bg = "white")
-
-
-# Region of work vs residence ---------------------------------------------
-
-# Encode variable if  region of residence is the same as the region of residence
-# (or includes it, in case the granularity of reg < regw)
-work_region <- LFS %>% 
-  mutate(work_in_region = if_else(str_detect(regw, paste0("^", reg)), TRUE, FALSE)) %>% 
-  count(country, reg, regw, work_in_region) %>% 
-  arrange(country, desc(n)) %>% 
-  rename(n_obs = n)
-
-view(work_region)
-
-write_xlsx(work_region, "Tables/LFS_work_in_region.xlsx")
 
 
 # Telework by location of work (region or country of work vs residence) ----
@@ -116,11 +77,11 @@ hw_location %>%
   scale_y_continuous(labels = percent_format()) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust  = 1)) +
   labs(
-    title = "?",
+    title = "Telework is not necessarily more common for those working in other regions or countries",
     subtitle = "Teleworking frequency by respondent's place of work",
     x = "Year",
     y = "Teleworking frequency index\n(different scales)",
-    source = "EU Labour Force Survey,\n own elaboration"
+    caption = "Source: EU Labour Force Survey,\n own elaboration"
   )
 
 ggsave("Figures/Telework_residence_eu.pdf", height = 8, width = 13)
@@ -142,7 +103,8 @@ LFS <- LFS %>%
 # Share of people working abroad, by country ----
 
 work_country <- LFS %>%
-  group_by(year, country, work_abroad) %>% 
+  mutate(work_abroad = fct_recode(work_location, "Own country" = "Region of residence", "Own country" = "Other region in country of residence")) %>% 
+  group_by(year, country, stapro, work_abroad) %>% 
   summarise(
     n_people = sum(coeffy, na.rm = TRUE), .groups = "drop",
     n_obs = n()
@@ -154,19 +116,19 @@ work_country %>%
   group_by(year, country) %>%
   mutate(share_people = n_people/sum(n_people)) %>%
   ungroup() %>%
-  filter(work_abroad == "Abroad") %>% 
+  filter(work_abroad == "Other country") %>% 
   mutate(year = factor(year)) %>% 
-  ggplot(aes(x = year, y = share_people, group = country)) +
+  ggplot(aes(x = year, y = share_people, colour = stapro, group = stapro)) +
   geom_point(aes(size = n_obs)) + geom_line() +
   facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
   scale_y_continuous(labels = percent_format()) +
   scale_size_area("Number of respondents", breaks = c(100, 500, 1000, 2000, 3000)) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust  = 1)) +
   labs(
-    title = "?",
-    subtitle = "Share of employed people working abroad, by country, over time",
+    title = "Few people work abroad (under-sampled? COVID effect on response rates?)",
+    subtitle = "Share of respondents people working abroad, by professional status",
     x = "Year",
-    y = "Share of employed people working abroad",
+    y = "Share of employed people working abroad\n(different scales)",
     source = "EU Labour Force Survey,\nown elaboration"
   )
 
@@ -180,14 +142,14 @@ work_country %>%
 
 
 
-# Check NUTS codes for `reg`, `regw`, `region_2d` ------------------------------
+# Diagnostics: Check NUTS codes for `reg`, `regw`, `region_2d` ------------------------------
 
-# Are any values of `reg` (region of residence) not valid NUTS codes?
+# Are any values of `reg` (region of residence) not valid EU NUTS codes?
 LFS %>% 
   count(reg) %>%
   anti_join(labels_nuts, by = c("reg" = "NUTS_ID"))
 
-# Are any values of `reg` (region of work) not valid NUTS codes?
+# Are any values of `reg` (region of work) not valid EU NUTS codes?
 LFS %>% 
   count(regw) %>%
   anti_join(labels_nuts, by = c("regw" = "NUTS_ID")) %>% 
