@@ -4,11 +4,28 @@
 
 set more off
 clear
-use "C:\Users\a\Documents\teleworkability with eurofound\Regional 2023 EF_JRC\LFSreg2018_21finalr.dta" 
-keep if ilostat == 1
+
+* Local directory for Enrique
+cd "C:\Users\a\Documents\teleworkability with eurofound\Regional 2023 EF_JRC"
+
+* Local directory for Matteo
+cd "C:\Users\sostema\repositories\Telework regional\Data"
+
+* Load LFS data, produced by John
+use "LFSreg2018_21finalr.dta" 
+
+keep if ilostat == 1 // Keep only employed (excluding unemployed and outside labour force)
 drop ilostat
-drop if stapro == 4
-gen n = 1
+
+keep if stapro == 0 | stapro == 3 // Keep only employees and self-employed (Drop family workers and "non applicable")
+
+lab define stapro 3 "Employee", modify // Edit label (previously "£mployed")
+
+drop if _merge == 2 // Discard (empty) observations created by previous regional merge (empty)
+drop _merge
+
+gen n = 1 // Generate progressive observation number (used for collapse?)
+
 
 * Initial workplan:
 * 1. We will link our teleworkability index at the 3-digit isco level
@@ -25,21 +42,27 @@ bysort country: tab isco08_3d year [aw=coeffy], col nof mis
 
 drop if country == 3 | country == 20 | country == 26
 
+
+* Inspect occupation codes again
+tab isco08_3d
+
+* Discard occupation codes with < 3 digits:
+* those are armed forces occupations (eg, 010, 020),
+* the leading 0 was truncated when parsing the ISCO codes as numbers (!)
+* We can drop them, because we don't have teleworkability values for them
+drop if length(string(isco08_3d)) < 3
+
 * Now, let´s merge the teleworkability data
 
-* First we have to drop a _merge variable which was in the file, probably used in 
-* the merging of external data to create the variable urbrur (linked via region?)
-
-drop _
-
-tab isco08_3d
-replace isco08_3d = isco08_3d*10 if length(string(isco08_3d)) == 2
-replace isco08_3d = . if isco08_3d == 0
 sort isco08_3d
 merge m:1 isco08_3d using "Teleworkability indices.dta"
 
+* Inspect results of merge: which ISCO codes in the LFS have corresponding teleworkability values?
 tab isco08_3d _merge, mis
-table isco08_3d [aw=coeffy], c(mean physical mean social)
+
+* Values of teleworkability for each ISCO code
+version 16: table isco08_3d [aw=coeffy], c(mean physical mean social)
+* 'version 16:' is used for backward compatibility, because the table command changed in Stata 17 (on M's laptop)
 
 * There are some categories of isco08_3d in LFS which cannot be matched to our 
 * teleworkability data, in most cases because they are higher level codes (2 or 
@@ -76,17 +99,12 @@ replace social = soc_temp if mod(isco08_3d,100) == 0
 
 drop _merge *_temp
 
-table isco08_3d [aw=coeffy], c(mean physical mean social)
+version 16: table isco08_3d [aw=coeffy], c(mean physical mean social)
 
 /*
 
 Ok, so this works well. These are the remaining codes:
 
-0
-11 (two digits)
-21 (two digits)
-30 (one digit)
-31 (two digits)
 223 Traditional and complementary medicine professionals
 224 Paramedical practitioners
 323 Traditional and complementary medicine associate professionals
@@ -115,13 +133,19 @@ replace social = 736.206 if isco08_3d == 323
 replace physical = 0 if isco08_3d == 630 | isco08_3d == 631 | isco08_3d == 632 | isco08_3d == 633 | isco08_3d == 634
 replace social = 390.461 if isco08_3d == 630 | isco08_3d == 631 | isco08_3d == 632 | isco08_3d == 633 | isco08_3d == 634
 
-table isco08_3d [aw=coeffy], c(mean physical mean social)
+version 16: table isco08_3d [aw=coeffy], c(mean physical mean social)
 
 replace physical = physical/1000
 replace social = social/1000
 
 recode homework (3 = 0) (2 = .25) (1 = .75), gen(homework_index)
 recode homework (3 = 0) (1/2 = 1), gen(homework_any)
+
+
+
+* Export data
+
+compress
 
 save temp.dta, replace
 
@@ -141,6 +165,7 @@ use temp.dta, clear
 
 levelsof country, local(c_local)
 levelsof year, local(y_local)
+
 gen coeff_isco3d = .
 foreach c in `c_local' {
 	foreach y in `y_local' {
