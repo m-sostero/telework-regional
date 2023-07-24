@@ -1,5 +1,5 @@
 # Load common packages and labels ----
-source("Code/0- Load packages.R")
+source("Code/0- Load common.R")
 
 
 # Load data -------------------------

@@ -1,5 +1,5 @@
-# Load common packages
-source("Code/0- Load packages.R")
+# Load common packages and labels ----
+source("Code/0- Load common.R")
 
 # Import LFS data produced by John in Code/Regional2023.do
 LFS_raw <- read_dta("Data/LFSreg2018_21finalr.dta")

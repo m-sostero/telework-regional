@@ -1,12 +1,13 @@
-library("tidyverse") # collection of packages for working with data
+# Load common packages and labels ----
 
-library("sf") # Simple Features format of maps-as-tables
-library("mapview") # Interactive maps
-library("leafem") # Decorate interactive maps
-library("leaflet.extras2") # Extra utilities to combine interactive maps
+source("Code/0- Load common.R")
+
+# Addional packages, for this script only
 library("eurostat") # Get statistics from Eurostat API
 
-# Load Eurostat maps
+
+# Load Eurostat maps ------------------------------------------------------
+
 map_nuts <- read_rds("Data/map_nuts.rds")
 
 # Get data on share of households with broadband access

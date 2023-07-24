@@ -1,5 +1,5 @@
 # Load common packages and labels ----
-load("Code/0- Load packages.R")
+source("Code/0- Load common.R")
 
 # Load maps in SF format from Eurostat, at NUTS-1,2,3 resolution ----
 
