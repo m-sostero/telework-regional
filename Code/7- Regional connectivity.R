@@ -34,6 +34,8 @@ write_rds(nuts_broadband, "Data/nuts_broadband.rds")
 
 # Plot regional connectivity statistics ----------------------------------------
 
+nuts_broadband <- read_rds("Data/nuts_broadband.rds")
+
 nuts_broadband %>% 
   filter(year >= 2018) %>% 
   left_join(map_nuts, ., by = "NUTS_ID", multiple = "all") %>%
@@ -44,9 +46,10 @@ nuts_broadband %>%
   scale_fill_fermenter("% households", palette = "Blues", direction = 1, na.value = "grey80") +
   coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
   labs(
-    title = "At the regional level, the internet access is relatively uniform across EU regions",
+    title = "Internet access is relatively uniform across EU regions",
     subtitle = "Share of households with internet access, by NUTS-1 or NUTS-2 region",
     caption = "Eurostat ICT Household survey, variable ISOC_R_BROAD_H"
   )
 
-ggsave("Figures/nuts_broadband.pdf", width = 12, height = 10, units = "cm") # bg = "white")
+ggsave("Figures/nuts_broadband.pdf", width = 16, height = 12, units = "cm") # bg = "white")
+ggsave("Figures/nuts_broadband.png", width = 16, height = 12, units = "cm") # bg = "white")
