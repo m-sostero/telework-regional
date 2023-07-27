@@ -47,9 +47,9 @@ nuts_broadband %>%
   coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
   labs(
     title = "Internet access is relatively uniform across EU regions",
-    subtitle = "Share of households with internet access, by NUTS-1 or NUTS-2 region",
-    caption = "Eurostat ICT Household survey, variable ISOC_R_BROAD_H"
+    subtitle = "Share of households with internet access, by NUTS-1/2 region",
+    caption = "Source: Eurostat ICT Household survey, ISOC_R_BROAD_H"
   )
 
-ggsave("Figures/nuts_broadband.pdf", width = 16, height = 12, units = "cm") # bg = "white")
-ggsave("Figures/nuts_broadband.png", width = 16, height = 12, units = "cm") # bg = "white")
+ggsave("Figures/nuts_broadband.png", width = 12, height = 12, units = "cm") # bg = "white")
+ggsave("Figures/nuts_broadband.pdf", width = 12, height = 12, units = "cm") # bg = "white")

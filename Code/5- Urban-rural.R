@@ -297,7 +297,7 @@ ggsave("Figures/Telework_intensity_urbrur_selected.png", height = 6, width = 9, 
 
 tw_hw_degurba <- LFS %>%
   left_join(teleworkability, by = "isco_3d_code") %>% 
-  group_by(year, country, reglab, degurba) %>% 
+  group_by(year, country, reglab, degurba, stapro) %>% 
   summarise(
     homework_index = (sum(homework_index*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
     teleworkability = (sum(physicalinteraction*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
@@ -307,16 +307,18 @@ tw_hw_degurba <- LFS %>%
   ) 
 
 tw_hw_degurba %>%  
-  ggplot(aes(x = teleworkability, y = homework_index, size = coeffy, label = reglab)) +
-  geom_point( shape = 1) +
-  geom_point(aes(color = degurba), shape = 1) +
+  ggplot(aes(x = teleworkability, y = homework_index, size = coeffy, label = reglab, group = stapro, color = stapro)) +
+  geom_point(aes(color = stapro), shape = 1, alpha = 0.3) +
   geom_smooth(method = lm) +
   scale_size_area() +
   facet_grid(degurba ~ year) +
-  scale_color_brewer("Degree of urbanisation", palette = "Set2", guide = "none") +
+  scale_color_brewer("Professional status", palette = "Set1") +
   coord_equal() +
   guides(size = "none") +
-  theme(panel.spacing = unit(1, "lines")) +
+  theme(
+    legend.position = "top",
+    panel.spacing = unit(1, "lines")
+    ) +
   # theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
   labs(
     title = "Increasing correlation between teleworkability and homeworking, similar across location types",

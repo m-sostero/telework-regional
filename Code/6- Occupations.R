@@ -101,10 +101,13 @@ tw_hw_stapro %>%
   geom_smooth(method = lm) +
   scale_size_area() +
   facet_grid(~ year) +
-  scale_color_brewer("Employment status", palette = "Set1") +
+  scale_color_brewer("Professional status", palette = "Set1") +
   coord_equal() +
   guides(size = "none") +
-  theme(panel.spacing = unit(1, "lines")) +
+  theme(
+    legend.position = "top",
+    panel.spacing = unit(1, "lines")
+    ) +
   labs(
     title = "Telework for employees is cathing up with the self-employed",
     subtitle = "Correlation between physical teleworkability and actual telework for NUTS-2 regions",
