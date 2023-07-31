@@ -154,9 +154,9 @@ LFS %>%
   ) %>%
   pivot_wider(names_from = "country", values_from = "total") %>% 
   adorn_percentages(denominator = "col") %>%
+  # write_xlsx("Tables/LFS_occup_ISCO3d.xlsx")
   adorn_pct_formatting()
 
-# write_xlsx("Tables/LFS_occup_ISCO3d.xlsx")
 
 
 # Plot occupational structure by country ----------------------------------

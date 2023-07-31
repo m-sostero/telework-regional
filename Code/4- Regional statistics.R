@@ -10,24 +10,54 @@ LFS <- read_feather("Data/LFS.feather")
 # Maps for NUTS regions
 map_nuts <- read_rds("Data/map_nuts.rds")
 
+# NUTS region names
+labels_nuts <- read_rds("Data/map_nuts.rds") %>% 
+  st_drop_geometry() %>% as_tibble() %>% 
+  select(NUTS_ID, NUTS_name = NAME_LATN) %>% 
+  distinct(NUTS_ID, .keep_all = TRUE)
 
+# Occupational teleworking indices
+teleworkability <- read_dta("Data/Teleworkability indices.dta") %>%
+  mutate(
+    isco_3d_code = as.character(isco08_3d),
+    physicalinteraction = physicalinteraction/1000
+  )
 
 # Compute telework at regional level --------------------------------------
 
-# Based on binary indicator homework_any
+# Share teleworking Based on binary indicator homework_any
 regional_telework <- LFS %>% 
-  mutate(homework_any = if_else(homework_index > 0, 1, 0)) %>% 
   # Recode urbrur:  "Regions undifferentiated" and missing values as "whole country"
   mutate(urbrur = urbrur %>% fct_recode("Whole country" = "Regions undifferentiated") %>% fct_na_value_to_level(level = "Whole country")) %>% 
-  group_by(year, reg, reglab, urbrur) %>% 
-  summarise(homework_any = weighted.mean(homework_index, wt = coeffy, na.rm = TRUE), .groups = "drop")
+  group_by(year, country, reg, reglab, urbrur) %>% 
+  summarise(telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), .groups = "drop")
 
+# Same, but by stapro
+regional_telework_stapro <- LFS %>% 
+  group_by(year, reg, reglab, urbrur, stapro) %>% 
+  summarise(telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), .groups = "drop") %>% 
+  select(year, reg, stapro, telework_share) %>% 
+  pivot_wider(names_from = stapro, values_from = "telework_share")
+
+# Export table of regional telework share
+regional_telework %>% 
+  left_join(labels_country, by = c("country" = "country_code")) %>% 
+  relocate(country_name, .after = country) %>% 
+  left_join(regional_telework_stapro, by = c("year", "reg")) %>% 
+  mutate(reglab = str_remove(reglab, "^.{2,4}_")) %>% 
+  rename(
+    region_NUTS = reg, region_name = reglab, region_type = urbrur,
+    `%TW` = telework_share, `%TW (Self-employed)` = `Self-employed`,  `%TW (Employees)` = Employee
+  ) %>% 
+  view("Share teleworking, by NUTS")
+  # write_xlsx("Tables/Telework_NUTS.xlsx")
+  
 
 # Top teleworking regions --------------------------------
 
 telework_top_regions_year <- regional_telework %>%
   group_by(year) %>%
-  arrange(year, desc(homework_any)) %>%
+  arrange(year, desc(telework_share)) %>%
   mutate(year_rank = 1:n()) %>%
   group_by(reglab) %>%
   mutate(min_rank = min(year_rank)) %>%
@@ -36,25 +66,26 @@ telework_top_regions_year <- regional_telework %>%
 plot_ends <- telework_top_regions_year %>%
   filter(min_rank <= 5) %>%
   mutate(
-    reglab = as.character(reglab),
-    reglab = str_replace_all(reglab, "^BE10.*", "BE10_Brussels-Capital"),
+    reglab = as.character(reglab) %>% str_replace("_", ": "),
+    reglab = str_replace_all(reglab, "^BE10.*", "BE10: Brussels-Capital"),
     reglab = str_wrap(reglab, 30),
     # Bump some label position manually, to avoid overplotting
-    homework_any = if_else(str_detect(reglab, "FI1B.*"), homework_any + 0.005, homework_any),
-    homework_any = if_else(str_detect(reglab, "BE31.*"), homework_any - 0.005, homework_any),
-    homework_any = if_else(str_detect(reglab, "BE10.*"), homework_any - 0.005, homework_any),
-    homework_any = if_else(str_detect(reglab, "FI19.*"), homework_any - 0.005, homework_any)
+    telework_share = if_else(str_detect(reglab, "BE31.*"), telework_share - 0.005, telework_share),
+    telework_share = if_else(str_detect(reglab, "BE24.*"), telework_share + 0.005, telework_share),
+    telework_share = if_else(str_detect(reglab, "NL00.*"), telework_share - 0.006, telework_share),
+    telework_share = if_else(str_detect(reglab, "DK01.*"), telework_share + 0.005, telework_share),
+    telework_share = if_else(str_detect(reglab, "SE22.*"), telework_share - 0.005, telework_share)
     ) %>% 
   group_by(reglab) %>%
   top_n(1, year)
 
 telework_top_regions_year %>%
   filter(min_rank <= 5) %>%
-  ggplot(aes(x = year, y = homework_any, group = reglab, colour = urbrur)) +
+  ggplot(aes(x = year, y = telework_share, group = reglab, colour = urbrur)) +
   geom_point() + geom_line() +
   scale_y_continuous(
     labels = scales::percent_format(accuracy = 1),
-    sec.axis = sec_axis(~., breaks = plot_ends$homework_any, labels = plot_ends$reglab)
+    sec.axis = sec_axis(~., breaks = plot_ends$telework_share, labels = plot_ends$reglab)
   ) + 
   scale_color_manual(
     "Type of NUTS region\n(urbrur)",
@@ -65,47 +96,54 @@ telework_top_regions_year %>%
   labs(
     title = "The regions with the highest telework rates tend to be capital regions (or surrounding them)",
     subtitle = "Share of population working from home at least some of the time, by region",
-    y = "Share of population working from home at least some of the time"
-    # caption = 
+    y = "Share of people teleworking"
   )
 
 ggsave("Figures/Telework_nuts_top.pdf", height = 6, width = 9)
 ggsave("Figures/Telework_nuts_top.png", height = 6, width = 9, bg = "white")
 
+
 # Lowest teleworking regions ----------------------------------------------
 
 telework_bottom_regions_year <- regional_telework %>%
   group_by(year) %>%
-  arrange(year, homework_any) %>%
+  arrange(year, telework_share) %>%
   mutate(year_rank = 1:n()) %>%
   group_by(reglab) %>%
   mutate(min_rank = min(year_rank)) %>%
   ungroup()
 
+
 plot_ends <- telework_bottom_regions_year %>%
   filter(min_rank <= 5) %>%
-  mutate(reglab = str_wrap(reglab, 30)) %>% 
   group_by(reglab) %>%
-  top_n(1, year)
+  top_n(1, year) %>% 
+  arrange(desc(telework_share))
+
+plot_ends <- tribble(
+  ~telework_share, ~reglab,  
+  0.166,  "RO32: Bucureşti-Ilfov",
+  0.045, "RO42: Vest\nRO22: Sud-Est\nBG42: South-Western\nBG31: North-West\nBG34: South-Eastern\nBG33: North-East\nRO41: Sud-Vest Oltenia\nRO31: Sud-Muntenia\nRO21: Nord-Est"
+)
 
 telework_bottom_regions_year %>%
   filter(min_rank <= 5) %>%
-  ggplot(aes(x = year, y = homework_any, group = reglab, colour = urbrur)) +
+  ggplot(aes(x = year, y = telework_share, group = reglab, colour = urbrur)) +
   geom_point() + geom_line() +
   scale_y_continuous(
     labels = scales::percent_format(accuracy = 1),
-    sec.axis = sec_axis(~., breaks = plot_ends$homework_any, labels = plot_ends$reglab)
+    sec.axis = sec_axis(~., breaks = plot_ends$telework_share, labels = plot_ends$reglab)
   ) + 
   scale_color_manual(
     "Type of NUTS region\n(urbrur)",
     values = c("#1F78B4", "#A6CEE3", "#B2DF8A", "#33A02C", "#FB9A99"), 
-    breaks = c("Capital region", "Mainly urban", "Intermediate", "Mainly rural", "Regions undifferentiated")
+    breaks = c("Capital region", "Mainly urban", "Intermediate", "Mainly rural", "Whole country")
   ) +
   theme(legend.position = "top") +
   labs(
     title = "The regions with the lowest telework rates are rural and intermediate, in RO, BG, EL",
     subtitle = "Share of population working from home at least some of the time, by region",
-    y = "Share of population working from home at least some of the time",
+    y = "Share of people teleworking",
     caption = "Source: EU Labour Force Survey,\n own elaboration"
   )
 
@@ -116,19 +154,18 @@ ggsave("Figures/Telework_nuts_bottom.png", height = 6, width = 9, bg = "white")
 # Teleworking across all regions ------------------------------------------
 
 plot_telework_urbrur <- regional_telework %>%
-  ggplot(aes(x = year, y = homework_any, group = reglab, colour = urbrur)) +
+  ggplot(aes(x = year, y = telework_share, group = reglab, colour = urbrur)) +
   geom_point() + geom_line(alpha = 0.3) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
   scale_color_manual(
     "Type of NUTS region\n(urbrur)",
     values = c("#1F78B4", "#A6CEE3", "#B2DF8A", "#33A02C", "#FB9A99"), 
-    breaks = c("Capital region", "Mainly urban", "Intermediate", "Mainly rural", "Regions undifferentiated")
+    breaks = c("Capital region", "Mainly urban", "Intermediate", "Mainly rural", "Whole country")
   ) +
   labs(
     title = "Telework has increased most markedly among capital and urban regions",
     subtitle = "Share of population working from home at least some of the time, by region",
-    y = "Share of population working from home at least some of the time"
-    # caption = 
+    y = "Share of people teleworking"
   )
 
 plot_telework_urbrur
@@ -145,57 +182,50 @@ anti_join(regional_telework, map_nuts, by = c("reg" = "NUTS_ID"))
 map_regional_telework <- inner_join(map_nuts, regional_telework, by = c("NUTS_ID" = "reg"), multiple = "all") %>%
   select(-id, -LEVL_CODE, -NUTS_NAME, -FID, -geo, -ends_with("_TYPE")) 
 
-#TODO: edit to reflect binary indicator
-
 # Choropleth, faceted by year
 map_regional_telework %>%
   filter(!is.na(year)) %>%
   ggplot() +
   # Plot the country boundaries NUTS-0 in light grey in background
   geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0) %>% crossing(year = c(2018:2021)) %>% sf::st_as_sf(), fill = "grey70") +
-  # Plot the index values on top
-  geom_sf(aes(fill = homework_any)) +
+  geom_sf(aes(fill = telework_share)) +
   facet_wrap(. ~ year) +
-  scale_fill_viridis_c("Homeworking\nindex") +
+  scale_fill_viridis_b("% Teleworking", labels = scales::label_percent()) +
+  # scale_fill_viridis_c("% Working\nfrom home", labels = scales::label_percent()) +
   coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
   theme_bw() +
-  theme(legend.position = "top") +
   labs(
-    title = "Homeworking has increased, in some countries, mostly in capital regions",
-    subtitle = "Average values of the homeworking index by region",
-    caption = "Homeworking index constructed from LFS;\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
+    title = "Telework has increased, in some countries, mostly in capital regions",
+    subtitle = "Regional share of the population working from home at least some of the time",
+    caption = "Source: EU LFS.\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
   )
+ggsave("Figures/Telework_nuts_map.pdf", width = 8, height = 8)
+ggsave("Figures/Telework_nuts_map.png", width = 8, height = 8,  bg = "white")
 
-ggsave("../Figures/homeworking over time_gradient.pdf", width = 8.27, height = 11.69)
-
-last_plot() +
-  scale_fill_viridis_b("Homeworking\nindex")
-# scale_fill_fermenter("Homeworking\nindex", palette = "YlGnBu")
-ggsave("../Figures/homeworking over time_binned.pdf", width = 8.27, height = 11.69)
 
 # Interactive slider map
 mapview(
   map_regional_telework %>% filter(year == 2021),
   label = "NAME_LATN", # Label (tooltip) that appears on hover: the Latin name of NUTS region
-  zcol = "homework_index", # The variable whose gradient is colored in the cartogram
+  zcol = "telework_share", # The variable whose gradient is colored in the cartogram
   legend = FALSE, # No legend for 2019; common legend for 2019-2021
   at = seq(0, 0.6, 0.1), # Defines fill color scale range and increment
-  layer.name = "Homeworking 2019"
+  layer.name = "Telework 2019"
 ) |
   mapview(
     map_regional_telework %>% filter(year == 2019),
     label = "NAME_LATN",
-    zcol = "homework_index",
+    zcol = "telework_share",
     legend = TRUE,
     at = seq(0, 0.6, 0.1),
-    layer.name = "Homeworking<br>index<br>(2019 | 2021)"
+    layer.name = "Telework<br>(2019 | 2021)"
   )
 
-# Map of changes in homeworking index
+# Map of changes in share of people teleworking
 regional_telework_change <- regional_telework %>%
-  select(year, NUTS_ID, homework_index) %>%
-  pivot_wider(names_from = year, values_from = homework_index) %>%
-  mutate(delta_hw = `2021` - `2019`) %>%
+  select(year, NUTS_ID = reg, telework_share) %>%
+  pivot_wider(names_from = year, values_from = telework_share) %>%
+  mutate(delta_hw = (`2021` - `2019`) * 100) %>%
   select(NUTS_ID, delta_hw)
 
 map_regional_telework_change <- inner_join(map_nuts, regional_telework_change, by = "NUTS_ID", multiple = "all")
@@ -206,16 +236,145 @@ map_regional_telework_change %>%
   st_as_sf() %>%
   ggplot() +
   # Plot the country boundaries NUTS-0 in light grey in background
-  geom_sf(data = estat_map_nuts0 %>% crossing(year = c(2018:2021)) %>% sf::st_as_sf(), fill = "grey70") +
-  # Plot the index values on top
+  geom_sf(data = map_nuts %>% crossing(year = c(2018:2021)) %>% sf::st_as_sf(), fill = "grey70") +
   geom_sf(aes(fill = delta_hw)) +
-  scale_fill_fermenter("Change in homeworking index", palette = "RdBu", limit = scale_limits, direction = 1) +
+  scale_fill_fermenter("Change (pp)\n2019-2021", palette = "RdBu", limit = scale_limits, direction = 1) +
   coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
-  theme(legend.position = "top") +
+  theme(legend.text.align = 1) +
   labs(
-    title = "Homeworking increase is concentrated mostly in capital regions",
-    subtitle = "Change in homeworking index 2019–2021 by region",
-    caption = "Homeworking index constructed from LFS;\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
+    title = "Telework has increased most in capital and urban regions",
+    subtitle = "Change in regional share of population working from home, 2019–2021",
+    caption = "Source: LFS;\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
   )
 
-ggsave("../Figures/homeworking change.pdf", width = 8.27, height = 11.69)
+ggsave("Figures/Telework_nuts_change.pdf", width = 8, height = 8)
+ggsave("Figures/Telework_nuts_change.png", width = 8, height = 8, bg = "white")
+
+
+# Telework intensity by country and NUTS ----------------------------------------------
+
+LFS_country_total <- LFS %>%
+  group_by(year, country) %>% 
+  summarise(total_pop = sum(coeffy, na.rm = T), .groups = "drop")
+
+hw_country_freq <- LFS %>%
+  group_by(year, country, homework) %>% 
+  summarise(n_people = sum(coeffy, na.rm = TRUE), .groups = "drop") %>%
+  mutate(degurba = "All") %>% 
+  left_join(LFS_country_total, by = c("year", "country")) %>% 
+  mutate(share = n_people / total_pop)
+
+LFS_country_degurba_total <- LFS %>%
+  group_by(year, country, degurba) %>% 
+  summarise(total_pop = sum(coeffy, na.rm = T), .groups = "drop")
+
+hw_country_degurba_freq <- LFS %>%
+  group_by(year, country, degurba, homework) %>% 
+  summarise(n_people = sum(coeffy, na.rm = TRUE), .groups = "drop") %>%
+  left_join(LFS_country_degurba_total, by = c("year", "country", "degurba")) %>% 
+  mutate(share = n_people / total_pop) 
+
+hw_country_freq <- bind_rows(hw_country_freq, hw_country_degurba_freq) %>% 
+  mutate(homework = fct_recode(homework, never = "Person never works at home", sometimes = "Person sometimes works at home", usually = "Person mainly works at home")) %>% 
+  left_join(labels_country, by = c("country" = "country_code")) %>% 
+  relocate(country_name, degurba, .after = country) %>% 
+  arrange(country, year, degurba, homework)
+
+hw_country_freq_share <- hw_country_freq %>% 
+  select(-n_people, -total_pop) %>% 
+  pivot_wider(names_from = homework, names_prefix = "% ", values_from = share)
+
+# At NUTS (urbrur) level
+LFS_nuts_total <- LFS %>%
+  group_by(year, country, reg) %>% 
+  summarise(total_pop = sum(coeffy, na.rm = T), .groups = "drop")
+
+hw_nuts_freq <- LFS %>%
+  group_by(year, country, reg, urbrur, homework) %>% 
+  summarise(n_people = sum(coeffy, na.rm = TRUE), .groups = "drop") %>%
+  left_join(LFS_nuts_total, by = c("year", "country", "reg")) %>% 
+  mutate(
+    share = n_people / total_pop,
+    homework = fct_recode(homework, never = "Person never works at home", sometimes = "Person sometimes works at home", usually = "Person mainly works at home") %>% fct_rev()
+  ) %>% 
+  left_join(labels_nuts, by = c("reg" = "NUTS_ID")) %>% 
+  select(year, country, NUTS = reg, NUTS_name, everything())
+
+hw_nuts_freq_share <- hw_nuts_freq %>% 
+  select(-n_people, -total_pop) %>% 
+  pivot_wider(names_from = homework, names_prefix = "% ", values_from = share)
+
+# Export table
+write_xlsx(
+  list(country_share =  hw_country_freq_share, country_count = hw_country_freq, nuts_share = hw_nuts_freq_share, nuts_count = hw_nuts_freq),
+  "Tables/Telework_intensity_country_nuts.xlsx"
+  )
+
+
+# Regional teleworkability vs telework ------------------------------------
+
+# Aggregate actual telework (homework_any) and potential telework (homework_any) by NUTS region
+regional_teleworkability <- LFS %>%
+  inner_join(teleworkability, by = "isco08_3d") %>%
+  # Recode urbrur:  "Regions undifferentiated" and missing values as "whole country"
+  mutate(urbrur = urbrur %>% fct_recode("Whole country" = "Regions undifferentiated") %>% fct_na_value_to_level(level = "Whole country")) %>% 
+  group_by(year, country, reg, reglab, urbrur) %>% 
+  summarise(
+    telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE),
+    physicalinteraction = weighted.mean(physicalinteraction, wt = coeffy, na.rm = TRUE),
+    pop = sum(coeffy, na.rm = TRUE),
+    .groups = "drop"
+  ) 
+  
+
+regional_teleworkability %>%
+  ggplot(aes(x = physicalinteraction, y = telework_share, label = reglab)) +
+  geom_point(aes(size = pop, colour = urbrur), shape = 1) +
+  geom_smooth(method = lm) +
+  scale_size_area() +
+  facet_grid( ~ year) +
+  coord_equal() +
+  scale_y_continuous(labels = scales::percent) +
+  scale_color_manual(
+    "Type of NUTS region\n(urbrur)",
+    values = c("#1F78B4", "#A6CEE3", "#B2DF8A", "#33A02C", "#FB9A99"), 
+    breaks = c("Capital region", "Mainly urban", "Intermediate", "Mainly rural", "Whole country")
+  ) +
+  guides(size = "none") +
+  theme(panel.spacing = unit(1, "lines")) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  labs(
+    title = "Regional uptake of telework ",
+    subtitle = "Correlation between physical teleworkability and actual telework for EU regions",
+    x = "Regional mean phyisical teleworkability index", y = "Share of people teleworking"
+  ) 
+
+ggsave("Figures/Regional_correlation_teleworkability_telework_urbrur.pdf", height = 6, width = 9)
+ggsave("Figures/Regional_correlation_teleworkability_telework_urbrur.png", height = 6, width = 9, bg = "white")
+
+
+# Interactive version
+plot_regional_teleworkability <- regional_teleworkability %>%
+  filter(year == 2021) %>%
+  ggplot(aes(x = physicalinteraction, y = telework_share, label = reglab)) +
+  geom_point(aes(size = pop, colour = urbrur), shape = 1) +
+  geom_smooth(method = lm) +
+  scale_size_area() +
+  coord_equal() +
+  guides(size = "none") +
+  scale_y_continuous(labels = scales::percent) +
+  scale_color_manual(
+    "Type of NUTS region\n(urbrur)",
+    values = c("#1F78B4", "#A6CEE3", "#B2DF8A", "#33A02C", "#FB9A99"), 
+    breaks = c("Capital region", "Mainly urban", "Intermediate", "Mainly rural", "Whole country")
+  ) +
+  theme(panel.spacing = unit(1, "lines")) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
+  labs(
+    title = "Regional uptake of telework in 2021",
+    subtitle = "Correlation between physical teleworkability and actual telework for EU regions",
+    x = "Regional mean phyisical teleworkability index", y = "Share of people teleworking"
+  ) 
+
+ggplotly(plot_regional_teleworkability)
+

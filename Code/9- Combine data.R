@@ -64,9 +64,6 @@ LFS_regression <- LFS %>%
   inner_join(occupational_variables, by = "isco_3d_code") %>% 
   # Add regional broadband statistics, at the most precise NUTS available,
   left_join(LFS_regions_broadband, by = c("year", "reg")) %>% 
-  # Define homework_any for people working from home at least some of the time
-  mutate(homework_any = if_else(homework_index > 0, 1, 0)) %>%
-  relocate(homework_any, .after = homework_index) %>% 
   # Now that the ISCO matching with strings is complete, remove isco_3d_code (values identical to isco08_3d, which is numeric)
   select(-isco_3d_code)
 

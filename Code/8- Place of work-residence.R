@@ -22,7 +22,7 @@ work_location <- LFS %>%
   ) %>% 
   complete(year, country, work_location, fill = list(n_people = 0, n_obs = 0))
 
-# Number of observation by location
+# Number of observations by location
 work_location %>% 
   select(-n_people) %>% 
   pivot_wider(names_from = work_location, values_from = n_obs)
@@ -54,21 +54,20 @@ ggsave("Figures/LFS_residence_work_eu.png", height = 8, width = 13, bg = "white"
 
 # Telework by location of work (region or country of work vs residence) ----
 
-hw_location <- LFS %>% 
+tw_location <- LFS %>% 
   filter(work_location != "Not stated") %>%
   group_by(year, country, work_location) %>% 
   summarise(
-    homework_index = (sum(homework_index*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
+    telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE),
     n_obs = n(),
     population = sum(coeffy, na.rm = TRUE),
     .groups = "drop"
   ) %>%
   left_join(labels_country, by = c("country" = "country_code"))
 
-
-hw_location %>% 
+tw_location %>% 
   mutate(year = factor(year)) %>% 
-  ggplot(aes(x = year, y = homework_index, group = work_location, color = work_location)) +
+  ggplot(aes(x = year, y = telework_share, group = work_location, color = work_location)) +
   geom_point(aes(size = population)) + geom_line() +
   facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") + 
   scale_color_brewer("Place of work", palette = "Set1", direction = -1) +
@@ -80,13 +79,18 @@ hw_location %>%
     title = "Telework is not necessarily more common for those working in other regions or countries",
     subtitle = "Teleworking frequency by respondent's place of work",
     x = "Year",
-    y = "Teleworking frequency index\n(different scales)",
+    y = "Share of people teleworking \n(different scales)",
     caption = "Source: EU Labour Force Survey,\n own elaboration"
   )
 
 ggsave("Figures/Telework_residence_eu.pdf", height = 8, width = 13)
 ggsave("Figures/Telework_residence_eu.png", height = 8, width = 13, bg = "white")
 
+# Export table of sample size and rates of telework by work_location
+tw_location %>% 
+  arrange(country, year) %>% 
+  relocate(country_name, .after = country) %>% 
+  write_xlsx("Tables/Telework_work_location.xlsx")
 
 
 # Country of residence vs work ---------------------------------

@@ -1,7 +1,6 @@
 # Load common packages and labels ----
 source("Code/0- Load common.R")
 
-
 # Import data -------------------------------------------------------------
 
 # Labour Force Survey microdata, cleaned
@@ -17,25 +16,142 @@ teleworkability <- read_dta("Data/Teleworkability indices.dta") %>%
     physicalinteraction = physicalinteraction/1000
   )
 
-# Occupation-level aggregates
-occupational_variables <- read_dta("Data/occup.dta") %>%
-  as_factor() %>%
-  arrange(country, year, isco08_3d)
+
+# Telework by country and professional status ----------------------------------
+
+LFS %>% 
+  mutate(year = factor(year)) %>% 
+  group_by(year, country, stapro) %>% 
+  summarise(telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), .groups = "drop") %>% 
+  ggplot(aes(x = year, y = telework_share, group = stapro, color = stapro)) +
+  geom_point() + geom_line() +
+  facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
+  scale_y_continuous(labels = percent_format()) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  scale_color_brewer("Professional status", palette = "Set1") +
+  labs(
+    title = "Telework has become more common among employees, catching up with the self-employed",
+    subtitle = "Share of people teleworking at least some of the time, by professional status",
+    y = "Share of people teleworking\n(different scales)"
+  )
+
+ggsave("Figures/Telework_stapro_eu.pdf", height = 8, width = 11)
+ggsave("Figures/Telework_stapro_eu.png", height = 8, width = 11, bg = "white")
 
 
-# Teleworkability vs telework index ---------------------------------------------
+# Table: Telework by country and professional status
+table_tw_stapro <- LFS %>% 
+  mutate(year = factor(year)) %>% 
+  group_by(year, country, stapro) %>% 
+  summarise(telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), .groups = "drop") %>% 
+  pivot_wider(names_from = stapro, names_prefix = "(% TW) ", values_from = telework_share) 
+
+table_tw <- LFS %>% 
+  mutate(year = factor(year)) %>% 
+  group_by(year, country) %>% 
+  summarise(`% TW` = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), .groups = "drop")
+
+full_join(table_tw, table_tw_stapro, by = c("year", "country")) %>% 
+  left_join(labels_country, by = c("country" = "country_code")) %>% 
+  select(year, country, country_name, everything()) %>% 
+  arrange(country, year) %>% 
+  write_xlsx("Tables/LFS_telework_stapro.xlsx")
+
+# Telework by professional status and degurba -----------------------------
 
 # Zoom in on selected countries
 selected_countries <- c("DE", "FR", "IT", "ES", "IE", "NL", "SE", "RO")
 
-occupational_variables %>%
+LFS %>% 
+  filter(country %in% selected_countries) %>% 
+  left_join(labels_country, by = c("country" = "country_code")) %>% 
+  mutate(
+    year = factor(year),
+    stapro = fct_rev(stapro)
+    ) %>% 
+  group_by(year, country_name, stapro, degurba) %>% 
+  summarise(homework_any = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), .groups = "drop") %>% 
+  ggplot(aes(x = year, y = homework_any, group = interaction(degurba, stapro), color = degurba, shape = stapro)) +
+  geom_point() + geom_line() +
+  facet_wrap( ~ country_name, nrow = 2) +
+  scale_y_continuous(labels = percent_format()) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  scale_color_brewer("Degree of urbanisation", palette = "Set2") +
+  scale_shape_manual("Professional status", values = c(19, 0)) +
+  theme(legend.position = "top") +
+  labs(
+    title = "Telework has become more common among employees, catching up with the self-employed",
+    subtitle = "Share of people teleworking at least some of the time, by professional status",
+    y = "Share of people teleworking"
+  )
+
+ggsave("Figures/Telework_stapro_degurba_selected.pdf", height = 8, width = 11)
+ggsave("Figures/Telework_stapro_degurba_selected.png", height = 8, width = 11, bg = "white")
+
+
+
+# Regional telework vs teleworkability by professional status ----------------------------------
+
+tw_hw_stapro <- LFS %>%
+  left_join(teleworkability, by = "isco_3d_code") %>% 
+  group_by(year, country, reglab, stapro) %>% 
+  summarise(
+    telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE),
+    mean_physical_interaction = weighted.mean(physicalinteraction, coeffy, na.rm = TRUE),
+    coeffy = sum(coeffy, na.rm = TRUE),
+    n_obs = n(),
+    .groups = "drop"
+  ) 
+
+tw_hw_stapro %>%  
+  ggplot(aes(x = mean_physical_interaction, y = telework_share, group = stapro, color = stapro)) +
+  geom_point(aes(size = coeffy), shape = 1, alpha = 0.5) +
+  geom_smooth(method = lm) +
+  scale_size_area() +
+  facet_grid(~ year) +
+  scale_color_brewer("Professional status", palette = "Set1") +
+  coord_equal() +
+  scale_y_continuous(labels = percent_format()) +
+  guides(size = "none") +
+  theme(
+    legend.position = "top",
+    panel.spacing = unit(1, "lines")
+    ) +
+  labs(
+    title = "Telework for employees is cathing up with the self-employed",
+    subtitle = "Correlation between physical teleworkability and actual telework for NUTS-2 regions",
+    x = "Phyisical teleworkability index", y = "Share of people teleworking"
+  )
+
+ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.pdf", height = 4, width = 9)
+ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.png", height = 4, width = 9, bg = "white")
+
+
+# Occupational telework vs teleworkability --------------------------------
+
+tw_hw_isco <- LFS %>%
+  inner_join(teleworkability, by = "isco_3d_code") %>% 
+  group_by(year, country, isco_3d_code) %>% 
+  summarise(
+    share_telework = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE),
+    mean_physical_interaction = mean(physicalinteraction, na.rm = TRUE),
+    coeffy = sum(coeffy, na.rm = TRUE),
+    n_obs = n(),
+    .groups = "drop"
+  ) %>% 
+  left_join(labels_country, by = c("country" = "country_code"))
+
+# Zoom in on selected countries
+selected_countries <- c("DE", "FR", "IT", "ES", "IE", "NL", "SE", "RO")
+
+tw_hw_isco %>%
   filter(country %in% selected_countries) %>%
-  ggplot(aes(x = physicalinteraction, y = homework_index, size = coeffy)) +
+  ggplot(aes(x = mean_physical_interaction, y = share_telework, size = coeffy)) +
   geom_point(shape = 1) +
   geom_smooth(method = lm) +
   scale_size_area() +
-  facet_grid( year ~ country) +
-  coord_equal() +
+  scale_y_continuous(labels = percent_format())+
+  facet_grid( year ~ country_name) +
   guides(size = "none") +
   labs(
     title = "Telework is reaching its potential",
@@ -49,77 +165,8 @@ ggsave("Figures/Correlation_teleworkability_telework_selected.pdf", height = 6, 
 ggsave("Figures/Correlation_teleworkability_telework_selected.png", height = 6, width = 9, bg = "white")
 
 
-tw_hw_degurba <- LFS %>%
-  group_by(year, country, isco_3d_code, degurba) %>% 
-  summarise(
-    homework_index = (sum(homework_index*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
-    coeffy = sum(coeffy, na.rm = TRUE),
-    n_obs = n(),
-    .groups = "drop"
-  ) %>% 
-  left_join(teleworkability, by = "isco_3d_code") 
 
-#TODO
-# Ireland
-tw_hw_degurba %>%
-  filter(country %in% c("IE")) %>% 
-  ggplot(aes(x = physicalinteraction, y = homework_index,  group = degurba, color = degurba, size = coeffy)) + 
-  geom_point(shape = 1) +
-  geom_smooth(method = lm) +
-  scale_color_brewer("Degree of urbanisation", palette = "Set2", direction = -1, guide = "none") +
-  scale_size_area() +
-  facet_grid(degurba ~ year) +
-  coord_equal() +
-  guides(size = "none") +
-  labs(
-    title = "Ireland: telework is reaching its potential",
-    subtitle = "Correlation between physical teleworkability and actual telework for ISCO 3-digit occupations",
-    x = "Phyisical teleworkability index", y = "Actual telework"
-  ) +
-  theme(panel.spacing = unit(1, "lines")) +
-  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
-
-
-
-
-# Telework(ability) by employment status ----------------------------------
-
-tw_hw_stapro <- LFS %>%
-  left_join(teleworkability, by = "isco_3d_code") %>% 
-  group_by(year, country, reglab, stapro) %>% 
-  summarise(
-    homework_index = (sum(homework_index*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
-    teleworkability = (sum(physicalinteraction*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
-    coeffy = sum(coeffy, na.rm = TRUE),
-    n_obs = n(),
-    .groups = "drop"
-  ) 
-
-tw_hw_stapro %>%  
-  ggplot(aes(x = teleworkability, y = homework_index, group = stapro, color = stapro)) +
-  geom_point(aes(size = coeffy), shape = 1, alpha = 0.5) +
-  geom_smooth(method = lm) +
-  scale_size_area() +
-  facet_grid(~ year) +
-  scale_color_brewer("Professional status", palette = "Set1") +
-  coord_equal() +
-  guides(size = "none") +
-  theme(
-    legend.position = "top",
-    panel.spacing = unit(1, "lines")
-    ) +
-  labs(
-    title = "Telework for employees is cathing up with the self-employed",
-    subtitle = "Correlation between physical teleworkability and actual telework for NUTS-2 regions",
-    x = "Phyisical teleworkability index", y = "Homeworking index"
-  )
-
-ggsave("Figures/Correlation_teleworkability_telework_stapro.pdf", height = 4, width = 9)
-ggsave("Figures/Correlation_teleworkability_telework_stapro.png", height = 4, width = 9, bg = "white")
-
-
-
-# Telework frequency by occupation ----------------------------------------
+# Telework intensity by occupation ----------------------------------------
 
 hw_occupation_freq <- LFS %>%
   group_by(year, country, isco1d, homework) %>% 
@@ -158,9 +205,9 @@ ggsave("Figures/Telework_intensity_occup_ireland.pdf", height = 6, width = 9)
 ggsave("Figures/Telework_intensity_occup_ireland.png", height = 6, width = 9, bg = "white")
 
 
-# Telework index by occupation, year, country -----------------------
+# Variance in telework share by occupation across countries -----------------------
 
-occup_homework_country <- LFS %>%
+occup_hw_country <- LFS %>%
   # Exclude non-responses, missing, and armed forces
   filter(!isco1d %in% "Non response", !is.na(isco1d), isco1d != "Armed forces") %>%
   # Aggregate at ISCO 2-digit level
@@ -168,11 +215,7 @@ occup_homework_country <- LFS %>%
   # Exclude ISCO 2-digit codes ending in 0 (which are actually 1-digit codes)
   filter(!is.na(isco_2d_code), !str_detect(isco_2d_code, "0$"), ) %>%  
   group_by(year, country, isco_2d_code) %>%
-  summarise(
-    homework_index = (sum(homework_index*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
-    n_obs = n(),
-    .groups = "drop"
-  ) %>% 
+  summarise(telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), .groups = "drop") %>%
   left_join(labels_isco, by = c("isco_2d_code" = "code")) %>% 
   arrange(isco_2d_code) %>% 
   mutate(
@@ -181,18 +224,19 @@ occup_homework_country <- LFS %>%
   )
 
 # Box-plot for ISCO 2-digit occupation, across countries
-occup_homework_country %>%
+occup_hw_country %>%
   filter(year == 2021) %>%
   group_by(isco_2d_code, occupation_label, occup_group) %>%
-  ggplot(aes(x = occupation_label, y = homework_index, fill = occup_group, label = occupation)) +
+  ggplot(aes(x = occupation_label, y = telework_share, fill = occup_group, label = occupation)) +
   geom_boxplot() +
   coord_flip() +
+  scale_y_continuous(labels = percent_format()) +
   scale_fill_brewer("Occupation Group\n(ISCO 2008, 1-digit)", palette = "Paired", guide = "none") +
   labs(
     title = "Does the rate of telework vary for the same occupation, across EU countries?",
-    subtitle = "Distribution of telework index across countries, by ISCO 2-digit occupation",
+    subtitle = "Share of population teleworking across countries, by ISCO 2-digit occupation",
     x = "Occupation (ISCO 2008, 2-digit)",
-    y = "Telework",
+    y = "Share of people teleworking",
     caption = "Source EU-LFS. Employed population, excluding armed forces."
   )
 
@@ -220,7 +264,7 @@ occup_homework_freq <- LFS %>%
   ) %>% 
   group_by(year, NUTS_ID, isco_2d_code) %>%
   summarise(
-    homework_index = (sum(homework_index*coeffy, na.rm = TRUE)/sum(coeffy, na.rm = TRUE)),
+    share_telework = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), 
     n_obs = n(),
     .groups = "drop"
   ) %>% 
@@ -242,16 +286,17 @@ map_homework_occup_region %>%
   # Plot the country boundaries NUTS-0 in light grey in background
   geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0) %>% crossing(year = c(2018:2021)) %>% sf::st_as_sf(), fill = "grey70") +
   # Plot the index values on top
-  geom_sf(aes(fill = homework_index)) +
+  geom_sf(aes(fill = share_telework)) +
   facet_wrap(. ~ year) +
-  scale_fill_viridis_b("Telework\nindex") +
+  scale_fill_viridis_b("% Teleworking", labels = label_percent()) +
+  # scale_fill_viridis_c("% Teleworking", labels = label_percent()) +
   coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
   # theme(legend.position = "top") +
   labs(
-    title = "Rates of telework vary across EU regions, even for the same occupation, and the gap increased over time",
-    subtitle = "NUTS-1 average of the homeworking index for ISCO 24: Business and Administration Professionals",
-    caption = "Telework index constructed from LFS;\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
+    title = "Rates of telework increasingly vary across EU regions, even for the same occupation",
+    subtitle = "Share of people teleworking, by region, for occupation ISCO 24: Business and Administration Professionals",
+    caption = "Regions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
   )
 
-ggsave("Figures/Telework_isco24_countries.pdf", height = 8, width = 9)
-ggsave("Figures/Telework_isco24_countries.png", height = 8, width = 9, bg = "white")
+ggsave("Figures/Telework_isco24_map.pdf", height = 8, width = 9)
+ggsave("Figures/Telework_isco24_map.png", height = 8, width = 9, bg = "white")

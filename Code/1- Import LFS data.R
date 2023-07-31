@@ -9,7 +9,7 @@ LFS_raw <- read_dta("Data/LFSreg2018_21finalr.dta")
 
 # This block contains all the modifications to the LFS data,
 # Which are then used for descriptive statistics in the following scripts
-# Until the data is exported for regressions
+# Until the data is exported for regressions in Code/9- Combine data.R
 
 LFS <- LFS_raw %>%
   # Recode specific values into missing values <NA>
@@ -29,15 +29,17 @@ LFS <- LFS_raw %>%
   select(-`_merge`) %>% 
   # Include only employees and self-employed (exclude "Family workers" and a few NAs)
   filter(stapro %in% c("Employee", "Self-employed")) %>%
-  # Encode homework index, using agreed-upon coefficients
   mutate(
+    # Encode homework index, using agreed-upon coefficients
     homework_index = case_when(
       homework == "Person mainly works at home" ~ 0.75, 
       homework == "Person sometimes works at home" ~ 0.25, 
       homework == "Person never works at home"  ~ 0 
-    )
+    ),
+    # Encode homework_any as a binary variable
+    homework_any = if_else(homework_index > 0, 1L, 0L)
   ) %>% 
-  relocate(homework_index, .after = "homework") %>% 
+  relocate(homework_index, homework_any, .after = "homework") %>% 
   # Create isco_3d_code, a string version of isco08_3d, left-padded with zeroes to reach 3-digit
   # This fixes problem with armed forces occupations, which start with 0
   mutate(isco_3d_code = str_pad(isco08_3d, width = 3, side = "left", pad = "0")) %>% 
