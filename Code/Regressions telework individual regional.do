@@ -17,12 +17,6 @@ cd "C:\Users\sostema\repositories\Telework regional\Data"
 * and cleaned based on Enrique's initial analysis
 use "LFS_regression.dta" 
 
-/*
-label variable broadband_shh "Share of households with broadband access (at NUTS 1-2 level)"
-label variable work_location "Place of work, relative to place of residence (different region/country)"
-label variable physicalinteraction "TWY: physical interaction"
-label variable socialinteraction "TWY: social interaction"
-*/
 
 **# Data and variable details *******************************************************
 
@@ -86,6 +80,17 @@ use "LFS_regression.dta", clear
 
 * Generate some individual-level variables
 
+* Generate "isco0d" broad occupational classifications, by John (adapted to start from 3-digits)
+recode isco08_3d (100/299=1)(300/599=2)(600/799=3)(800/969=4), gen(isco0d)
+
+label define isco0d 1 "White-collar high-skilled"
+label define isco0d 2 "White-collar low/mid-skilled", add
+label define isco0d 3 "Blue-collar high-skilled", add
+label define isco0d 4 "Blue-collar low/mid-skilled", add
+label values isco0d isco0d
+label variable isco0d "Occupation classes"
+
+
 * Age (young, prime-age, old) x sex
 recode age (1/3 = 1 Young) (4/7 = 2 Prime) (8/13 = 3 Old), gen(agecat)
 gen yw = agecat == 1 & sex == 2
@@ -94,6 +99,13 @@ gen ow = agecat == 3 & sex == 2
 gen ym = agecat == 1 & sex == 1
 gen pm = agecat == 2 & sex == 1
 gen om = agecat == 3 & sex == 1
+
+label variable yw "Young women"
+label variable pw "Prime-age women"
+label variable ow "Old women"
+label variable ym "Young men"
+label variable pm "Prime-age men"
+label variable om "Old men"
 
 * Education level
 gen lowed = hatlev >= 0 & hatlev <= 200
@@ -119,33 +131,82 @@ fvset base 6 country
 * (Set Germany as the default category)
 
 
+**# Estimate individual-level pooled models, present side-by-side -------------------------------------
+
+* Create lists of controls to add incrementally to specifications
+global twy        c.physicalinteraction c.socialinteraction
+global individual yw pw ow ym om lowed highed nonnat i.isco0d
+global work       ftpt i.stapro temporary i.work_location
+global regional   i.degurba capital broadband_shh i.reglab
+
+* Clear previously-stored individual-level models from memory
+eststo drop P*
+
+* P1: teleworkability indices
+qui reg homework_any ($twy)##i.year i.country [pw=coeffy]
+estadd local fe Country
+eststo P1
+
+* P2: (P1) + individual characteristics
+qui reg homework_any ($twy)##i.year $individual i.country [pw=coeffy] 
+estadd local fe Country
+eststo P2
+
+* P3: (P2) + work characteristics
+qui reg homework_any ($twy)##i.year $individual $work i.country [pw=coeffy] 
+estadd local fe Country
+eststo P3
+
+* P4: (P3) + regional characteristics 
+qui reg homework_any ($twy)##i.year $individual $work $regional [pw=coeffy]
+estadd local fe Region
+eststo P4
+
+* P5: (P4) - teleworkability indicators (for comparison) 
+qui reg homework_any i.year $individual $work $regional [pw=coeffy]
+estadd local fe Region
+eststo P5
+
+* export results
+* Temporarily change end-of-line delimiter to ";", to wrap esstab instructions across multiple lines
+#delim ;
+esttab P*, nonotes not r2 lab compress obslast 
+	drop(*country* *reglab*) stats(fe r2 N, labels("Geographical FE" "Adjusted R-squared"));
+
+esttab P* using "..\Tables\reg_individual_pooled.tsv", nonotes nomtitles se not r2 lab compress obslast tab replace;
+
+esttab P* using "..\Tables\reg_individual_pooled.rtf", not r2 lab compress obslast 
+		drop(*country* *reglab*) stats(fe N, labels("Geographical FE" "Adjusted R-squared"))
+		title("Person teleworking (binary)") nomtitles replace;
+#delim cr
+
+
 
 **# Estimate individual-level models, year by year, incrementally ***************************
 
-* Create lists of controls to add incrementally to specifications
-global twy        physicalinteraction socialinteraction
-global individual yw pw ow ym om lowed highed nonnat
-global work       ftpt i.stapro temporary i.work_location
-global region     i.degurba capital broadband_shh
-
-eststo clear
+eststo drop B*
 
 forval y = 2018(1)2021 {
 	* B1: teleworkability indices
 	qui reg homework_any $twy i.country [pw=coeffy] if year == `y'
 	eststo B1_`y', title("`y'")
+	estadd local fe_country Yes
 	
 	* B2: (B1) + individual characteristics
 	qui reg homework_any $twy $individual i.country [pw=coeffy] if year == `y'
 	eststo B2_`y', title("`y'")
+	estadd local fe_country Yes
 	
 	* B3: (B2) + work characteristics
 	qui reg homework_any $twy $individual $work i.country [pw=coeffy] if year == `y'
 	eststo B3_`y', title("`y'")
+	estadd local fe_country Yes
 	
 	* B4: (B3) + regional characteristics
-	qui reg homework_any $twy $individual $work $region i.country [pw=coeffy] if year == `y'
+	qui reg homework_any $twy $individual $work $regional i.country [pw=coeffy] if year == `y'
 	eststo B4_`y', title("`y'")
+	estadd local fe_country Yes
+	estadd local fe_region  Yes
 }
 
 * Notice that we're using country fixed effects everywhere
@@ -160,20 +221,22 @@ forval b = 1/4 {
 }
 
 * Plain-text table
+* Initialise the table
 #delim ;
-esttab B1_* using "..\Tables\ind_models_year.tsv", tab
+esttab B1_* using "..\Tables\reg_individual_year.tsv", tab
 	nonotes not r2 lab compress obslast drop(*country*) mlabels(,titles)
 	title("Probability of person working from home, at least some of the time") replace;
 
 * Plain-text table
-esttab B1_* using "..\Tables\ind_models_year.rtf", ///
+esttab B1_* using "..\Tables\reg_individual_year.rtf", ///
 	not r2 lab compress obslast drop(*country*) mlabels(,titles)///
 	title("Probability of person working from home, at least some of the time") replace;
 #delim cr
 
+* Add furter models
 forval b = 2/4 {
-	esttab B`b'_* using "..\Tables\ind_models_year.tsv", nonotes not r2 lab compress obslast drop(*country*) mlabels(,title) nonum tab append
-	esttab B`b'_* using "..\Tables\ind_models_year.rtf",         not r2 lab compress obslast drop(*country*) mlabels(,title) nonum     append
+	esttab B`b'_* using "..\Tables\reg_individual_year.tsv", nonotes not r2 lab compress obslast                 mlabels(,title) nonum tab append
+	esttab B`b'_* using "..\Tables\reg_individual_year.rtf",         not r2 lab compress obslast drop(*country*) drop(*reglab*) mlabels(,title) nonum     append
 
 }
 
@@ -183,58 +246,22 @@ forval b = 2/4 {
 eststo clear
 forval i = 2018(1)2021 {
 	quietly: reg homework_any i.isco08_3d [pw=coeffy] if year == `i'
-	eststo Year`i', title("`i'")
+	eststo Occup`i', title("`i'")
 }
 quietly: reg homework_any i.isco08_3d [pw=coeffy]
 eststo All
 
-esttab, nonotes drop(*) nocons not r2 lab compress obslast mlabels(,titles)
-esttab using "..\Tables\occ_models_year.tsv", nonotes drop(*) nocons not r2 lab compress obslast tab append
-esttab using "..\Tables\occ_models_year.rtf",         drop(*) nocons not r2 lab compress obslast     append
+esttab Occup*, nonotes drop(*) nocons not r2 lab compress obslast mlabels(,titles)
+esttab using "..\Tables\reg_occupation_year.tsv", nonotes drop(*) nocons not r2 lab compress obslast tab append
+esttab using "..\Tables\reg_occupation_year.rtf",         drop(*) nocons not r2 lab compress obslast     append
 eststo clear
 
-
-**# Estimate individual-level pooled models, present side-by-side -------------------------------------
-
-local twy c.physicalinteraction c.socialinteraction
-local individual yw pw ow ym om lowed highed nonnat
-local work ftpt i.stapro temporary i.work_location
-local region i.degurba capital broadband_shh
-
-* P1: teleworkability indices
-qui reg homework_any (`twy')##i.year i.country [pw=coeffy]
-eststo P1
-
-* P2: (P1) + individual characteristics
-qui reg homework_any (`twy')##i.year `individual' i.country [pw=coeffy] 
-eststo P2
-
-* P3: (P2) + work characteristics
-qui reg homework_any (`twy')##i.year `individual' `work' i.country [pw=coeffy] 
-eststo P3
-
-* P4: (P3) + regional characteristics 
-qui reg homework_any (`twy')##i.year `individual' `work' `region' i.country [pw=coeffy]
-eststo P4
-
-* P5: (P4) - teleworkability indicators (for comparison) 
-qui reg homework_any i.year `individual' `work' `region' i.country [pw=coeffy]
-eststo P5
-
-#delim ;
-esttab P*, nonotes not r2 lab compress obslast drop(*country*);
-
-esttab P* using "..\Tables\ind_models_pooled.tsv", nonotes drop(*country*) not r2 lab compress obslast tab replace;
-
-esttab P* using "..\Tables\ind_models_pooled.rtf", drop(*country*) not r2 lab compress obslast 
-		title("Probability of person working from home, at least some of the time") replace;
-#delim cr
-eststo clear
 
 **# Estimate regional-level models ---------------------------------------------------------------------
 
 use "LFS_regression.dta", clear
 
+* compute regional-level demographics
 gen lowed = hatlev >= 0 & hatlev <= 200
 gen mided = hatlev >= 300 & hatlev <= 499
 gen highed = hatlev >= 500 & hatlev < .
@@ -248,6 +275,23 @@ gen nonnat = countryb != "NAT"
 recode age (1 = 17) (2 = 22) (3 = 27) (4 = 32) (5 = 37) (6 = 42) (7 = 47) (8 = 52) (9 = 57) (10 = 62) (11 = 67) (12 = 72) (13 = 77), gen(agecont)
 
 
+* Generate "isco0d" broad occupational classifications, based on code by John (adapted to start from 3-digits)
+recode isco08_3d (100/299=1)(300/599=2)(600/799=3)(800/969=4), gen(isco0d)
+label define isco0d 1 "White-collar high-skilled"
+label define isco0d 2 "White-collar low/mid-skilled", add
+label define isco0d 3 "Blue-collar high-skilled", add
+label define isco0d 4 "Blue-collar low/mid-skilled", add
+label values isco0d isco0d
+label variable isco0d "Occupation classes"
+
+* expand the occupation classes in individual variables
+tab isco0d, gen(occup_classes)
+
+* drop occupation classes corresponding to NAs (makes globbing later easier)
+drop occup_classes5 occup_classes6
+
+
+* Define regional-level sectoral variables
 gen agric = nace1d == 1
 gen manuf = nace1d == 3
 gen privservadv = nace > 9 & nace < 15
@@ -267,43 +311,46 @@ gen n = 1
 * Collapse at the regional, year (and country?) level
 collapse (mean) homework_index (mean) homework_any (mean) physical (mean) social /// Dependent vars and teleworkability
 	(mean) city (mean) rural (mean) capital (mean) broadband_shh (mean) work_other_region (mean) work_other_country /// Geographic characteristics
-	(mean) female (mean) lowed (mean) highed (mean) pt (mean) self (mean) temporary (mean) nonnat (mean) agecont /// Demographics
+	(mean) female (mean) lowed (mean) highed (mean) pt (mean) self (mean) temporary (mean) nonnat (mean) agecont (mean) occup_classes* /// Demographics
 	(mean) agric (mean) manuf (mean) privserv (mean) publserv /// Sector
-	(rawsum) coeffy (rawsum) n [aw=coeffy], by(reglab country year)
+	(rawsum) coeffy (rawsum) n [aw=coeffy], by(reglab year)
 
-//TODO: make global variables
-* Estimate pooled regression
-local twy c.physicalinteraction c.socialinteraction
-local region city rural i.capital broadband_shh work_other_region work_other_country
-local demographics female lowed highed pt self temporary nonnat agecont
-local sector agric manuf privserv publserv
+* Define variable groups
+global geo    city rural i.capital broadband_shh work_other_region work_other_country
+global demo   female lowed highed pt self temporary nonnat agecont
+global sector agric manuf privserv publserv
+
+
+* Estimate pooled regional regressions
 
 eststo clear
-* P1: teleworkability indices
-qui reg homework_any (`twy')##i.year i.country [pw=coeffy]
-eststo P1
+* R1: teleworkability indices
+qui reg homework_any ($twy)##i.year [pw=coeffy]
+eststo R1
 
-* P2: (P1) + region characteristics
-qui reg homework_any (`twy')##i.year `region' i.country [pw=coeffy] 
-eststo P2
+* R2: (R1) + geographic characteristics
+qui reg homework_any ($twy)##i.year $geo [pw=coeffy] 
+eststo R2
 
-* P3: (P2) + work characteristics
-qui reg homework_any (`twy')##i.year `region' `demographics' i.country [pw=coeffy] 
-eststo P3
+* R3: (R2) + work characteristics
+qui reg homework_any ($twy)##i.year $geo $demo [pw=coeffy] 
+eststo R3
 
-* P4: (P3) + regional characteristics 
-qui reg homework_any (`twy')##i.year `region' `demographics' `sector' i.country [pw=coeffy]
-eststo P4
+* R4: (R3) + sector characteristics 
+qui reg homework_any ($twy)##i.year $geo $demo $sector [pw=coeffy]
+eststo R4
 
-* P5: (P4) - teleworkability indicators (for comparison) 
-qui reg homework_any i.year `region' `demographics' `sector' i.country [pw=coeffy]
-eststo P5
+* R5: (R4) - teleworkability indicators (for comparison) 
+qui reg homework_any i.year $geo $demo $sector [pw=coeffy]
+eststo R5
 
-esttab P*, nonotes not r2 lab compress obslast drop(*country*)
 
+* Show and export regression tables
 #delim ;
-esttab P* using "..\Tables\reg_models_pooled.tsv", nonotes drop(*country*) nocons not r2 lab compress obslast tab replace;
+esttab R*, nonotes not r2 lab compress obslast;
 
-esttab P* using "..\Tables\reg_models_pooled.rtf", drop(*country*) nocons not r2 lab compress obslast 
-		title("Regional share of people working from home, at least some of the time") replace;
+esttab R* using "..\Tables\reg_regional_pooled.tsv", nonotes nomtitles se not r2 lab compress obslast tab replace;
+
+esttab R* using "..\Tables\reg_regional_pooled.rtf", not r2 lab compress obslast 
+		title("Share of people teleworking (by NUTS region)") nomtitles replace;
 #delim cr
