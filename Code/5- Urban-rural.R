@@ -144,7 +144,7 @@ hw_degurba_freq %>%
   ggplot(aes(x = year, y = share, group = homework, fill = homework)) +
   geom_col(position = "stack") +
   facet_grid(degurba ~ country_name) +
-  scale_fill_brewer("Work at home", palette = "PuBu") +
+  scale_fill_brewer("Telework", palette = "PuBu") +
   scale_y_continuous(labels = percent_format()) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(

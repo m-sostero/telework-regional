@@ -166,7 +166,7 @@ ggsave("Figures/Correlation_teleworkability_telework_selected.png", height = 6, 
 
 
 
-# Telework intensity by occupation ----------------------------------------
+# Ireland, telework intensity by occupation ----------------------------------------
 
 hw_occupation_freq <- LFS %>%
   group_by(year, country, isco1d, homework) %>% 
@@ -181,7 +181,6 @@ hw_occupation_freq <- LFS %>%
   ) %>%
   left_join(labels_country, by = c("country" = "country_code"))
 
-# Ireland, share of employees by occupation
 hw_occupation_freq %>% 
   filter(country == "IE") %>% 
   filter(!is.na(homework), !isco1d %in% c("Armed forces", "Non response")) %>% 
@@ -194,9 +193,9 @@ hw_occupation_freq %>%
   geom_col(position = "stack") +
   facet_wrap(~ isco1d, ncol = 3) +
   # scale_y_continuous(labels = percent_format()) +
-  scale_fill_brewer("Work at home", palette = "PuBu") +
+  scale_fill_brewer("Telework", palette = "PuBu") +
   labs(
-    title = "Ireland",
+    title = "In Ireland, professionals teleworking have nearly doubled",
     subtitle = "Telework intensity, by occupation",
     y = "Number of employees (thousands)\nby telework frequency"
   )
