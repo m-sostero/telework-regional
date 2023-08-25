@@ -307,10 +307,12 @@ tw_hw_degurba <- LFS %>%
     .groups = "drop"
   ) 
 
+write_rds(tw_hw_degurba, "Data/tw_hw_degurba.rds")
+
 tw_hw_degurba %>%  
   ggplot(aes(x = teleworkability, y = telework_share, size = coeffy, label = reglab, group = stapro, color = stapro)) +
   geom_point(aes(color = stapro), shape = 1, alpha = 0.3) +
-  geom_smooth(method = lm) +
+  geom_smooth(method = lm, mapping = aes(weight = coeffy)) +
   scale_size_area() +
   facet_grid(degurba ~ year) +
   scale_color_brewer("Professional status", palette = "Set1") +
