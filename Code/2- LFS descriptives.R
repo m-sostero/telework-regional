@@ -50,6 +50,28 @@ LFS %>%
 # xtable(.)
 
 
+
+# Missing values on homeworking variable ----------------------------------
+
+missing_homework_pop <- LFS %>%
+  group_by(country, homework) %>%
+  summarise(n_people = sum(coeffy, na.rm = TRUE)) %>%
+  pivot_wider(names_from = homework, values_from = n_people, values_fill = 0) %>% 
+  rename(Missing = `NA`)
+
+missing_homework_resp <- LFS %>%
+  count(country, homework) %>%
+  pivot_wider(names_from = homework, values_from = n, values_fill = 0) %>% 
+  rename(Missing = `NA`) 
+  
+write_xlsx(
+  list(Population =  missing_homework_pop, Respondents = missing_homework_resp),
+  "Tables/Telework_intensity_response.xlsx"
+  )
+  
+
+
+
 # Employees vs self-employed ----------------------------------------------
 
 LFS %>% 

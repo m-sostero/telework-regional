@@ -1,0 +1,14 @@
+TODO:
+[X] explain differences wrt ESTAT sample:
+    - age: 15 year or over
+    - Activity and employment status: "Employed persons except contributing family workers" [NCFAM]
+[X] check stats include hw:NA: yes
+- "Czechia"
+- Figure 6: add intermediate vs urban axis
+- TW stats at EU level by degurba
+
+
+- TW by age band
+- Clean plot with top/bottom regions
+- Ask Patrizia about connectivity data
+

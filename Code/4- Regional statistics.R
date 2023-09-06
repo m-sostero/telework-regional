@@ -29,7 +29,7 @@ teleworkability <- read_dta("Data/Teleworkability indices.dta") %>%
 regional_telework <- LFS %>% 
   # Recode urbrur:  "Regions undifferentiated" and missing values as "whole country"
   mutate(urbrur = urbrur %>% fct_recode("Whole country" = "Regions undifferentiated") %>% fct_na_value_to_level(level = "Whole country")) %>% 
-  group_by(year, country, reg, reglab, urbrur) %>% 
+  group_by(year, country, reg, reglab, urbrur) %>%
   summarise(telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), .groups = "drop")
 
 # Same, but by stapro
@@ -55,32 +55,26 @@ regional_telework %>%
 
 # Top teleworking regions --------------------------------
 
-telework_top_regions_year <- regional_telework %>%
-  group_by(year) %>%
-  arrange(year, desc(telework_share)) %>%
-  mutate(year_rank = 1:n()) %>%
-  group_by(reglab) %>%
-  mutate(min_rank = min(year_rank)) %>%
-  ungroup()
+# Filter the 10 regions with the highest telework rates in 2021
+telework_top_regions_2021 <- regional_telework %>%
+  filter(year == 2021) %>% 
+  slice_max(telework_share, n = 10) 
 
-plot_ends <- telework_top_regions_year %>%
-  filter(min_rank <= 5) %>%
+# Table with names and values of top 10 regions, to decorate plot. 
+# Adjust label positions manually if needed
+plot_ends <- telework_top_regions_2021 %>%
+  slice_max(year, n = 1) %>% 
   mutate(
     reglab = as.character(reglab) %>% str_replace("_", ": "),
     reglab = str_replace_all(reglab, "^BE10.*", "BE10: Brussels-Capital"),
-    reglab = str_wrap(reglab, 30),
     # Bump some label position manually, to avoid overplotting
-    telework_share = if_else(str_detect(reglab, "BE31.*"), telework_share - 0.005, telework_share),
-    telework_share = if_else(str_detect(reglab, "BE24.*"), telework_share + 0.005, telework_share),
-    telework_share = if_else(str_detect(reglab, "NL00.*"), telework_share - 0.006, telework_share),
-    telework_share = if_else(str_detect(reglab, "DK01.*"), telework_share + 0.005, telework_share),
-    telework_share = if_else(str_detect(reglab, "SE22.*"), telework_share - 0.005, telework_share)
-    ) %>% 
-  group_by(reglab) %>%
-  top_n(1, year)
+    # telework_share = if_else(str_detect(reglab, "BE31.*"), telework_share - 0.005, telework_share),
+    reglab = str_wrap(reglab, 30)
+  )
 
-telework_top_regions_year %>%
-  filter(min_rank <= 5) %>%
+# Retrieve and plot the time series for the 10 regions concerned, add labels at the end
+regional_telework %>% 
+  filter(reg %in% telework_top_regions_2021$reg) %>%
   ggplot(aes(x = year, y = telework_share, group = reglab, colour = urbrur)) +
   geom_point() + geom_line() +
   scale_y_continuous(
@@ -95,39 +89,32 @@ telework_top_regions_year %>%
   theme(legend.position = "top") +
   labs(
     title = "The regions with the highest telework rates tend to be capital regions (or surrounding them)",
-    subtitle = "Share of population working from home at least some of the time, by region",
+    subtitle = "Ten regions with highest share of people teleworking in 2021",
     y = "Share of people teleworking"
   )
 
-ggsave("Figures/Telework_nuts_top.pdf", height = 6, width = 9)
-ggsave("Figures/Telework_nuts_top.png", height = 6, width = 9, bg = "white")
+ggsave("Figures/Telework_nuts_top_2021.pdf", height = 6, width = 9)
+ggsave("Figures/Telework_nuts_top_2021.png", height = 6, width = 9, bg = "white")
 
 
 # Lowest teleworking regions ----------------------------------------------
 
-telework_bottom_regions_year <- regional_telework %>%
-  group_by(year) %>%
-  arrange(year, telework_share) %>%
-  mutate(year_rank = 1:n()) %>%
-  group_by(reglab) %>%
-  mutate(min_rank = min(year_rank)) %>%
-  ungroup()
+# Same procedure as above
+telework_bottom_regions_2021 <- regional_telework %>%
+  filter(year == 2021) %>% 
+  slice_min(telework_share, n = 10) 
 
+plot_ends <- telework_bottom_regions_2021 %>%
+  slice_max(year, n = 1) %>% 
+  mutate(
+    reglab = as.character(reglab) %>% str_replace("_", ": "),
+    # Bump some label position manually, to avoid overplotting
+    # telework_share = if_else(str_detect(reglab, "BE31.*"), telework_share - 0.005, telework_share),
+    reglab = str_wrap(reglab, 30)
+  )
 
-plot_ends <- telework_bottom_regions_year %>%
-  filter(min_rank <= 5) %>%
-  group_by(reglab) %>%
-  top_n(1, year) %>% 
-  arrange(desc(telework_share))
-
-plot_ends <- tribble(
-  ~telework_share, ~reglab,  
-  0.166,  "RO32: Bucureşti-Ilfov",
-  0.045, "RO42: Vest\nRO22: Sud-Est\nBG42: South-Western\nBG31: North-West\nBG34: South-Eastern\nBG33: North-East\nRO41: Sud-Vest Oltenia\nRO31: Sud-Muntenia\nRO21: Nord-Est"
-)
-
-telework_bottom_regions_year %>%
-  filter(min_rank <= 5) %>%
+regional_telework %>% 
+  filter(reg %in% telework_bottom_regions_2021$reg) %>%
   ggplot(aes(x = year, y = telework_share, group = reglab, colour = urbrur)) +
   geom_point() + geom_line() +
   scale_y_continuous(
@@ -141,14 +128,13 @@ telework_bottom_regions_year %>%
   ) +
   theme(legend.position = "top") +
   labs(
-    title = "The regions with the lowest telework rates are rural and intermediate, in RO, BG, EL",
-    subtitle = "Share of population working from home at least some of the time, by region",
-    y = "Share of people teleworking",
-    caption = "Source: EU Labour Force Survey,\n own elaboration"
+    title = "The regions with the highest telework rates tend to be capital regions (or surrounding them)",
+    subtitle = "Ten regions with highest share of people teleworking in 2021",
+    y = "Share of people teleworking"
   )
 
-ggsave("Figures/Telework_nuts_bottom.pdf", height = 6, width = 9)
-ggsave("Figures/Telework_nuts_bottom.png", height = 6, width = 9, bg = "white")
+ggsave("Figures/Telework_nuts_bottom_2021.pdf", height = 6, width = 9)
+ggsave("Figures/Telework_nuts_bottom_2021.png", height = 6, width = 9, bg = "white")
 
 
 # Teleworking across all regions ------------------------------------------
