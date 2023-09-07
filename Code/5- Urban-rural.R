@@ -39,22 +39,19 @@ compute_tw_share <- function(data, ...){
 
 # Telework share by degurba -----------------------------------------------
 
+# Compute %tw by country, year, and degurba
 hw_degurba <- LFS %>%
   mutate(degurba = fct_rev(degurba)) %>% 
   compute_tw_share(year, country, degurba) %>% 
   left_join(labels_country, by = c("country" = "country_code"))
 
-# Compute EU average (also based on coeffy)
+# Compute EU average 
 hw_degurba_EU <- LFS %>%
   mutate(degurba = fct_rev(degurba)) %>% 
-  group_by(year, degurba) %>% 
-  summarise(
-    telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE),
+  compute_tw_share(year, degurba) %>% 
+  mutate(
     country = "EU-27",
     country_name = "European Union (27)",
-    n_obs = n(),
-    population = sum(coeffy, na.rm = TRUE),
-    .groups = "drop"
   ) %>% 
   arrange(year, desc(degurba))
 
@@ -241,12 +238,29 @@ hw_urbrur <- LFS %>%
   compute_tw_share(year, country, urbrur) %>% 
   left_join(labels_country, by = c("country" = "country_code"))
 
-hw_urbrur %>%
+
+# Compute EU average 
+hw_urbrur_EU <- LFS %>%
+  filter(!is.na(urbrur)) %>% 
+  mutate(urbrur = fct_rev(urbrur)) %>% 
+  compute_tw_share(year, urbrur) %>% 
+  mutate(
+    country = "EU-27 (excl. NL)",
+    country_name = "European Union (27), excluding NL",
+  ) %>% 
+  arrange(year, desc(urbrur))
+
+# Share of telework by degurba; EU and national figures
+bind_rows(
+  hw_urbrur_EU,
+  arrange(hw_urbrur, country, year, desc(urbrur))
+) %>% 
+  select(-n_people) %>% 
   pivot_wider(names_from = urbrur, values_from = telework_share) %>% 
   select(year, country, country_name, rev(levels(hw_urbrur$urbrur))) %>% 
   rename_at(vars(`Capital region`:`Regions undifferentiated`), .funs = ~ paste0("%TW\n", .)) %>% 
-  # write_xlsx("Tables/Telework_urbrur.xlsx")
-  view("Telework by urbrur")
+  write_xlsx("Tables/Telework_urbrur.xlsx")
+  # view("Telework by urbrur")
 
 # Geofacet, grouped by urbrur
 hw_urbrur %>%
