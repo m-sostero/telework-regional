@@ -8,7 +8,6 @@ source("Code/0- Load common.R")
 LFS <- read_feather("Data/LFS.feather")
 
 # LFS respondents by country, over time ------------------------------
-
 LFS_respondents <- LFS %>%
   group_by(year, country) %>%
   summarise(n_obs = n(), .groups = "drop") %>% 

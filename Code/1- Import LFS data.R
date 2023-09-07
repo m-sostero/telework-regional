@@ -64,10 +64,11 @@ LFS <- LFS_raw %>%
       # Missing region/country of residence, or no reply
       is.na(regw) | is.na(ctryw) | ctryw == "Not stated" ~ "Not stated"
     ) %>% factor(levels = c("Region of residence", "Other region in country of residence", "Other country", "Not stated"))
-  )
+  ) 
 
 # Export LFS in fast binary format .feather for use in the following scripts
 write_feather(LFS, "Data/LFS.feather")
+
 
 # Clear LFS_raw from memory
 rm(LFS_raw)

@@ -5,7 +5,11 @@ source("Code/0- Load common.R")
 # Load data -------------------------
 
 # Labour Force Survey microdata, cleaned
-LFS <- read_feather("Data/LFS.feather")
+LFS <- read_feather("Data/LFS.feather") %>% 
+  # Remove observations that did not answer to homework question
+  filter(!is.na(homework)) %>% 
+  # Remove observations with no sampling weights
+  filter(!is.na(coeffy)) 
 
 # Occupational teleworking indices
 teleworkability <- read_dta("Data/Teleworkability indices.dta") %>%
@@ -14,17 +18,30 @@ teleworkability <- read_dta("Data/Teleworkability indices.dta") %>%
     physicalinteraction = physicalinteraction/1000
   )
 
+compute_tw_share <- function(data, ...){
+  grps <- enquos(...)
+  
+  data %>% 
+    group_by(!!!grps) %>%
+    mutate(total_group = sum(coeffy, na.rm = TRUE)) %>%  
+    group_by(!!!grps, homework_any) %>%
+    summarise(
+      n_people = sum(coeffy, na.rm = TRUE),
+      total_group = mean(total_group),
+      .groups = "drop"
+    ) %>% 
+    filter(homework_any == 1) %>% 
+    mutate(telework_share = n_people/total_group) %>% 
+    select(-homework_any, -total_group) %>% 
+    ungroup() %>% 
+    return(.)
+}
+
 # Telework share by degurba -----------------------------------------------
 
 hw_degurba <- LFS %>%
   mutate(degurba = fct_rev(degurba)) %>% 
-  group_by(year, country, degurba) %>% 
-  summarise(
-    telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE),
-    n_obs = n(),
-    population = sum(coeffy, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
+  compute_tw_share(year, country, degurba) %>% 
   left_join(labels_country, by = c("country" = "country_code"))
 
 # Share of telework by degurba
@@ -33,8 +50,8 @@ hw_degurba %>%
   select(country, country_name, year, degurba, telework_share) %>% 
   pivot_wider(names_from = degurba, values_from = telework_share) %>% 
   rename_at(vars(Cities:`Rural areas`), .funs = ~ paste0("%TW\n", .)) %>%
-  view("Telework by degurba, weighted")
-  # write_xlsx("Tables/Telework_degurba.xlsx")
+  # view("Telework by degurba, weighted")
+  write_xlsx("Tables/Telework_degurba.xlsx")
 
 
 # Geofacet, grouped by degurba
@@ -72,11 +89,11 @@ plot_hw_degurba <- hw_degurba %>%
   arrange(country) %>% 
   mutate(country_name = fct_inorder(country_name)) %>% 
   ggplot(aes(x = year, y = telework_share, group = degurba, color = degurba)) +
-  geom_point(aes(size = n_obs), shape = 1) + geom_line() +
+  geom_point(aes(size = n_people), shape = 1) + geom_line() +
   facet_wrap(country_name ~ ., nrow = 2) + 
   # scale_color_manual(values = c("#33A02C", "#A6CEE3", "#1F78B4"), breaks = c("Rural areas", "Towns and suburbs", "Cities"))
   scale_color_brewer("Degree of urbanisation", palette = "Set2") +
-  scale_size_area("Number of respondents", labels = comma) +
+  scale_size_area("Population", labels = comma) +
   scale_y_continuous(labels = percent_format()) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
   labs(
@@ -115,8 +132,32 @@ hw_degurba %>%
     y = "Relative chance in telework\nin rural areas (2021 - 2019)"
   )
 
-ggsave("Figures/Telework_changes_degurba.pdf", height = 6, width = 9)
-ggsave("Figures/Telework_changes_degurba.png", height = 6, width = 9, bg = "white")
+ggsave("Figures/Telework_changes_urban_rural.pdf", height = 6, width = 9)
+ggsave("Figures/Telework_changes_urban_rural.png", height = 6, width = 9, bg = "white")
+
+
+
+hw_degurba %>%
+  filter(year %in% c(2019, 2021), degurba %in% c("Towns and suburbs", "Cities")) %>% 
+  pivot_wider(id_cols = c(country, country_name), names_from = c(degurba, year), values_from = telework_share) %>% 
+  mutate(
+    urban_delta = (`Cities_2021`-`Cities_2019`)/Cities_2019,
+    town_delta = (`Towns and suburbs_2021`-`Towns and suburbs_2019`)/`Towns and suburbs_2019`
+  ) %>% 
+  ggplot(aes(x = urban_delta, y = town_delta, label = country)) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+  geom_label() +
+  scale_x_continuous(labels = label_percent(prefix = "+")) +
+  scale_y_continuous(labels = label_percent(prefix = "+")) +
+  coord_equal()  + 
+  labs(
+    title = "Telework increased faster in urban areas than in rural ones",
+    x = "Relative change in telework\nin urban areas (2021 - 2019)",
+    y = "Relative chance in telework\nin towns and suburbs (2021 - 2019)"
+  )
+
+ggsave("Figures/Telework_changes_urban_towns.pdf", height = 6, width = 9)
+ggsave("Figures/Telework_changes_urban_towns.png", height = 6, width = 9, bg = "white")
 
 
 # Telework intensity by degurba -----------------------------
@@ -180,8 +221,7 @@ ggsave("Figures/Telework_intensity_degurba_ireland.png", height = 6, width = 9, 
 
 hw_urbrur <- LFS %>%  
   mutate(urbrur = replace_na(urbrur, "Regions undifferentiated") %>% fct_rev()) %>% 
-  group_by(year, country, urbrur) %>% 
-  summarise(telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), .groups = "drop") %>%
+  compute_tw_share(year, country, urbrur) %>% 
   left_join(labels_country, by = c("country" = "country_code"))
 
 hw_urbrur %>%

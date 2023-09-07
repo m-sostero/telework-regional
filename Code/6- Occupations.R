@@ -16,18 +16,36 @@ teleworkability <- read_dta("Data/Teleworkability indices.dta") %>%
     physicalinteraction = physicalinteraction/1000
   )
 
+compute_tw_share <- function(data, ...){
+  grps <- enquos(...)
+  
+  data %>% 
+    group_by(!!!grps) %>%
+    mutate(total_group = sum(coeffy, na.rm = TRUE)) %>%  
+    group_by(!!!grps, homework_any) %>%
+    summarise(
+      n_people = sum(coeffy, na.rm = TRUE),
+      total_group = mean(total_group),
+      .groups = "drop"
+    ) %>% 
+    filter(homework_any == 1) %>% 
+    mutate(telework_share = n_people/total_group) %>% 
+    select(-homework_any, -total_group) %>% 
+    ungroup() %>% 
+    return(.)
+}
 
-# Telework by country and professional status ----------------------------------
+# Telework by country and age ----------------------------------
 
 LFS %>% 
   mutate(year = factor(year)) %>% 
-  group_by(year, country, stapro) %>% 
+  group_by(year, country, age) %>% 
   summarise(telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), .groups = "drop") %>% 
-  ggplot(aes(x = year, y = telework_share, group = stapro, color = stapro)) +
+  ggplot(aes(x = year, y = telework_share, group = age, color = age)) +
   geom_point() + geom_line() +
   facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
   scale_y_continuous(labels = percent_format()) +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   scale_color_brewer("Professional status", palette = "Set1") +
   labs(
     title = "Telework has become more common among employees, catching up with the self-employed",
@@ -57,6 +75,47 @@ full_join(table_tw, table_tw_stapro, by = c("year", "country")) %>%
   arrange(country, year) %>% 
   write_xlsx("Tables/LFS_telework_stapro.xlsx")
 
+
+# Telework by country and professional status ----------------------------------
+
+LFS %>% 
+  mutate(year = factor(year)) %>% 
+  compute_tw_share(year, country, stapro) %>% 
+  ggplot(aes(x = year, y = telework_share, group = stapro, color = stapro)) +
+  geom_point() + geom_line() +
+  facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
+  scale_y_continuous(labels = percent_format()) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  scale_color_brewer("Professional status", palette = "Set1") +
+  labs(
+    title = "Telework has become more common among employees, catching up with the self-employed",
+    subtitle = "Share of people teleworking at least some of the time, by professional status",
+    y = "Share of people teleworking\n(different scales)"
+  )
+
+ggsave("Figures/Telework_stapro_eu.pdf", height = 8, width = 11)
+ggsave("Figures/Telework_stapro_eu.png", height = 8, width = 11, bg = "white")
+
+
+# Table: Telework by country and professional status
+table_tw_stapro <- LFS %>% 
+  mutate(year = factor(year)) %>% 
+  compute_tw_share(year, country, stapro) %>% 
+  select(-n_people) %>% 
+  pivot_wider(names_from = stapro, names_prefix = "(% TW) ", values_from = telework_share) 
+
+table_tw <- LFS %>% 
+  mutate(year = factor(year)) %>% 
+  group_by(year, country) %>% 
+  summarise(`% TW` = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), .groups = "drop")
+
+full_join(table_tw, table_tw_stapro, by = c("year", "country")) %>% 
+  left_join(labels_country, by = c("country" = "country_code")) %>% 
+  select(year, country, country_name, everything()) %>% 
+  arrange(country, year) %>% 
+  write_xlsx("Tables/Telework_stapro.xlsx")
+
+
 # Telework by professional status and degurba -----------------------------
 
 # Zoom in on selected countries
@@ -69,9 +128,8 @@ LFS %>%
     year = factor(year),
     stapro = fct_rev(stapro)
     ) %>% 
-  group_by(year, country_name, stapro, degurba) %>% 
-  summarise(homework_any = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), .groups = "drop") %>% 
-  ggplot(aes(x = year, y = homework_any, group = interaction(degurba, stapro), color = degurba, shape = stapro)) +
+  compute_tw_share(year, country_name, stapro, degurba) %>% 
+  ggplot(aes(x = year, y = telework_share, group = interaction(degurba, stapro), color = degurba, shape = stapro)) +
   geom_point() + geom_line() +
   facet_wrap( ~ country_name, nrow = 2) +
   scale_y_continuous(labels = percent_format()) +
@@ -103,20 +161,24 @@ tw_hw_stapro <- LFS %>%
     .groups = "drop"
   ) 
 
+tw_hw_cor <- tw_hw_stapro %>% 
+  group_by(year, stapro) %>%
+  summarise(cor = cor(telework_share, mean_physical_interaction, use = "complete.obs")) %>% 
+  mutate(cor_label = paste0("R²: ", round(cor, 3)))
+
 tw_hw_stapro %>%  
   ggplot(aes(x = mean_physical_interaction, y = telework_share, group = stapro, color = stapro)) +
   geom_point(aes(size = coeffy), shape = 1, alpha = 0.5) +
   geom_smooth(method = lm) +
+  geom_label(data = filter(tw_hw_cor, stapro == "Self-employed"), aes(x = 0.1, y = 0.7, label = cor_label), color = "#E41A1C") +
+  geom_label(data = filter(tw_hw_cor, stapro == "Employee"), aes(x = 0.5, y = 0.05, label = cor_label), color = "#377EB8") +
   scale_size_area() +
   facet_grid(~ year) +
   scale_color_brewer("Professional status", palette = "Set1") +
   coord_equal() +
   scale_y_continuous(labels = percent_format()) +
   guides(size = "none") +
-  theme(
-    legend.position = "top",
-    panel.spacing = unit(1, "lines")
-    ) +
+  theme(legend.position = "top", panel.spacing = unit(1, "lines")) +
   labs(
     title = "Telework for employees is cathing up with the self-employed",
     subtitle = "Correlation between physical teleworkability and actual telework for NUTS-2 regions",

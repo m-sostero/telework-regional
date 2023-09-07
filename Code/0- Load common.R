@@ -37,7 +37,9 @@ labels_country <- geofacet::eu_grid1 %>%
   mutate(country_name = str_replace(country_name, "Czech Republic", "Czechia"))
 
 # Edit EU grid for cartogram to remove UK
-eu_grid <- eu_grid1 %>% filter(code != "UK")
+eu_grid <- eu_grid1 %>%
+  filter(code != "UK") %>% 
+  mutate(name = str_replace(name, "Czech Republic", "Czechia"))
 
 # # ISCO-08 occupation labels at 1-4 digits, with corresponding 1-digit group
 if (file.exists("Metadata/labels_isco.rds")){
