@@ -44,9 +44,26 @@ hw_degurba <- LFS %>%
   compute_tw_share(year, country, degurba) %>% 
   left_join(labels_country, by = c("country" = "country_code"))
 
-# Share of telework by degurba
-hw_degurba %>% 
-  arrange(country, year, desc(degurba)) %>% 
+# Compute EU average (also based on coeffy)
+hw_degurba_EU <- LFS %>%
+  mutate(degurba = fct_rev(degurba)) %>% 
+  group_by(year, degurba) %>% 
+  summarise(
+    telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE),
+    country = "EU-27",
+    country_name = "European Union (27)",
+    n_obs = n(),
+    population = sum(coeffy, na.rm = TRUE),
+    .groups = "drop"
+  ) %>% 
+  arrange(year, desc(degurba))
+
+
+# Share of telework by degurba; EU and national figures
+bind_rows(
+  hw_degurba_EU,
+  arrange(hw_degurba, country, year, desc(degurba))
+)%>% 
   select(country, country_name, year, degurba, telework_share) %>% 
   pivot_wider(names_from = degurba, values_from = telework_share) %>% 
   rename_at(vars(Cities:`Rural areas`), .funs = ~ paste0("%TW\n", .)) %>%
