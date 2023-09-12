@@ -1,6 +1,7 @@
 # Load common packages and labels ----
 source("Code/0- Load common.R")
 
+
 # Import data -------------------------------------------------------------
 
 # Labour Force Survey microdata, cleaned
@@ -16,24 +17,6 @@ teleworkability <- read_dta("Data/Teleworkability indices.dta") %>%
     physicalinteraction = physicalinteraction/1000
   )
 
-compute_tw_share <- function(data, ...){
-  grps <- enquos(...)
-  
-  data %>% 
-    group_by(!!!grps) %>%
-    mutate(total_group = sum(coeffy, na.rm = TRUE)) %>%  
-    group_by(!!!grps, homework_any) %>%
-    summarise(
-      n_people = sum(coeffy, na.rm = TRUE),
-      total_group = mean(total_group),
-      .groups = "drop"
-    ) %>% 
-    filter(homework_any == 1) %>% 
-    mutate(telework_share = n_people/total_group) %>% 
-    select(-homework_any, -total_group) %>% 
-    ungroup() %>% 
-    return(.)
-}
 
 # Telework by country and age ----------------------------------
 

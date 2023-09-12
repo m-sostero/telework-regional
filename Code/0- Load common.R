@@ -14,14 +14,14 @@ suppressMessages({
 
   library("sf") # Simple Features format of maps-as-tables
 
+  library("plotly") # Interative charts
   library("mapview") # Interactive maps
   library("leafem") # Decorate interactive maps
   library("leaflet.extras2") # Extra utilities to combine interactive maps
 
   library("geofacet") # Plot facets arranged in approximate EU-shaped map
-
-  library("plotly") # Interative charts
-
+  library("ggpurb") # Decorate regression plots with coefficients
+  library("ggrepel") # Add non-overlapping labels to plot
   library("RColorBrewer") # Color gradients for plots
   library("scales") # graph scales (percent, comma, currency)
 
@@ -52,6 +52,27 @@ if (file.exists("Metadata/labels_isco.rds")){
     mutate(occup_group = factor(occup_group) %>% fct_inorder())
   
   write_rds(labels_isco, "Metadata/labels_isco.rds")
+}
+
+# Function to compute share teleworking based on sum of coeffy
+# Avoids floating-point problem of weighted.sum(homework_any, coeffy)
+compute_tw_share <- function(data, ...){
+  grps <- enquos(...)
+  
+  data %>% 
+    group_by(!!!grps) %>%
+    mutate(total_group = sum(coeffy, na.rm = TRUE)) %>%  
+    group_by(!!!grps, homework_any) %>%
+    summarise(
+      n_people = sum(coeffy, na.rm = TRUE),
+      total_group = mean(total_group),
+      .groups = "drop"
+    ) %>% 
+    filter(homework_any == 1) %>% 
+    mutate(telework_share = n_people/total_group) %>% 
+    select(-homework_any, -total_group) %>% 
+    ungroup() %>% 
+    return(.)
 }
 
 

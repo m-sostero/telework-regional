@@ -1,6 +1,6 @@
 # Load common packages and labels ----
 source("Code/0- Load common.R")
-library("ggpurb") # Decorate regression plots with coefficients
+
 
 # Load LFS, regional telework data, and NUTS maps -------------------------
 
@@ -27,26 +27,6 @@ teleworkability <- read_dta("Data/Teleworkability indices.dta") %>%
     physicalinteraction = physicalinteraction/1000
   )
 
-# Function to compute share teleworking based on sum of coeffy
-# Avoids floating-point problem of weighted.sum(homework_any, coeffy)
-
-compute_tw_share <- function(data, ...){
-  grps <- enquos(...)
-  data %>% 
-    group_by(!!!grps) %>%
-    mutate(total_group = sum(coeffy, na.rm = TRUE)) %>%  
-    group_by(!!!grps, homework_any) %>%
-    summarise(
-      n_people = sum(coeffy, na.rm = TRUE),
-      total_group = mean(total_group),
-      .groups = "drop"
-    ) %>% 
-    filter(homework_any == 1) %>% 
-    mutate(telework_share = n_people/total_group) %>% 
-    ungroup() %>% 
-    select(!!!grps, telework_share) %>% 
-    return(.)
-}
 
 # Compare national values with (summing "sometimes" + "usually")
 # https://ec.europa.eu/eurostat/databrowser/bookmark/50019178-d816-4224-a794-b1e7adcd18f8?lang=en
