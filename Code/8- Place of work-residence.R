@@ -57,18 +57,22 @@ ggsave("Figures/LFS_residence_work_eu.png", height = 8, width = 13, bg = "white"
 tw_location <- LFS %>% 
   filter(work_location != "Not stated") %>%
   group_by(year, country, work_location) %>% 
+  mutate(total_group = sum(coeffy, na.rm = TRUE)) %>%  
+  group_by(year, country, work_location, homework_any) %>%
   summarise(
-    telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE),
     n_obs = n(),
-    population = sum(coeffy, na.rm = TRUE),
+    n_people = sum(coeffy, na.rm = TRUE),
+    total_group = mean(total_group),
     .groups = "drop"
-  ) %>%
+  ) %>% 
+  filter(homework_any == 1) %>% 
+  mutate(telework_share = n_people/total_group) %>%
   left_join(labels_country, by = c("country" = "country_code"))
 
 tw_location %>% 
   mutate(year = factor(year)) %>% 
   ggplot(aes(x = year, y = telework_share, group = work_location, color = work_location)) +
-  geom_point(aes(size = population)) + geom_line() +
+  geom_point(aes(size = n_people)) + geom_line() +
   facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") + 
   scale_color_brewer("Place of work", palette = "Set1", direction = -1) +
   scale_size_area("Number of people") + #, trans = "log10", breaks = c(10^c(1:5))) +
@@ -89,6 +93,7 @@ ggsave("Figures/Telework_residence_eu.png", height = 8, width = 13, bg = "white"
 # Export table of sample size and rates of telework by work_location
 tw_location %>% 
   arrange(country, year) %>% 
+  select(-homework_any, -total_group, -n_people) %>% 
   relocate(country_name, .after = country) %>% 
   write_xlsx("Tables/Telework_work_location.xlsx")
 

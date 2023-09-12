@@ -126,52 +126,38 @@ ggsave("Figures/Telework_degurba_selected.png", height = 6, width = 9, bg = "whi
 ggplotly(plot_hw_degurba)
 
 
-# Phase plot of regions
-hw_degurba %>%
-  filter(year %in% c(2019, 2021), degurba %in% c("Rural areas", "Cities")) %>% 
-  pivot_wider(id_cols = c(country, country_name), names_from = c(degurba, year), values_from = telework_share) %>% 
+# Phase plotL growht in cities vs rest ----
+
+
+hw_cities_rest <- LFS %>%
+  mutate(cities = degurba %>% fct_recode("Rest" = "Towns and suburbs", "Rest" = "Rural areas")) %>% 
+  compute_tw_share(year, country, cities) %>% 
+  left_join(labels_country, by = c("country" = "country_code"))
+
+
+hw_cities_rest %>%
+  filter(year %in% c(2019, 2021)) %>% 
+  pivot_wider(id_cols = c(country, country_name), names_from = c(cities, year), values_from = telework_share) %>% 
   mutate(
     urban_delta = (`Cities_2021`-`Cities_2019`)/Cities_2019,
-    rural_delta = (`Rural areas_2021`-`Rural areas_2019`)/`Rural areas_2019`
+    rest_delta = (`Rest_2021`-`Rest_2019`)/`Rest_2019`
   ) %>% 
-  ggplot(aes(x = urban_delta, y = rural_delta, label = country)) +
+  ggplot(aes(x = urban_delta, y = rest_delta, label = country)) +
   geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
-  geom_label() +
+  geom_point() + geom_text_repel() +
   scale_x_continuous(labels = label_percent(prefix = "+")) +
   scale_y_continuous(labels = label_percent(prefix = "+")) +
   coord_equal() + 
   labs(
-    title = "Telework increased faster in urban areas than in rural ones",
-    x = "Relative change in telework\nin urban areas (2021 - 2019)",
-    y = "Relative chance in telework\nin rural areas (2021 - 2019)"
+    title = "Change in telework: cities vs the rest",
+    subtitle = "Relative changes between 2019 and 2021 in rates of telework between cities and towns, suburbs and rural areas",
+    x = "Cities",
+    y = "Towns, suburbs and rural areas areas (2021 - 2019)"
   )
 
-ggsave("Figures/Telework_changes_urban_rural.pdf", height = 6, width = 9)
-ggsave("Figures/Telework_changes_urban_rural.png", height = 6, width = 9, bg = "white")
+ggsave("Figures/Telework_changes_urban_rest.pdf", height = 6, width = 9)
+ggsave("Figures/Telework_changes_urban_rest.png", height = 6, width = 9, bg = "white")
 
-
-
-hw_degurba %>%
-  filter(year %in% c(2019, 2021), degurba %in% c("Towns and suburbs", "Cities")) %>% 
-  pivot_wider(id_cols = c(country, country_name), names_from = c(degurba, year), values_from = telework_share) %>% 
-  mutate(
-    urban_delta = (`Cities_2021`-`Cities_2019`)/Cities_2019,
-    town_delta = (`Towns and suburbs_2021`-`Towns and suburbs_2019`)/`Towns and suburbs_2019`
-  ) %>% 
-  ggplot(aes(x = urban_delta, y = town_delta, label = country)) +
-  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
-  geom_label() +
-  scale_x_continuous(labels = label_percent(prefix = "+")) +
-  scale_y_continuous(labels = label_percent(prefix = "+")) +
-  coord_equal()  + 
-  labs(
-    title = "Telework increased faster in urban areas than in rural ones",
-    x = "Relative change in telework\nin urban areas (2021 - 2019)",
-    y = "Relative chance in telework\nin towns and suburbs (2021 - 2019)"
-  )
-
-ggsave("Figures/Telework_changes_urban_towns.pdf", height = 6, width = 9)
-ggsave("Figures/Telework_changes_urban_towns.png", height = 6, width = 9, bg = "white")
 
 
 # Telework intensity by degurba -----------------------------
@@ -384,6 +370,7 @@ tw_hw_degurba %>%
   ggplot(aes(x = teleworkability, y = telework_share, size = coeffy, label = reglab, group = stapro, color = stapro)) +
   geom_point(aes(color = stapro), shape = 1, alpha = 0.3) +
   geom_smooth(method = lm, mapping = aes(weight = coeffy)) +
+  stat_regline_equation(aes(label =  paste(..eq.label.., ..rr.label.., sep = "\n")), size = 3, label.y = c(0.9, -0.15), output.type = "text") +
   scale_size_area() +
   facet_grid(degurba ~ year) +
   scale_color_brewer("Professional status", palette = "Set1") +
@@ -392,15 +379,15 @@ tw_hw_degurba %>%
   guides(size = "none") +
   theme(
     legend.position = "top",
-    panel.spacing = unit(1, "lines")
+    panel.spacing = unit(0.8, "lines")
     ) +
   # theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
   labs(
-    title = "Increasing correlation between teleworkability and homeworking, similar across location types",
+    # title = "Increasing correlation between teleworkability and homeworking, similar across location types",
     subtitle = "Correlation between physical teleworkability and actual telework for EU27 NUTS-2 regions",
     x = "Phyisical teleworkability index", y = "Share of people teleworking"
   )
 
-ggsave("Figures/Regional_correlation_teleworkability_telework_degurba.pdf", height = 6, width = 9)
-ggsave("Figures/Regional_correlation_teleworkability_telework_degurba.png", height = 6, width = 9, bg = "white")
+ggsave("Figures/Regional_correlation_teleworkability_telework_degurba.pdf", height = 8, width = 8)
+ggsave("Figures/Regional_correlation_teleworkability_telework_degurba.png", height = 8, width = 8, bg = "white")
 

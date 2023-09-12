@@ -62,7 +62,16 @@ missing_homework_resp <- LFS %>%
   count(country, homework) %>%
   pivot_wider(names_from = homework, values_from = n, values_fill = 0) %>% 
   rename(Missing = `NA`) 
-  
+
+missing_homework_pc <- LFS %>%
+  mutate(homework = homework %>% fct_na_value_to_level("Missing")) %>% 
+  group_by(year, country, homework) %>%
+  summarise(n_people = sum(coeffy, na.rm = TRUE), .groups = "drop_last") %>% 
+  mutate(pc_pop = n_people/sum(n_people)) %>%
+  mutate(pc_pop = pc_pop %>% percent()) %>% 
+  select(-n_people) %>% 
+  pivot_wider(names_from = homework, values_from = pc_pop, values_fill = "")
+
 write_xlsx(
   list(Population =  missing_homework_pop, Respondents = missing_homework_resp),
   "Tables/Telework_intensity_response.xlsx"

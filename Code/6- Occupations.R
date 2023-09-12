@@ -99,20 +99,30 @@ ggsave("Figures/Telework_stapro_eu.png", height = 8, width = 11, bg = "white")
 
 # Table: Telework by country and professional status
 table_tw_stapro <- LFS %>% 
-  mutate(year = factor(year)) %>% 
-  compute_tw_share(year, country, stapro) %>% 
+  compute_tw_share(country, year, stapro) %>% 
   select(-n_people) %>% 
-  pivot_wider(names_from = stapro, names_prefix = "(% TW) ", values_from = telework_share) 
+  pivot_wider(names_from = stapro, names_prefix = "(% TW)\n ", values_from = telework_share) %>% 
+  left_join(labels_country, by = c("country" = "country_code"))
 
-table_tw <- LFS %>% 
-  mutate(year = factor(year)) %>% 
-  group_by(year, country) %>% 
-  summarise(`% TW` = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), .groups = "drop")
 
-full_join(table_tw, table_tw_stapro, by = c("year", "country")) %>% 
-  left_join(labels_country, by = c("country" = "country_code")) %>% 
-  select(year, country, country_name, everything()) %>% 
-  arrange(country, year) %>% 
+# Compute EU average 
+table_tw_stapro_EU <- LFS %>%
+  compute_tw_share(year, stapro) %>% 
+  mutate(
+    country = "EU-27",
+    country_name = "European Union (27)",
+  ) %>% 
+  select(-n_people) %>% 
+  arrange(year, desc(stapro)) %>% 
+  pivot_wider(names_from = stapro, names_prefix = "(% TW)\n ", values_from = telework_share) 
+
+
+# Share of telework by degurba; EU and national figures
+bind_rows(
+  table_tw_stapro_EU,
+  table_tw_stapro
+) %>% 
+  select(country, country_name, year, everything()) %>% 
   write_xlsx("Tables/Telework_stapro.xlsx")
 
 
@@ -161,17 +171,11 @@ tw_hw_stapro <- LFS %>%
     .groups = "drop"
   ) 
 
-tw_hw_cor <- tw_hw_stapro %>% 
-  group_by(year, stapro) %>%
-  summarise(cor = cor(telework_share, mean_physical_interaction, use = "complete.obs")) %>% 
-  mutate(cor_label = paste0("R²: ", round(cor, 3)))
-
 tw_hw_stapro %>%  
   ggplot(aes(x = mean_physical_interaction, y = telework_share, group = stapro, color = stapro)) +
   geom_point(aes(size = coeffy), shape = 1, alpha = 0.5) +
   geom_smooth(method = lm) +
-  geom_label(data = filter(tw_hw_cor, stapro == "Self-employed"), aes(x = 0.1, y = 0.7, label = cor_label), color = "#E41A1C") +
-  geom_label(data = filter(tw_hw_cor, stapro == "Employee"), aes(x = 0.5, y = 0.05, label = cor_label), color = "#377EB8") +
+  stat_regline_equation(aes(label =  paste(..eq.label.., ..rr.label.., sep = "~~~~")), size = 3) +
   scale_size_area() +
   facet_grid(~ year) +
   scale_color_brewer("Professional status", palette = "Set1") +
@@ -185,8 +189,8 @@ tw_hw_stapro %>%
     x = "Phyisical teleworkability index", y = "Share of people teleworking"
   )
 
-ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.pdf", height = 4, width = 9)
-ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.png", height = 4, width = 9, bg = "white")
+ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.pdf", height = 5, width = 9)
+ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.png", height = 5, width = 9, bg = "white")
 
 
 # Occupational telework vs teleworkability --------------------------------
