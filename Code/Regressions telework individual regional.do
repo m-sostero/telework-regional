@@ -178,6 +178,9 @@ esttab P* using "..\Tables\reg_individual_pooled.tsv", nonotes nomtitles se not 
 esttab P* using "..\Tables\reg_individual_pooled.rtf", not r2 lab compress obslast 
 		drop(*country* *reglab*) stats(fe N r2, labels("Geographical FE" "N" "Adjusted R-squared"))
 		title("Person teleworking (binary)") nomtitles replace;
+		
+esttab P3 using "..\Tables\reg_country_fe.tsv", lab wide not se nostar nobase noobs keep(*country*) nomtitles nonotes replace;
+		
 #delim cr
 
 
