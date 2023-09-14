@@ -176,7 +176,7 @@ esttab P*, nonotes not r2 lab compress obslast
 esttab P* using "..\Tables\reg_individual_pooled.tsv", nonotes nomtitles se not r2 lab compress obslast tab replace;
 
 esttab P* using "..\Tables\reg_individual_pooled.rtf", not r2 lab compress obslast 
-		drop(*country* *reglab*) stats(fe N, labels("Geographical FE" "Adjusted R-squared"))
+		drop(*country* *reglab*) stats(fe N r2, labels("Geographical FE" "N" "Adjusted R-squared"))
 		title("Person teleworking (binary)") nomtitles replace;
 #delim cr
 
