@@ -2,6 +2,7 @@
 source("Code/0- Load common.R")
 
 # Load maps in SF format from Eurostat, at NUTS-1,2,3 resolution ----
+library("eurostat")
 
 # Maps are downloaded from Eurostat API, or loaded from local computer cache, if retrieved recently
 

@@ -141,12 +141,12 @@ regional_telework %>%
   geom_point(size = 3) + geom_line() +
   geom_text_repel(
     data = plot_ends, aes(label = reglab, x = year, y = telework_share),
-    direction = "y", hjust = -0.1, na.rm = TRUE, segment.linetype = "dotted", size = 3
+    direction = "y", hjust = -0.2, na.rm = TRUE, segment.linetype = "dotted", size = 3
   ) +
   scale_shape("Region type") +
   scale_color_discrete(guide = "none") +
   theme(legend.position = "top") +
-  scale_x_continuous(expand = c(0, 0), limits = c(2017.9, 2021.7), breaks = 2018:2021) +
+  scale_x_continuous(limits = c(2017.9, 2021.9), breaks = 2018:2021) +
   scale_y_continuous(labels = scales::percent) +
   labs(
     # title = "The regions with the highest telework rates tend to be capital regions (or surrounding them)",
@@ -154,8 +154,8 @@ regional_telework %>%
     y = "Share of people teleworking", x = NULL
   )
 
-ggsave("Figures/Telework_nuts_top_2021.pdf", height = 5, width = 10)
-ggsave("Figures/Telework_nuts_top_2021.png", height = 5, width = 10, bg = "white")
+ggsave("Figures/Telework_nuts_top_2021.pdf", height = 5, width = 8)
+ggsave("Figures/Telework_nuts_top_2021.png", height = 5, width = 8, bg = "white")
 
 
 # Lowest teleworking regions ----------------------------------------------
@@ -169,8 +169,6 @@ plot_ends <- telework_bottom_regions_2021 %>%
   slice_max(year, n = 1) %>% 
   mutate(
     reglab = as.character(reglab) %>% str_replace("_", ": "),
-    # Bump some label position manually, to avoid overplotting
-    # telework_share = if_else(str_detect(reglab, "BE31.*"), telework_share - 0.005, telework_share),
     reglab = str_wrap(reglab, 30)
   )
 
@@ -180,12 +178,12 @@ regional_telework %>%
   geom_point(size = 3) + geom_line() +
   geom_text_repel(
     data = plot_ends, aes(label = reglab, x = year, y = telework_share),
-    direction = "y", hjust = -0.3, na.rm = TRUE, segment.linetype = "dotted", size = 3
+    direction = "y", hjust = -0.2, na.rm = TRUE, segment.linetype = "dotted", size = 3
   ) +
-  scale_shape("Region type") +
+  scale_shape_manual("Region type", values = c(15, 6), limits = c("Intermediate", "Mainly rural")) +
   scale_color_discrete(guide = "none") +
   theme(legend.position = "top") +
-  scale_x_continuous(expand = c(0, 0), limits = c(2017.9, 2021.7), breaks = 2018:2021) +
+  scale_x_continuous(limits = c(2017.9, 2021.9), breaks = 2018:2021) +
   scale_y_continuous(labels = scales::percent) +
   labs(
     # title = "The regions with the lowest telework rates are rural or intermediate",
@@ -193,10 +191,10 @@ regional_telework %>%
     y = "Share of people teleworking", x = NULL
   )
 
-ggsave("Figures/Telework_nuts_bottom_2021.pdf", height = 5, width = 10)
-ggsave("Figures/Telework_nuts_bottom_2021.png", height = 5, width = 10, bg = "white")
+ggsave("Figures/Telework_nuts_bottom_2021.pdf", height = 5, width = 8)
+ggsave("Figures/Telework_nuts_bottom_2021.png", height = 5, width = 8, bg = "white")
 
-
+  
 # Teleworking across all regions ------------------------------------------
 
 plot_telework_urbrur <- regional_telework %>%

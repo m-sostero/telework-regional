@@ -15,17 +15,24 @@ labels_nuts <- read_rds("Data/map_nuts.rds") %>%
 
 # Summary statistics of place of work -----------------------------------------
 work_location <- LFS %>%
-  group_by(year, country, work_location) %>% 
+  group_by(country, year, work_location) %>% 
   summarise(
     n_people = sum(coeffy, na.rm = TRUE), .groups = "drop",
     n_obs = n()
   ) %>% 
-  complete(year, country, work_location, fill = list(n_people = 0, n_obs = 0))
+  complete(country, year, work_location, fill = list(n_people = 0, n_obs = 0)) %>% 
+  left_join(labels_country, by = c("country" = "country_code")) %>% 
+  relocate(country_name, .after = country)
 
-# Number of observations by location
-work_location %>% 
-  select(-n_people) %>% 
-  pivot_wider(names_from = work_location, values_from = n_obs)
+
+# Export summary statistics
+# write_xlsx(
+#   list(
+#     Population = work_location %>% select(-n_obs) %>% pivot_wider(names_from = work_location, values_from = n_people),
+#     Respondents = work_location %>% select(-n_people) %>% pivot_wider(names_from = work_location, values_from = n_obs)
+#   ), 
+#   "Tables/LFS_work_location.xlsx"
+# )
 
 # Plot share of people working outside region of residence -------------------
 work_location %>% 
@@ -33,23 +40,26 @@ work_location %>%
   mutate(share_people = n_people/sum(n_people)) %>%
   ungroup() %>%
   filter(work_location %in% c("Other region in country of residence", "Other country", "Not stated")) %>% 
-  mutate(year = factor(year)) %>% 
+  mutate(
+    year = factor(year),
+    work_location = str_wrap(work_location, 20) %>% fct_rev()
+    ) %>% 
   ggplot(aes(x = year, y = share_people, group = work_location, color = work_location)) +
   geom_point(aes(size = n_obs)) + geom_line() +
   facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
   scale_y_continuous(labels = percent_format()) +
   scale_color_manual("Place of work", values = c("#377EB8","#E41A1C", "#999999")) +
-  scale_size_area("Number of respondents", breaks = c(100, 500, 1000, 2000, 3000)) +
+  scale_size_area("Number of respondents", breaks = c(100, 500, 1000, 2000, 3000, 5000, 10000), labels = comma) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust  = 1)) +
   labs(
     title = "Share of employed people working outside region of residence, over time",
     x = "Year",
     y = "Share of employed people working outside region of residence\n(different scales)",
-    caption = "source: EU Labour Force Survey,\n own elaboration"
+    caption = "source: EU Labour Force Survey, own elaboration\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
   )
 
-ggsave("Figures/LFS_residence_work_eu.pdf", height = 8, width = 13)
-ggsave("Figures/LFS_residence_work_eu.png", height = 8, width = 13, bg = "white")
+ggsave("Figures/LFS_residence_work_eu.pdf", height = 7, width = 10)
+ggsave("Figures/LFS_residence_work_eu.png", height = 7, width = 10, bg = "white")
 
 
 # Telework by location of work (region or country of work vs residence) ----
@@ -70,32 +80,37 @@ tw_location <- LFS %>%
   left_join(labels_country, by = c("country" = "country_code"))
 
 tw_location %>% 
-  mutate(year = factor(year)) %>% 
+  mutate(
+    year = factor(year),
+    work_location = str_wrap(work_location, 20) %>% fct_rev()
+    ) %>% 
   ggplot(aes(x = year, y = telework_share, group = work_location, color = work_location)) +
   geom_point(aes(size = n_people)) + geom_line() +
   facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") + 
   scale_color_brewer("Place of work", palette = "Set1", direction = -1) +
-  scale_size_area("Number of people") + #, trans = "log10", breaks = c(10^c(1:5))) +
+  scale_size_area("Number of respondents", breaks = c(10, 100, 500, 1000, 2000, 3000, 5000, 10000), labels = comma) +
   # guides(color = guide_legend(reverse = TRUE)) +
   scale_y_continuous(labels = percent_format()) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust  = 1)) +
   labs(
-    title = "Telework is not necessarily more common for those working in other regions or countries",
-    subtitle = "Teleworking frequency by respondent's place of work",
+    # title = "Telework is not necessarily more common for those working in other regions or countries",
+    # subtitle = "Teleworking frequency by respondent's place of work",
+    title = "Teleworking frequency by respondent's place of work",
     x = "Year",
     y = "Share of people teleworking \n(different scales)",
-    caption = "Source: EU Labour Force Survey,\n own elaboration"
+    caption = "Source: EU Labour Force Survey, own elaboration\nRegions are mainly NUTS-2, NUTS-1 (AT and DE), or country (NL)"
   )
 
-ggsave("Figures/Telework_residence_eu.pdf", height = 8, width = 13)
-ggsave("Figures/Telework_residence_eu.png", height = 8, width = 13, bg = "white")
+ggsave("Figures/Telework_residence_eu.pdf", height = 7, width = 10)
+ggsave("Figures/Telework_residence_eu.png", height = 7, width = 10, bg = "white")
 
 # Export table of sample size and rates of telework by work_location
 tw_location %>% 
   arrange(country, year) %>% 
   select(-homework_any, -total_group, -n_people) %>% 
   relocate(country_name, .after = country) %>% 
-  write_xlsx("Tables/Telework_work_location.xlsx")
+  view()
+  # write_xlsx("Tables/Telework_work_location.xlsx")
 
 
 # Country of residence vs work ---------------------------------
@@ -141,8 +156,8 @@ work_country %>%
     source = "EU Labour Force Survey,\nown elaboration"
   )
 
-ggsave("Figures/LFS_work_abroad_eu.pdf", height = 8, width = 13)
-ggsave("Figures/LFS_work_abroad_eu.png", height = 8, width = 13, bg = "white")
+ggsave("Figures/LFS_work_abroad_eu.pdf", height = 8, width = 12)
+ggsave("Figures/LFS_work_abroad_eu.png", height = 8, width = 12, bg = "white")
 
 # Count observations for people working abroad
 work_country %>% 

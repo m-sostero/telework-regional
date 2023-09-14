@@ -20,7 +20,7 @@ suppressMessages({
   library("leaflet.extras2") # Extra utilities to combine interactive maps
 
   library("geofacet") # Plot facets arranged in approximate EU-shaped map
-  library("ggpurb") # Decorate regression plots with coefficients
+  library("ggpubr") # Decorate regression plots with coefficients
   library("ggrepel") # Add non-overlapping labels to plot
   library("RColorBrewer") # Color gradients for plots
   library("scales") # graph scales (percent, comma, currency)

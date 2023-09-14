@@ -125,20 +125,21 @@ hw_cities_rest %>%
     rest_delta = (`Rest_2021`-`Rest_2019`)/`Rest_2019`
   ) %>% 
   ggplot(aes(x = urban_delta, y = rest_delta, label = country)) +
-  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
-  geom_point() + geom_text_repel() +
+  geom_abline(intercept = 0, slope = 1, linetype = "dotted",  color = "grey50") +
+  geom_point() + geom_text_repel(seed = 1235) +
+  annotate("text", x = 3.4, y = 3.7, label = "Larger increase\nin towns, suburbs and rural areas", color = "grey50", hjust = 1) +
+  annotate("text", x = 4.1, y = 3.7, label = "Larger increase in cities", color = "grey50", hjust = 0) +
   scale_x_continuous(labels = label_percent(prefix = "+")) +
   scale_y_continuous(labels = label_percent(prefix = "+")) +
   coord_equal() + 
   labs(
-    title = "Change in telework: cities vs the rest",
-    subtitle = "Relative changes between 2019 and 2021 in rates of telework between cities and towns, suburbs and rural areas",
+    title = "Relative changes in telework 2019–2021: cities vs towns, suburbs, and rural areas",
     x = "Cities",
-    y = "Towns, suburbs and rural areas areas (2021 - 2019)"
+    y = "Towns, suburbs and rural areas areas"
   )
 
-ggsave("Figures/Telework_changes_urban_rest.pdf", height = 6, width = 9)
-ggsave("Figures/Telework_changes_urban_rest.png", height = 6, width = 9, bg = "white")
+ggsave("Figures/Telework_changes_urban_rest.pdf", height = 5, width = 8.4)
+ggsave("Figures/Telework_changes_urban_rest.png", height = 5, width = 8.4, bg = "white")
 
 
 
