@@ -362,3 +362,101 @@ esttab R* using "..\Tables\reg_regional_pooled.tsv", nonotes nomtitles se not r2
 esttab R* using "..\Tables\reg_regional_pooled.rtf", not r2 lab compress obslast 
 		title("Share of people teleworking (by NUTS region)") nomtitles replace;
 #delim cr
+
+
+
+
+**# Simpler regional-level models ---------------------------------------------------------------------
+
+use "LFS_regression.dta", clear
+
+* compute regional-level demographics
+gen lowed = hatlev >= 0 & hatlev <= 200
+gen mided = hatlev >= 300 & hatlev <= 499
+gen highed = hatlev >= 500 & hatlev < .
+gen city = degurba == 1
+gen rural = degurba == 3
+gen female = sex == 2
+gen pt = ftpt == 2
+gen self = stapro == 1
+gen temporary = temp == 2
+gen nonnat = countryb != "NAT"
+recode age (1 = 17) (2 = 22) (3 = 27) (4 = 32) (5 = 37) (6 = 42) (7 = 47) (8 = 52) (9 = 57) (10 = 62) (11 = 67) (12 = 72) (13 = 77), gen(agecont)
+
+
+* Generate "isco0d" broad occupational classifications, based on code by John (adapted to start from 3-digits)
+recode isco08_3d (100/299=1)(300/599=2)(600/799=3)(800/969=4), gen(isco0d)
+label define isco0d 1 "White-collar high-skilled"
+label define isco0d 2 "White-collar low/mid-skilled", add
+label define isco0d 3 "Blue-collar high-skilled", add
+label define isco0d 4 "Blue-collar low/mid-skilled", add
+label values isco0d isco0d
+label variable isco0d "Occupation classes"
+
+* expand the occupation classes in individual variables
+tab isco0d, gen(occup_classes)
+
+* drop occupation classes corresponding to NAs (makes globbing later easier)
+*drop occup_classes5 occup_classes6
+
+
+* Define regional-level sectoral variables
+gen agric = nace1d == 1
+gen manuf = nace1d == 3
+gen privservadv = nace > 9 & nace < 15
+gen publserv = nace > 14 & nace < 18
+
+* Generate dummies for different work locations (for collapse later)
+tab work_location, gen(work_l)
+rename work_l2 work_other_region
+rename work_l3 work_other_country
+
+* Capital region/country
+gen capital = urbrur == 1
+
+* Generate progressive observation number (used for collapse?)
+gen n = 1 
+
+* Collapse at the regional, year (and country?) level
+collapse (mean) homework_index (mean) homework_any (mean) physical (mean) social /// Dependent vars and teleworkability
+	(mean) city (mean) rural (mean) capital (mean) broadband_shh (mean) work_other_region (mean) work_other_country /// Geographic characteristics
+	(mean) female (mean) lowed (mean) highed (mean) pt (mean) self (mean) temporary (mean) nonnat (mean) agecont (mean) occup_classes* /// Demographics
+	(mean) agric (mean) manuf (mean) privserv (mean) publserv /// Sector
+	(rawsum) coeffy (rawsum) n [aw=coeffy], by(reglab year)
+
+* Define variable groups
+global twy    c.physicalinteraction
+global geo    c.city c.rural i.capital c.broadband_shh c.work_other_region c.work_other_country
+global demo   c.female c.lowed c.highed c.pt c.self c.temporary c.nonnat c.agecont
+*global sector c.agric c.manuf c.privserv c.publserv
+
+
+* Estimate pooled regional regressions
+
+eststo clear
+* R0: just year, no teleworkability indices
+qui reg homework_any i.year [pw=coeffy]
+eststo R0
+
+* R1: teleworkability indices
+qui reg homework_any ($twy)##i.year [pw=coeffy]
+eststo R1
+
+* R2: (R1) + geographic characteristics
+qui reg homework_any ($twy)##i.year $geo $demo [pw=coeffy] 
+eststo R2
+
+* R3: (R2) + work characteristics
+qui reg homework_any ($twy $geo $demo)##i.year  [pw=coeffy] 
+eststo R3
+
+
+* Show and export regression tables
+#delim ;
+esttab R*, nonotes not r2 lab compress obslast;
+
+esttab R* using "..\Tables\reg_regional_pooled.tsv", nonotes nomtitles se not r2 lab compress obslast tab replace;
+
+esttab R* using "..\Tables\reg_regional_pooled.rtf", not r2 lab compress obslast 
+		title("Share of people teleworking (by NUTS region)") nomtitles replace;
+#delim cr
