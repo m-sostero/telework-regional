@@ -291,7 +291,7 @@ label variable isco0d "Occupation classes"
 tab isco0d, gen(occup_classes)
 
 * drop occupation classes corresponding to NAs (makes globbing later easier)
-drop occup_classes5 occup_classes6
+*drop occup_classes5 occup_classes6
 
 
 * Define regional-level sectoral variables
@@ -319,6 +319,7 @@ collapse (mean) homework_index (mean) homework_any (mean) physical (mean) social
 	(rawsum) coeffy (rawsum) n [aw=coeffy], by(reglab year)
 
 * Define variable groups
+global twy        c.physicalinteraction c.socialinteraction
 global geo    city rural i.capital broadband_shh work_other_region work_other_country
 global demo   female lowed highed pt self temporary nonnat agecont
 global sector agric manuf privserv publserv
@@ -327,6 +328,10 @@ global sector agric manuf privserv publserv
 * Estimate pooled regional regressions
 
 eststo clear
+* R0: just year, no teleworkability indices
+qui reg homework_any i.year [pw=coeffy]
+eststo R0
+
 * R1: teleworkability indices
 qui reg homework_any ($twy)##i.year [pw=coeffy]
 eststo R1
@@ -344,8 +349,8 @@ qui reg homework_any ($twy)##i.year $geo $demo $sector [pw=coeffy]
 eststo R4
 
 * R5: (R4) - teleworkability indicators (for comparison) 
-qui reg homework_any i.year $geo $demo $sector [pw=coeffy]
-eststo R5
+*qui reg homework_any i.year $geo $demo $sector [pw=coeffy]
+*eststo R5
 
 
 * Show and export regression tables
