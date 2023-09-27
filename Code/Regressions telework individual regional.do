@@ -135,7 +135,8 @@ fvset base 6 country
 
 * Create lists of controls to add incrementally to specifications
 global twy        c.physicalinteraction c.socialinteraction
-global individual yw pw ow ym om lowed highed nonnat i.isco0d
+global individual yw pw ow ym om lowed highed nonnat 
+// i.isco0d
 global work       ftpt i.stapro temporary i.work_location
 global regional   i.degurba capital broadband_shh i.reglab
 
@@ -191,24 +192,23 @@ eststo drop B*
 
 forval y = 2018(1)2021 {
 	* B1: teleworkability indices
-	qui reg homework_any $twy i.country [pw=coeffy] if year == `y'
+	qui reg homework_any $twy i.reglab [pw=coeffy] if year == `y'
 	eststo B1_`y', title("`y'")
-	estadd local fe_country Yes
+ 	estadd local fe_region Yes
 	
-	* B2: (B1) + individual characteristics
-	qui reg homework_any $twy $individual i.country [pw=coeffy] if year == `y'
-	eststo B2_`y', title("`y'")
-	estadd local fe_country Yes
-	
-	* B3: (B2) + work characteristics
-	qui reg homework_any $twy $individual $work i.country [pw=coeffy] if year == `y'
-	eststo B3_`y', title("`y'")
-	estadd local fe_country Yes
+// 	* B2: (B1) + individual characteristics
+// 	qui reg homework_any $twy $individual i.reglab [pw=coeffy] if year == `y'
+// 	eststo B2_`y', title("`y'")
+// 	estadd local fe_country Yes
+//	
+// 	* B3: (B2) + work characteristics
+// 	qui reg homework_any $twy $individual $work i.reglab [pw=coeffy] if year == `y'
+// 	eststo B3_`y', title("`y'")
+// 	estadd local fe_region Yes
 	
 	* B4: (B3) + regional characteristics
-	qui reg homework_any $twy $individual $work $regional i.country [pw=coeffy] if year == `y'
+	qui reg homework_any $twy $individual $work $regional i.reglab [pw=coeffy] if year == `y'
 	eststo B4_`y', title("`y'")
-	estadd local fe_country Yes
 	estadd local fe_region  Yes
 }
 
@@ -220,28 +220,33 @@ forval y = 2018(1)2021 {
 // NB: This syntax for model titles requires a recent version of esttab
 // ssc install estout, replace
 forval b = 1/4 {
-	esttab B`b'_*, nonotes not r2 lab compress obslast drop(*country*) mlabels(,title)
+	esttab B`b'_*, nonotes not r2 lab compress obslast drop(*reglab*) mlabels(,title)
 }
 
-* Plain-text table
-* Initialise the table
-#delim ;
-esttab B1_* using "..\Tables\reg_individual_year.tsv", tab
-	nonotes not r2 lab compress obslast drop(*country*) mlabels(,titles)
-	title("Probability of person working from home, at least some of the time") replace;
 
-* Plain-text table
-esttab B1_* using "..\Tables\reg_individual_year.rtf", ///
-	not r2 lab compress obslast drop(*country*) mlabels(,titles)///
-	title("Probability of person working from home, at least some of the time") replace;
+* Tables for simple and full individual model
+#delim ;
+esttab B1_* using "..\Tables\reg_individual_year_simple.tsv", replace tab ///
+	nonotes not lab compress obslast mlabels(,titles) ///
+	stats(fe_region N r2, labels("Region FE" "N" "Adjusted R-squared")) ///
+	title("Probability of person working from home, at least some of the time");
+	
+esttab B4_* using "..\Tables\reg_individual_year_full.tsv", replace tab ///
+	nonotes not lab compress obslast mlabels(,titles) ///
+	stats(fe_region N r2, labels("Region FE" "N" "Adjusted R-squared")) ///
+	title("Probability of person working from home, at least some of the time");
+	
+esttab B1_* using "..\Tables\reg_individual_year_simple.rtf", replace ///
+	not r2 lab compress obslast drop(*reglab*) mlabels(,titles) ///
+	stats(fe_region N r2, labels("Region FE" "N" "Adjusted R-squared")) ///
+	title("Probability of person working from home, at least some of the time");
+	
+esttab B4_* using "..\Tables\reg_individual_year_full.rtf", replace ///
+	not r2 lab compress obslast drop(*reglab*) mlabels(,titles) ///
+	stats(fe_region N r2, labels("Region FE" "N" "Adjusted R-squared")) ///
+	title("Probability of person working from home, at least some of the time");
 #delim cr
 
-* Add furter models
-forval b = 2/4 {
-	esttab B`b'_* using "..\Tables\reg_individual_year.tsv", nonotes not r2 lab compress obslast                 mlabels(,title) nonum tab append
-	esttab B`b'_* using "..\Tables\reg_individual_year.rtf",         not r2 lab compress obslast drop(*country*) drop(*reglab*) mlabels(,title) nonum     append
-
-}
 
 
 * Block 1bis: how does this compare with ISCO at 3 digits?
@@ -445,10 +450,6 @@ eststo R1
 * R2: (R1) + geographic characteristics
 qui reg homework_any ($twy)##i.year $geo $demo [pw=coeffy] 
 eststo R2
-
-* R3: (R2) + work characteristics
-qui reg homework_any ($twy $geo $demo)##i.year  [pw=coeffy] 
-eststo R3
 
 
 * Show and export regression tables
