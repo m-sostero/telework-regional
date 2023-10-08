@@ -134,55 +134,12 @@ fvset base 6 country
 **# Estimate individual-level pooled models, present side-by-side -------------------------------------
 
 * Create lists of controls to add incrementally to specifications
-global twy        c.physicalinteraction c.socialinteraction
+global twy        c.physicalinteraction 
+// c.socialinteraction 
 global individual yw pw ow ym om lowed highed nonnat 
 // i.isco0d
-global work       ftpt i.stapro temporary i.work_location
+global work       i.pt i.stapro temporary i.work_location
 global regional   i.degurba capital broadband_shh i.reglab
-
-* Clear previously-stored individual-level models from memory
-eststo drop P*
-
-* P1: teleworkability indices
-qui reg homework_any ($twy)##i.year i.country [pw=coeffy]
-estadd local fe Country
-eststo P1
-
-* P2: (P1) + individual characteristics
-qui reg homework_any ($twy)##i.year $individual i.country [pw=coeffy] 
-estadd local fe Country
-eststo P2
-
-* P3: (P2) + work characteristics
-qui reg homework_any ($twy)##i.year $individual $work i.country [pw=coeffy] 
-estadd local fe Country
-eststo P3
-
-* P4: (P3) + regional characteristics 
-qui reg homework_any ($twy)##i.year $individual $work $regional [pw=coeffy]
-estadd local fe Region
-eststo P4
-
-* P5: (P4) - teleworkability indicators (for comparison) 
-qui reg homework_any i.year $individual $work $regional [pw=coeffy]
-estadd local fe Region
-eststo P5
-
-* export results
-* Temporarily change end-of-line delimiter to ";", to wrap esstab instructions across multiple lines
-#delim ;
-esttab P*, nonotes not r2 lab compress obslast 
-	drop(*country* *reglab*) stats(fe r2 N, labels("Geographical FE" "Adjusted R-squared"));
-
-esttab P* using "..\Tables\reg_individual_pooled.tsv", nonotes nomtitles se not r2 lab compress obslast tab replace;
-
-esttab P* using "..\Tables\reg_individual_pooled.rtf", not r2 lab compress obslast 
-		drop(*country* *reglab*) stats(fe N r2, labels("Geographical FE" "N" "Adjusted R-squared"))
-		title("Person teleworking (binary)") nomtitles replace;
-		
-esttab P3 using "..\Tables\reg_individual_country_fe.csv", plain lab wide not se nostar noobs keep(*country*) nomtitles nonotes replace;
-		
-#delim cr
 
 
 
@@ -195,16 +152,6 @@ forval y = 2018(1)2021 {
 	qui reg homework_any $twy i.reglab [pw=coeffy] if year == `y'
 	eststo B1_`y', title("`y'")
  	estadd local fe_region Yes
-	
-// 	* B2: (B1) + individual characteristics
-// 	qui reg homework_any $twy $individual i.reglab [pw=coeffy] if year == `y'
-// 	eststo B2_`y', title("`y'")
-// 	estadd local fe_country Yes
-//	
-// 	* B3: (B2) + work characteristics
-// 	qui reg homework_any $twy $individual $work i.reglab [pw=coeffy] if year == `y'
-// 	eststo B3_`y', title("`y'")
-// 	estadd local fe_region Yes
 	
 	* B4: (B3) + regional characteristics
 	qui reg homework_any $twy $individual $work $regional i.reglab [pw=coeffy] if year == `y'
@@ -219,9 +166,9 @@ forval y = 2018(1)2021 {
 * Preview the different model blocks
 // NB: This syntax for model titles requires a recent version of esttab
 // ssc install estout, replace
-forval b = 1/4 {
-	esttab B`b'_*, nonotes not r2 lab compress obslast drop(*reglab*) mlabels(,title)
-}
+
+esttab B1_*, nonotes not r2 lab compress obslast drop(*reglab*) mlabels(,title)
+esttab B4_*, nonotes not r2 lab compress obslast drop(*reglab*) mlabels(,title)
 
 
 * Tables for simple and full individual model
@@ -324,7 +271,7 @@ collapse (mean) homework_index (mean) homework_any (mean) physical (mean) social
 	(rawsum) coeffy (rawsum) n [aw=coeffy], by(reglab year)
 
 * Define variable groups
-global twy        c.physicalinteraction c.socialinteraction
+global twy    c.physicalinteraction c.socialinteraction
 global geo    city rural i.capital broadband_shh work_other_region work_other_country
 global demo   female lowed highed pt self temporary nonnat agecont
 global sector agric manuf privserv publserv
