@@ -53,3 +53,46 @@ nuts_broadband %>%
 
 ggsave("Figures/nuts_broadband.png", width = 12, height = 12, units = "cm") # bg = "white")
 ggsave("Figures/nuts_broadband.pdf", width = 12, height = 12, units = "cm") # bg = "white")
+
+
+# Custom connectivity data by NUTS x Degurba ---
+
+speed_2019 <- read_csv("Data/speed_NUTS_DGURBA_2019.csv") %>%
+  mutate(
+    year = 2019,
+    nuts_year = 2016,
+  )
+
+speed_2022 <- read_csv("Data/speed_NUTS_DGURBA_2022.csv") %>%
+  mutate(
+    year = 2022,
+    nuts_year = 2021
+    )
+
+speed <- bind_rows(speed_2019, speed_2022) %>% 
+  mutate(degurba = factor(DGURBA, levels = c(1, 2, 3), labels = c("Cities", "Towns and suburbs", "Rural areas"))) %>% 
+  select(-`...1`, - DGURBA)
+
+map_nuts2_degurba <- bind_rows(
+    map_nuts %>% filter(LEVL_CODE == 2) %>% mutate(degurba = "Cities"),
+    map_nuts %>% filter(LEVL_CODE == 2) %>% mutate(degurba = "Towns and suburbs"),
+    map_nuts %>% filter(LEVL_CODE == 2) %>% mutate(degurba = "Rural areas")
+  ) %>% 
+  mutate(degurba = factor(degurba, levels = c("Cities", "Towns and suburbs", "Rural areas")))
+
+
+map_nuts2_degurba %>% 
+  full_join(speed, by = c("NUTS_ID", "nuts_year", "degurba")) %>% 
+  filter(!is.na(degurba)) %>% 
+  fill(year) %>% 
+  ggplot(aes(fill = avg_speed_mbps )) +
+  geom_sf() +
+  facet_grid(year ~ degurba) +
+  scale_fill_fermenter("Average internet speed\n(Mbps)", palette = "Blues", direction = 1, na.value = "grey80") +
+  coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
+  labs(
+    title = "Internet speed by region and territorial typology over the years",
+    subtitle = "NUTS-2 regions x Degurba territorial typology, 2019 and 2022"
+  )
+
+ggsave("Figures/internet_nuts_degurba.png", width = 20, height = 12, units = "cm", bg = "white")

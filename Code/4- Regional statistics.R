@@ -40,12 +40,14 @@ country_telework <- LFS %>%
   compute_tw_share(year, country)
 
 country_telework %>% 
+  select(-n_people) %>% 
   pivot_wider(names_from = year, values_from = telework_share) %>% 
   mutate(change = `2021`/`2019`-1) %>% 
   ggplot(aes(x = `2019`, y = change, label = country)) +
   geom_point() + geom_text_repel() +
-  geom_smooth(method = "lm") +
-  stat_regline_equation(aes(label =  paste(..eq.label.., ..rr.label.., sep = "~~~~")),  label.y = -1) +
+  geom_smooth(method = "loess") +
+  # geom_smooth(method = "lm", formula = y ~ poly(x, 2)) +
+  # stat_regline_equation(aes(label =  paste(..eq.label.., ..rr.label.., sep = "~~~~")),  label.y = -1) +
   scale_x_continuous(labels = percent_format()) +
   scale_y_continuous(labels = percent_format(prefix = "+")) + 
   labs(
@@ -116,9 +118,61 @@ write_xlsx(
     list("Telework NUTS stapro" = table_nuts, "Telework NUTS change" = table_nuts_change),
     "Tables/Telework_NUTS.xlsx"
 )
-  
+
 
 # Top teleworking regions --------------------------------
+
+# Compute telework share by intensity by region and year
+telework_regions_intensity <- LFS %>%
+  group_by(year, reg, reglab, urbrur) %>%
+  summarise(
+    total_pop = sum(coeffy),
+    total_tw_sometimes = sum(coeffy[homework ==  "Person sometimes works at home"]),
+    total_tw_usually = sum(coeffy[homework ==  "Person mainly works at home"]),
+    Sometimes = total_tw_sometimes/total_pop,
+    Usually = total_tw_usually/total_pop,
+    tw_any = Sometimes + Usually,
+    .groups = "drop"
+  ) %>% 
+  mutate(reg_type = case_when(
+    str_detect(reg, "^LU") ~ "Entire country",
+    is.na(urbrur) ~ "Entire country",
+    urbrur == "Capital region" ~ "Capital region",
+    urbrur != "Capital region" ~ "Other region"
+    ) %>% factor(levels = c("Capital region", "Other region", "Entire country"))
+    ) %>% 
+  select(year, reg, reglab, reg_type, Sometimes, Usually, tw_any) %>% 
+  pivot_longer(cols = c(Sometimes, Usually), names_to = "frequency")
+
+# Plot regions with highest rates of telework
+telework_regions_intensity %>% 
+  filter(year == max(year)) %>% 
+  slice_max(tw_any, n = 20) %>% 
+  arrange(tw_any) %>% 
+  # Clean up region labels
+  mutate(
+    reglab = as.character(reglab) %>% str_replace("_", ": "),
+    reglab = str_replace_all(reglab, "^BE10.*", "BE10: Brussels-Capital"),
+    reglab = str_wrap(reglab, 30),
+    reglab = fct_inorder(reglab), 
+  ) %>% 
+  ggplot(aes(x = reglab, y = value, fill = reg_type)) +
+  geom_col(aes(alpha = frequency, group = frequency), position = "stack") +
+  scale_alpha_manual("Work from home", breaks = c("Usually", "Sometimes"), values = c(1, 0.4)) +
+  scale_fill_discrete("Region type", direction = -1, ) +
+  scale_y_continuous(labels = scales::percent) +
+  coord_flip() +
+  guides(alpha = guide_legend(order = 1), fill = guide_legend(order = 2)) +
+  labs(
+    # title = "Capital regions have some of the highest rates of telework",
+    # subtitle = "Regions with highest rate of people teleworking in 2021",
+    x = "Region", y = "Share of people teleworking",
+    caption = "Regions are NUTS-2, except for the Netherlands, which is reported at the country level.\n Luxembourg consists of a single NUTS-2 region."
+  )
+
+ggsave("Figures/Telework_nuts_top.pdf", height = 4, width = 8)
+ggsave("Figures/Telework_nuts_top.png", height = 4, width = 8, bg = "white")
+  
 
 # Filter the 10 regions with the highest telework rates in 2021
 telework_top_regions_2021 <- regional_telework %>%
