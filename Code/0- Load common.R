@@ -32,12 +32,14 @@ suppressMessages({
 
 # Country codes and names
 labels_country <- geofacet::eu_grid1 %>%
+  as_tibble() %>% 
   select(country_code = code, country_name = name) %>%
   as_tibble() %>% 
   mutate(country_name = str_replace(country_name, "Czech Republic", "Czechia"))
 
 # Edit EU grid for cartogram to remove UK
 eu_grid <- eu_grid1 %>%
+  as_tibble() %>% 
   filter(code != "UK") %>% 
   mutate(name = str_replace(name, "Czech Republic", "Czechia"))
 
