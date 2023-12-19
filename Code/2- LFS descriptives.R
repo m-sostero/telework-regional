@@ -37,7 +37,7 @@ ggsave("Figures/LFS_respondents_time.png", height = 8, width = 11, bg = "white")
 
 
 # missing population weights (coeffy) by country --------------------------
-
+sum
 #TODO: why coeffy missing (NL in 2021, FI, DK all years?)
 LFS %>%
   group_by(country, year) %>%
@@ -78,7 +78,50 @@ write_xlsx(
   )
   
 
+# Telework intensity ------------------------------------------------------
 
+LFS_total <- LFS %>%
+  group_by(year, country) %>% 
+  summarise(total_pop = sum(coeffy, na.rm = T), .groups = "drop") 
+
+hw_freq <- LFS %>%
+  group_by(year, country, homework) %>% 
+  summarise(total = sum(coeffy, na.rm = TRUE), .groups = "drop") %>%
+  left_join(LFS_total, by = c("year", "country")) %>% 
+  mutate(
+    share = total / total_pop,
+    homework = fct_recode(homework, never = "Person never works at home", sometimes = "Person sometimes works at home", usually = "Person mainly works at home") %>% fct_rev()
+  ) %>% 
+  left_join(labels_country, by = c("country" = "country_code"))
+
+
+# Telework intensity by degurba, selected countries -----
+hw_freq %>%
+  filter(homework != "never") %>%
+  mutate(year = factor(year)) %>%
+  ggplot(aes(x = year, y = share, group = homework, fill = homework)) +
+  geom_col(position = "stack") +
+  facet_geo(~ country, grid = eu_grid, label = "name") +
+  scale_fill_manual("Work from home", values = c("#9ECAE1", "#2171B5"), breaks = c("sometimes", "usually")) +
+  scale_y_continuous(labels = percent_format(), limits = c(0, 0.60)) +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+    legend.position = c(0.92, 0.5),
+    legend.box.background = element_rect(colour = "grey40")
+    ) +
+  labs( y = "Share of working population", x = NULL )
+
+ggsave("Figures/Telework_intensity_eu.pdf", height = 7, width = 9)
+ggsave("Figures/Telework_intensity_eu.png", height = 7, width = 10, bg = "white")
+
+ggplot2::last_plot() +
+  scale_y_continuous(labels = percent_format(), limits = c(0, 0.6)) +
+  theme(
+    legend.position = c(0.05, 0.05),
+    legend.box.background = element_rect(colour = "grey40")
+  ) +
+  labs(title = "Frequency of work from home, by country and year", caption = "Source: EU-LFS.")
+ggsave("Figures/Telework_intensity_eu.svg", height = 6, width = 7, bg = "white")
 
 # Employees vs self-employed ----------------------------------------------
 

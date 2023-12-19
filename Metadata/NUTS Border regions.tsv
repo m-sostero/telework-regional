@@ -1,0 +1,1497 @@
+Region	Code	Country	Border
+Brussels	BE 100	Belgium	Non-border region
+Arr. Antwerpen	BE 211	Belgium	Border region
+Arr. Mechelen	BE 212	Belgium	Border region
+Arr. Turnhout	BE 213	Belgium	Border region
+Arr. Hasselt	BE 221	Belgium	Border region
+Arr. Maaseik	BE 222	Belgium	Border region
+Arr. Tongeren	BE 223	Belgium	Border region
+Arr. Aalst	BE 231	Belgium	Border region
+Arr. Dendermonde	BE 232	Belgium	Border region
+Arr. Eeklo	BE 233	Belgium	Border region
+Arr. Gent	BE 234	Belgium	Border region
+Arr. Oudenaarde	BE 235	Belgium	Border region
+Arr. Sint-Niklaas	BE 236	Belgium	Border region
+Arr. Halle-Vilvoorde	BE 241	Belgium	Non-border region
+Arr. Leuven	BE 242	Belgium	Non-border region
+Arr. Brugge	BE 251	Belgium	Border region
+Arr. Diksmuide	BE 252	Belgium	Border region
+Arr. Ieper	BE 253	Belgium	Border region
+Arr. Kortrijk	BE 254	Belgium	Border region
+Arr. Oostende	BE 255	Belgium	Non-border region
+Arr. Roeselare	BE 256	Belgium	Border region
+Arr. Tielt	BE 257	Belgium	Border region
+Arr. Veurne	BE 258	Belgium	Border region
+Arr. Nivelles	BE 310	Belgium	Non-border region
+Arr. Ath	BE 321	Belgium	Border region
+Arr. Charleroi	BE 322	Belgium	Border region
+Arr. Mons	BE 323	Belgium	Border region
+Arr. Mouscron	BE 324	Belgium	Border region
+Arr. Soignies	BE 325	Belgium	Border region
+Arr. Thuin	BE 326	Belgium	Border region
+Arr. Tournai	BE 327	Belgium	Border region
+Arr. Huy	BE 331	Belgium	Non-border region
+Arr. Liège	BE 332	Belgium	Border region
+Arr. Waremme	BE 334	Belgium	Border region
+Arr. Verviers - communes francophones	BE 335	Belgium	Border region
+Bezirk Verviers - Deutschsprachige Gemeinschaft	BE 336	Belgium	Border region
+Arr. Arlon	BE 341	Belgium	Border region
+Arr. Bastogne	BE 342	Belgium	Border region
+Arr. Marche-en-Famenne	BE 343	Belgium	Border region
+Arr. Neufchâteau	BE 344	Belgium	Border region
+Arr. Virton	BE 345	Belgium	Border region
+Arr. Dinant	BE 351	Belgium	Border region
+Arr. Namur	BE 352	Belgium	Border region
+Arr. Philippeville	BE 353	Belgium	Border region
+Видин	BG 311	Bulgaria	Border region
+Монтана	BG 312	Bulgaria	Border region
+Враца	BG 313	Bulgaria	Border region
+Плевен	BG 314	Bulgaria	Border region
+Ловеч	BG 315	Bulgaria	Non-border region
+Велико Търново	BG 321	Bulgaria	Border region
+Габрово	BG 322	Bulgaria	Non-border region
+Русе	BG 323	Bulgaria	Border region
+Разград	BG 324	Bulgaria	Border region
+Силистра	BG 325	Bulgaria	Border region
+Варна	BG 331	Bulgaria	Non-border region
+Добрич	BG 332	Bulgaria	Border region
+Шумен	BG 333	Bulgaria	Non-border region
+Търговище	BG 334	Bulgaria	Non-border region
+Бургас	BG 341	Bulgaria	Border region
+Сливен	BG 342	Bulgaria	Non-border region
+Ямбол	BG 343	Bulgaria	Border region
+Стара Загора	BG 344	Bulgaria	Non-border region
+София (столица)	BG 411	Bulgaria	Non-border region
+София	BG 412	Bulgaria	Border region
+Благоевград	BG 413	Bulgaria	Border region
+Перник	BG 414	Bulgaria	Border region
+Кюстендил	BG 415	Bulgaria	Border region
+Пловдив	BG 421	Bulgaria	Non-border region
+Хасково	BG 422	Bulgaria	Border region
+Пазарджик	BG 423	Bulgaria	Border region
+Смолян	BG 424	Bulgaria	Border region
+Кърджали	BG 425	Bulgaria	Border region
+Hlavní město Praha	CZ 010	Czechia	Non-border region
+Středočeský kraj	CZ 020	Czechia	Border region
+Jihočeský kraj	CZ 031	Czechia	Border region
+Plzeňský kraj	CZ 032	Czechia	Border region
+Karlovarský kraj	CZ 041	Czechia	Border region
+Ústecký kraj	CZ 042	Czechia	Border region
+Liberecký kraj	CZ 051	Czechia	Border region
+Královéhradecký kraj	CZ 052	Czechia	Border region
+Pardubický kraj	CZ 053	Czechia	Border region
+Kraj Vysočina	CZ 063	Czechia	Border region
+Jihomoravský kraj	CZ 064	Czechia	Border region
+Olomoucký kraj	CZ 071	Czechia	Border region
+Zlínský kraj	CZ 072	Czechia	Border region
+Moravskoslezský kraj	CZ 080	Czechia	Border region
+Byen København	DK 011	Denmark	Non-border region
+Københavns omegn	DK 012	Denmark	Non-border region
+Nordsjælland	DK 013	Denmark	Non-border region
+Bornholm	DK 014	Denmark	Non-border region
+Østsjælland	DK 021	Denmark	Non-border region
+Vest- og Sydsjælland	DK 022	Denmark	Non-border region
+Fyn	DK 031	Denmark	Non-border region
+Sydjylland	DK 032	Denmark	Border region
+Vestjylland	DK 041	Denmark	Non-border region
+Østjylland	DK 042	Denmark	Non-border region
+Nordjylland	DK 050	Denmark	Non-border region
+Stuttgart, Stadtkreis	DE 111	Germany	Non-border region
+Böblingen	DE 112	Germany	Non-border region
+Esslingen	DE 113	Germany	Non-border region
+Göppingen	DE 114	Germany	Non-border region
+Ludwigsburg	DE 115	Germany	Non-border region
+Rems-Murr-Kreis	DE 116	Germany	Non-border region
+Heilbronn, Stadtkreis	DE 117	Germany	Non-border region
+Heilbronn, Landkreis	DE 118	Germany	Non-border region
+Hohenlohekreis	DE 119	Germany	Non-border region
+Schwäbisch Hall	DE11A	Germany	Non-border region
+Main-Tauber-Kreis	DE11B	Germany	Non-border region
+Heidenheim	DE11C	Germany	Non-border region
+Ostalbkreis	DE11D	Germany	Non-border region
+Baden-Baden, Stadtkreis	DE 121	Germany	Border region
+Karlsruhe, Stadtkreis	DE 122	Germany	Border region
+Karlsruhe, Landkreis	DE 123	Germany	Border region
+Rastatt	DE 124	Germany	Border region
+Heidelberg, Stadtkreis	DE 125	Germany	Non-border region
+Mannheim, Stadtkreis	DE 126	Germany	Non-border region
+Neckar-Odenwald-Kreis	DE 127	Germany	Non-border region
+Rhein-Neckar-Kreis	DE 128	Germany	Non-border region
+Pforzheim, Stadtkreis	DE 129	Germany	Non-border region
+Calw	DE12A	Germany	Border region
+Enzkreis	DE12B	Germany	Border region
+Freudenstadt	DE12C	Germany	Border region
+Freiburg im Breisgau, Stadtkreis	DE 131	Germany	Border region
+Breisgau-Hochschwarzwald	DE 132	Germany	Border region
+Emmendingen	DE 133	Germany	Border region
+Ortenaukreis	DE 134	Germany	Border region
+Rottweil	DE 135	Germany	Non-border region
+Schwarzwald-Baar-Kreis	DE 136	Germany	Border region
+Tuttlingen	DE 137	Germany	Border region
+Konstanz	DE 138	Germany	Border region
+Lörrach	DE 139	Germany	Border region
+Waldshut	DE13A	Germany	Border region
+Reutlingen	DE 141	Germany	Non-border region
+Tübingen, Landkreis	DE 142	Germany	Non-border region
+Zollernalbkreis	DE 143	Germany	Non-border region
+Ulm, Stadtkreis	DE 144	Germany	Non-border region
+Alb-Donau-Kreis	DE 145	Germany	Non-border region
+Biberach	DE 146	Germany	Non-border region
+Bodenseekreis	DE 147	Germany	Border region
+Ravensburg	DE 148	Germany	Border region
+Sigmaringen	DE 149	Germany	Border region
+Ingolstadt, Kreisfreie Stadt	DE 211	Germany	Non-border region
+München, Kreisfreie Stadt	DE 212	Germany	Non-border region
+Rosenheim, Kreisfreie Stadt	DE 213	Germany	Border region
+Altötting	DE 214	Germany	Border region
+Berchtesgadener Land	DE 215	Germany	Border region
+Bad Tölz-Wolfratshausen	DE 216	Germany	Border region
+Dachau	DE 217	Germany	Non-border region
+Ebersberg	DE 218	Germany	Non-border region
+Eichstätt	DE 219	Germany	Non-border region
+Erding	DE21A	Germany	Non-border region
+Freising	DE21B	Germany	Non-border region
+Fürstenfeldbruck	DE21C	Germany	Non-border region
+Garmisch-Partenkirchen	DE21D	Germany	Border region
+Landsberg am Lech	DE21E	Germany	Non-border region
+Miesbach	DE21F	Germany	Border region
+Mühldorf a. Inn	DE21G	Germany	Border region
+München, Landkreis	DE21H	Germany	Non-border region
+Neuburg-Schrobenhausen	DE21I	Germany	Non-border region
+Pfaffenhofen a. d. Ilm	DE21J	Germany	Non-border region
+Rosenheim, Landkreis	DE21K	Germany	Border region
+Starnberg	DE21L	Germany	Non-border region
+Traunstein	DE21M	Germany	Border region
+Weilheim-Schongau	DE21N	Germany	Border region
+Landshut, Kreisfreie Stadt	DE 221	Germany	Non-border region
+Passau, Kreisfreie Stadt	DE 222	Germany	Border region
+Straubing, Kreisfreie Stadt	DE 223	Germany	Non-border region
+Deggendorf	DE 224	Germany	Border region
+Freyung-Grafenau	DE 225	Germany	Border region
+Kelheim	DE 226	Germany	Non-border region
+Landshut, Landkreis	DE 227	Germany	Non-border region
+Passau, Landkreis	DE 228	Germany	Border region
+Regen	DE 229	Germany	Border region
+Rottal-Inn	DE22A	Germany	Border region
+Straubing-Bogen	DE22B	Germany	Non-border region
+Dingolfing-Landau	DE22C	Germany	Non-border region
+Amberg, Kreisfreie Stadt	DE 231	Germany	Non-border region
+Regensburg, Kreisfreie Stadt	DE 232	Germany	Non-border region
+Weiden i. d. Opf, Kreisfreie Stadt	DE 233	Germany	Border region
+Amberg-Sulzbach	DE 234	Germany	Non-border region
+Cham	DE 235	Germany	Border region
+Neumarkt i. d. OPf.	DE 236	Germany	Non-border region
+Neustadt a. d. Waldnaab	DE 237	Germany	Border region
+Regensburg, Landkreis	DE 238	Germany	Non-border region
+Schwandorf	DE 239	Germany	Border region
+Tirschenreuth	DE23A	Germany	Border region
+Bamberg, Kreisfreie Stadt	DE 241	Germany	Non-border region
+Bayreuth, Kreisfreie Stadt	DE 242	Germany	Non-border region
+Coburg, Kreisfreie Stadt	DE 243	Germany	Non-border region
+Hof, Kreisfreie Stadt	DE 244	Germany	Border region
+Bamberg, Landkreis	DE 245	Germany	Non-border region
+Bayreuth, Landkreis	DE 246	Germany	Border region
+Coburg, Landkreis	DE 247	Germany	Non-border region
+Forchheim	DE 248	Germany	Non-border region
+Hof, Landkreis	DE 249	Germany	Border region
+Kronach	DE24A	Germany	Non-border region
+Kulmbach	DE24B	Germany	Non-border region
+Lichtenfels	DE24C	Germany	Non-border region
+Wunsiedel i. Fichtelgebirge	DE24D	Germany	Border region
+Ansbach, Kreisfreie Stadt	DE 251	Germany	Non-border region
+Erlangen, Kreisfreie Stadt	DE 252	Germany	Non-border region
+Fürth, Kreisfreie Stadt	DE 253	Germany	Non-border region
+Nürnberg, Kreisfreie Stadt	DE 254	Germany	Non-border region
+Schwabach, Kreisfreie Stadt	DE 255	Germany	Non-border region
+Ansbach, Landkreis	DE 256	Germany	Non-border region
+Erlangen-Höchstadt	DE 257	Germany	Non-border region
+Fürth, Landkreis	DE 258	Germany	Non-border region
+Nürnberger Land	DE 259	Germany	Non-border region
+Neustadt a. d. Aisch-Bad Windsheim	DE25A	Germany	Non-border region
+Roth	DE25B	Germany	Non-border region
+Weißenburg-Gunzenhausen	DE25C	Germany	Non-border region
+Aschaffenburg, Kreisfreie Stadt	DE 261	Germany	Non-border region
+Schweinfurt, Kreisfreie Stadt	DE 262	Germany	Non-border region
+Würzburg, Kreisfreie Stadt	DE 263	Germany	Non-border region
+Aschaffenburg, Landkreis	DE 264	Germany	Non-border region
+Bad Kissingen	DE 265	Germany	Non-border region
+Rhön-Grabfeld	DE 266	Germany	Non-border region
+Haßberge	DE 267	Germany	Non-border region
+Kitzingen	DE 268	Germany	Non-border region
+Miltenberg	DE 269	Germany	Non-border region
+Main-Spessart	DE26A	Germany	Non-border region
+Schweinfurt, Landkreis	DE26B	Germany	Non-border region
+Würzburg, Landkreis	DE26C	Germany	Non-border region
+Augsburg, Kreisfreie Stadt	DE 271	Germany	Non-border region
+Kaufbeuren, Kreisfreie Stadt	DE 272	Germany	Non-border region
+Kempten (Allgäu), Kreisfreie Stadt	DE 273	Germany	Border region
+Memmingen, Kreisfreie Stadt	DE 274	Germany	Non-border region
+Aichach-Friedberg	DE 275	Germany	Non-border region
+Augsburg, Landkreis	DE 276	Germany	Non-border region
+Dillingen a.d. Donau	DE 277	Germany	Non-border region
+Günzburg	DE 278	Germany	Non-border region
+Neu-Ulm	DE 279	Germany	Non-border region
+Lindau (Bodensee)	DE27A	Germany	Border region
+Ostallgäu	DE27B	Germany	Border region
+Unterallgäu	DE27C	Germany	Non-border region
+Donau-Ries	DE27D	Germany	Non-border region
+Oberallgäu	DE27E	Germany	Border region
+Berlin	DE 300	Germany	Non-border region
+Brandenburg an der Havel, Kreisfreie Stadt	DE 401	Germany	Non-border region
+Cottbus, Kreisfreie Stadt	DE 402	Germany	Border region
+Frankfurt (Oder), Kreisfreie Stadt	DE 403	Germany	Border region
+Potsdam, Kreisfreie Stadt	DE 404	Germany	Non-border region
+Barnim	DE 405	Germany	Border region
+Dahme-Spreewald	DE 406	Germany	Border region
+Elbe-Elster	DE 407	Germany	Non-border region
+Havelland	DE 408	Germany	Non-border region
+Märkisch-Oderland	DE 409	Germany	Border region
+Oberhavel	DE40A	Germany	Non-border region
+Oberspreewald-Lausitz	DE40B	Germany	Non-border region
+Oder-Spree	DE40C	Germany	Border region
+Ostprignitz-Ruppin	DE40D	Germany	Non-border region
+Potsdam-Mittelmark	DE40E	Germany	Non-border region
+Prignitz	DE40F	Germany	Non-border region
+Spree-Neiße	DE40G	Germany	Border region
+Teltow-Fläming	DE40H	Germany	Non-border region
+Uckermark	DE40I	Germany	Border region
+Bremen, Kreisfreie Stadt	DE 501	Germany	Non-border region
+Bremerhaven, Kreisfreie Stadt	DE 502	Germany	Non-border region
+Hamburg	DE 600	Germany	Non-border region
+Darmstadt, Kreisfreie Stadt	DE 711	Germany	Non-border region
+Frankfurt am Main, Kreisfreie Stadt	DE 712	Germany	Non-border region
+Offenbach am Main, Kreisfreie Stadt	DE 713	Germany	Non-border region
+Wiesbaden, Kreisfreie Stadt	DE 714	Germany	Non-border region
+Bergstraße	DE 715	Germany	Non-border region
+Darmstadt-Dieburg	DE 716	Germany	Non-border region
+Groß-Gerau	DE 717	Germany	Non-border region
+Hochtaunuskreis	DE 718	Germany	Non-border region
+Main-Kinzig-Kreis	DE 719	Germany	Non-border region
+Main-Taunus-Kreis	DE71A	Germany	Non-border region
+Odenwaldkreis	DE71B	Germany	Non-border region
+Offenbach, Landkreis	DE71C	Germany	Non-border region
+Rheingau-Taunus-Kreis	DE71D	Germany	Non-border region
+Wetteraukreis	DE71E	Germany	Non-border region
+Gießen, Landkreis	DE 721	Germany	Non-border region
+Lahn-Dill-Kreis	DE 722	Germany	Non-border region
+Limburg-Weilburg	DE 723	Germany	Non-border region
+Marburg-Biedenkopf	DE 724	Germany	Non-border region
+Vogelsbergkreis	DE 725	Germany	Non-border region
+Kassel, Kreisfreie Stadt	DE 731	Germany	Non-border region
+Fulda	DE 732	Germany	Non-border region
+Hersfeld-Rotenburg	DE 733	Germany	Non-border region
+Kassel, Landkreis	DE 734	Germany	Non-border region
+Schwalm-Eder-Kreis	DE 735	Germany	Non-border region
+Waldeck-Frankenberg	DE 736	Germany	Non-border region
+Werra-Meißner-Kreis	DE 737	Germany	Non-border region
+Rostock, Kreisfreie Stadt	DE 803	Germany	Non-border region
+Schwerin, Kreisfreie Stadt	DE 804	Germany	Non-border region
+Mecklenburgische Seenplatte	DE80J	Germany	Non-border region
+Landkreis Rostock	DE80K	Germany	Non-border region
+Vorpommern-Rügen	DE80L	Germany	Non-border region
+Nordwestmecklenburg	DE80M	Germany	Non-border region
+Vorpommern-Greifswald	DE80N	Germany	Border region
+Ludwigslust-Parchim	DE80O	Germany	Non-border region
+Braunschweig, Kreisfreie Stadt	DE 911	Germany	Non-border region
+Salzgitter, Kreisfreie Stadt	DE 912	Germany	Non-border region
+Wolfsburg, Kreisfreie Stadt	DE 913	Germany	Non-border region
+Gifhorn	DE 914	Germany	Non-border region
+Goslar	DE 916	Germany	Non-border region
+Helmstedt	DE 917	Germany	Non-border region
+Northeim	DE 918	Germany	Non-border region
+Peine	DE91A	Germany	Non-border region
+Wolfenbüttel	DE91B	Germany	Non-border region
+Göttingen	DE91C	Germany	Non-border region
+Diepholz	DE 922	Germany	Non-border region
+Hameln-Pyrmont	DE 923	Germany	Non-border region
+Hildesheim	DE 925	Germany	Non-border region
+Holzminden	DE 926	Germany	Non-border region
+Nienburg (Weser)	DE 927	Germany	Non-border region
+Schaumburg	DE 928	Germany	Non-border region
+Region Hannover	DE 929	Germany	Non-border region
+Celle	DE 931	Germany	Non-border region
+Cuxhaven	DE 932	Germany	Non-border region
+Harburg	DE 933	Germany	Non-border region
+Lüchow-Dannenberg	DE 934	Germany	Non-border region
+Lüneburg, Landkreis	DE 935	Germany	Non-border region
+Osterholz	DE 936	Germany	Non-border region
+Rotenburg (Wümme)	DE 937	Germany	Non-border region
+Heidekreis	DE 938	Germany	Non-border region
+Stade	DE 939	Germany	Non-border region
+Uelzen	DE93A	Germany	Non-border region
+Verden	DE93B	Germany	Non-border region
+Delmenhorst, Kreisfreie Stadt	DE 941	Germany	Non-border region
+Emden, Kreisfreie Stadt	DE 942	Germany	Non-border region
+Oldenburg (Oldenburg), Kreisfreie Stadt	DE 943	Germany	Non-border region
+Osnabrück, Kreisfreie Stadt	DE 944	Germany	Non-border region
+Wilhelmshaven, Kreisfreie Stadt	DE 945	Germany	Non-border region
+Ammerland	DE 946	Germany	Non-border region
+Aurich	DE 947	Germany	Non-border region
+Cloppenburg	DE 948	Germany	Non-border region
+Emsland	DE 949	Germany	Border region
+Friesland (DE)	DE94A	Germany	Non-border region
+Grafschaft Bentheim	DE94B	Germany	Border region
+Leer	DE94C	Germany	Border region
+Oldenburg, Landkreis	DE94D	Germany	Non-border region
+Osnabrück, Landkreis	DE94E	Germany	Non-border region
+Vechta	DE94F	Germany	Non-border region
+Wesermarsch	DE94G	Germany	Non-border region
+Wittmund	DE94H	Germany	Non-border region
+Düsseldorf, Kreisfreie Stadt	DEA11	Germany	Non-border region
+Duisburg, Kreisfreie Stadt	DEA12	Germany	Non-border region
+Essen, Kreisfreie Stadt	DEA13	Germany	Non-border region
+Krefeld, Kreisfreie Stadt	DEA14	Germany	Border region
+Mönchengladbach, Kreisfreie Stadt	DEA15	Germany	Border region
+Mülheim an der Ruhr, Kreisfreie Stadt	DEA16	Germany	Non-border region
+Oberhausen, Kreisfreie Stadt	DEA17	Germany	Non-border region
+Remscheid, Kreisfreie Stadt	DEA18	Germany	Non-border region
+Solingen, Kreisfreie Stadt	DEA19	Germany	Non-border region
+Wuppertal, Kreisfreie Stadt	DEA1A	Germany	Non-border region
+Kleve	DEA1B	Germany	Border region
+Mettmann	DEA1C	Germany	Non-border region
+Rhein-Kreis Neuss	DEA1D	Germany	Border region
+Viersen	DEA1E	Germany	Border region
+Wesel	DEA1F	Germany	Border region
+Bonn, Kreisfreie Stadt	DEA22	Germany	Non-border region
+Köln, Kreisfreie Stadt	DEA23	Germany	Non-border region
+Leverkusen, Kreisfreie Stadt	DEA24	Germany	Non-border region
+Düren	DEA26	Germany	Border region
+Rhein-Erft-Kreis	DEA27	Germany	Border region
+Euskirchen	DEA28	Germany	Border region
+Heinsberg	DEA29	Germany	Border region
+Oberbergischer Kreis	DEA2A	Germany	Non-border region
+Rheinisch-Bergischer Kreis	DEA2B	Germany	Non-border region
+Rhein-Sieg-Kreis	DEA2C	Germany	Non-border region
+Städteregion Aachen	DEA2D	Germany	Border region
+Bottrop, Kreisfreie Stadt	DEA31	Germany	Non-border region
+Gelsenkirchen, Kreisfreie Stadt	DEA32	Germany	Non-border region
+Münster, Kreisfreie Stadt	DEA33	Germany	Non-border region
+Borken	DEA34	Germany	Border region
+Coesfeld	DEA35	Germany	Border region
+Recklinghausen	DEA36	Germany	Border region
+Steinfurt	DEA37	Germany	Border region
+Warendorf	DEA38	Germany	Non-border region
+Bielefeld, Kreisfreie Stadt	DEA41	Germany	Non-border region
+Gütersloh	DEA42	Germany	Non-border region
+Herford	DEA43	Germany	Non-border region
+Höxter	DEA44	Germany	Non-border region
+Lippe	DEA45	Germany	Non-border region
+Minden-Lübbecke	DEA46	Germany	Non-border region
+Paderborn	DEA47	Germany	Non-border region
+Bochum, Kreisfreie Stadt	DEA51	Germany	Non-border region
+Dortmund, Kreisfreie Stadt	DEA52	Germany	Non-border region
+Hagen, Kreisfreie Stadt	DEA53	Germany	Non-border region
+Hamm, Kreisfreie Stadt	DEA54	Germany	Non-border region
+Herne, Kreisfreie Stadt	DEA55	Germany	Non-border region
+Ennepe-Ruhr-Kreis	DEA56	Germany	Non-border region
+Hochsauerlandkreis	DEA57	Germany	Non-border region
+Märkischer Kreis	DEA58	Germany	Non-border region
+Olpe	DEA59	Germany	Non-border region
+Siegen-Wittgenstein	DEA5A	Germany	Non-border region
+Soest	DEA5B	Germany	Non-border region
+Unna	DEA5C	Germany	Non-border region
+Koblenz, Kreisfreie Stadt	DEB11	Germany	Non-border region
+Ahrweiler	DEB12	Germany	Non-border region
+Altenkirchen (Westerwald)	DEB13	Germany	Non-border region
+Bad Kreuznach	DEB14	Germany	Non-border region
+Birkenfeld	DEB15	Germany	Non-border region
+Mayen-Koblenz	DEB17	Germany	Non-border region
+Neuwied	DEB18	Germany	Non-border region
+Rhein-Lahn-Kreis	DEB1A	Germany	Non-border region
+Westerwaldkreis	DEB1B	Germany	Non-border region
+Cochem-Zell	DEB1C	Germany	Non-border region
+Rhein-Hunsrück-Kreis	DEB1D	Germany	Non-border region
+Trier, Kreisfreie Stadt	DEB21	Germany	Border region
+Bernkastel-Wittlich	DEB22	Germany	Border region
+Eifelkreis Bitburg-Prüm	DEB23	Germany	Border region
+Vulkaneifel	DEB24	Germany	Border region
+Trier-Saarburg	DEB25	Germany	Border region
+Frankenthal (Pfalz), Kreisfreie Stadt	DEB31	Germany	Non-border region
+Kaiserslautern, Kreisfreie Stadt	DEB32	Germany	Non-border region
+Landau in der Pfalz, Kreisfreie Stadt	DEB33	Germany	Border region
+Ludwigshafen am Rhein, Kreisfreie Stadt	DEB34	Germany	Non-border region
+Mainz, Kreisfreie Stadt	DEB35	Germany	Non-border region
+Neustadt an der Weinstraße, Kreisfreie Stadt	DEB36	Germany	Non-border region
+Pirmasens, Kreisfreie Stadt	DEB37	Germany	Border region
+Speyer, Kreisfreie Stadt	DEB38	Germany	Non-border region
+Worms, Kreisfreie Stadt	DEB39	Germany	Non-border region
+Zweibrücken, Kreisfreie Stadt	DEB3A	Germany	Border region
+Alzey-Worms	DEB3B	Germany	Non-border region
+Bad Dürkheim	DEB3C	Germany	Non-border region
+Donnersbergkreis	DEB3D	Germany	Non-border region
+Germersheim	DEB3E	Germany	Border region
+Kaiserslautern, Landkreis	DEB3F	Germany	Border region
+Kusel	DEB3G	Germany	Border region
+Südliche Weinstraße	DEB3H	Germany	Border region
+Rhein-Pfalz-Kreis	DEB3I	Germany	Non-border region
+Mainz-Bingen	DEB3J	Germany	Non-border region
+Südwestpfalz	DEB3K	Germany	Border region
+Regionalverband Saarbrücken	DEC01	Germany	Border region
+Merzig-Wadern	DEC02	Germany	Border region
+Neunkirchen	DEC03	Germany	Border region
+Saarlouis	DEC04	Germany	Border region
+Saarpfalz-Kreis	DEC05	Germany	Border region
+St. Wendel	DEC06	Germany	Border region
+Dresden, Kreisfreie Stadt	DED21	Germany	Border region
+Bautzen	DED2C	Germany	Border region
+Görlitz	DED2D	Germany	Border region
+Meißen	DED2E	Germany	Non-border region
+Sächsische Schweiz-Osterzgebirge	DED2F	Germany	Border region
+Chemnitz, Kreisfreie Stadt	DED41	Germany	Non-border region
+Erzgebirgskreis	DED42	Germany	Border region
+Mittelsachsen	DED43	Germany	Border region
+Vogtlandkreis	DED44	Germany	Border region
+Zwickau	DED45	Germany	Border region
+Leipzig, Kreisfreie Stadt	DED51	Germany	Non-border region
+Leipzig	DED52	Germany	Non-border region
+Nordsachsen	DED53	Germany	Non-border region
+Dessau-Roßlau, Kreisfreie Stadt	DEE01	Germany	Non-border region
+Halle (Saale), Kreisfreie Stadt	DEE02	Germany	Non-border region
+Magdeburg, Kreisfreie Stadt	DEE03	Germany	Non-border region
+Altmarkkreis Salzwedel	DEE04	Germany	Non-border region
+Anhalt-Bitterfeld	DEE05	Germany	Non-border region
+Jerichower Land	DEE06	Germany	Non-border region
+Börde	DEE07	Germany	Non-border region
+Burgenlandkreis	DEE08	Germany	Non-border region
+Harz	DEE09	Germany	Non-border region
+Mansfeld-Südharz	DEE0A	Germany	Non-border region
+Saalekreis	DEE0B	Germany	Non-border region
+Salzlandkreis	DEE0C	Germany	Non-border region
+Stendal	DEE0D	Germany	Non-border region
+Wittenberg	DEE0E	Germany	Non-border region
+Flensburg, Kreisfreie Stadt	DEF01	Germany	Non-border region
+Kiel, Kreisfreie Stadt	DEF02	Germany	Non-border region
+Lübeck, Kreisfreie Stadt	DEF03	Germany	Non-border region
+Neumünster, Kreisfreie Stadt	DEF04	Germany	Non-border region
+Dithmarschen	DEF05	Germany	Non-border region
+Herzogtum Lauenburg	DEF06	Germany	Non-border region
+Nordfriesland	DEF07	Germany	Border region
+Ostholstein	DEF08	Germany	Non-border region
+Pinneberg	DEF09	Germany	Non-border region
+Plön	DEF0A	Germany	Non-border region
+Rendsburg-Eckernförde	DEF0B	Germany	Non-border region
+Schleswig-Flensburg	DEF0C	Germany	Border region
+Segeberg	DEF0D	Germany	Non-border region
+Steinburg	DEF0E	Germany	Non-border region
+Stormarn	DEF0F	Germany	Non-border region
+Erfurt, Kreisfreie Stadt	DEG01	Germany	Non-border region
+Gera, Kreisfreie Stadt	DEG02	Germany	Non-border region
+Jena, Kreisfreie Stadt	DEG03	Germany	Non-border region
+Suhl, Kreisfreie Stadt	DEG04	Germany	Non-border region
+Weimar, Kreisfreie Stadt	DEG05	Germany	Non-border region
+Eichsfeld	DEG06	Germany	Non-border region
+Nordhausen	DEG07	Germany	Non-border region
+Unstrut-Hainich-Kreis	DEG09	Germany	Non-border region
+Kyffhäuserkreis	DEG0A	Germany	Non-border region
+Schmalkalden-Meiningen	DEG0B	Germany	Non-border region
+Gotha	DEG0C	Germany	Non-border region
+Sömmerda	DEG0D	Germany	Non-border region
+Hildburghausen	DEG0E	Germany	Non-border region
+Ilm-Kreis	DEG0F	Germany	Non-border region
+Weimarer Land	DEG0G	Germany	Non-border region
+Sonneberg	DEG0H	Germany	Non-border region
+Saalfeld-Rudolstadt	DEG0I	Germany	Non-border region
+Saale-Holzland-Kreis	DEG0J	Germany	Non-border region
+Saale-Orla-Kreis	DEG0K	Germany	Border region
+Greiz	DEG0L	Germany	Non-border region
+Altenburger Land	DEG0M	Germany	Non-border region
+Eisenach, Kreisfreie Stadt	DEG0N	Germany	Non-border region
+Wartburgkreis	DEG0P	Germany	Non-border region
+Põhja-Eesti	EE 001	Estonia	Non-border region
+Lääne-Eesti	EE 004	Estonia	Border region
+Kesk-Eesti	EE 006	Estonia	Non-border region
+Kirde-Eesti	EE 007	Estonia	Border region
+Lõuna-Eesti	EE 008	Estonia	Border region
+Border	IE 041	Ireland	Border region
+West	IE 042	Ireland	Non-border region
+Mid-West	IE 051	Ireland	Non-border region
+South-East	IE 052	Ireland	Non-border region
+South-West	IE 053	Ireland	Non-border region
+Dublin	IE 061	Ireland	Non-border region
+Mid-East	IE 062	Ireland	Border region
+Midland	IE 063	Ireland	Border region
+Βόρειος Τομέας Αθηνών	EL 301	Greece	Non-border region
+Δυτικός Τομέας Αθηνών	EL 302	Greece	Non-border region
+Κεντρικός Τομέας Αθηνών	EL 303	Greece	Non-border region
+Νότιος Τομέας Αθηνών	EL 304	Greece	Non-border region
+Ανατολική Αττική	EL 305	Greece	Non-border region
+Δυτική Αττική	EL 306	Greece	Non-border region
+Πειραιάς, Νήσοι	EL 307	Greece	Non-border region
+Λέσβος, Λήμνος	EL 411	Greece	Non-border region
+Ικαρία, Σάμος	EL 412	Greece	Non-border region
+Χίος	EL 413	Greece	Non-border region
+Κάλυμνος, Κάρπαθος, Κως, Ρόδος	EL 421	Greece	Non-border region
+Άνδρος, Θήρα, Κέα, Μήλος, Μύκονος, Νάξος, Πάρος, Σύρος, Τήνος	EL 422	Greece	Non-border region
+Ηράκλειο	EL 431	Greece	Non-border region
+Λασίθι	EL 432	Greece	Non-border region
+Ρεθύμνη	EL 433	Greece	Non-border region
+Χανιά	EL 434	Greece	Non-border region
+Έβρος	EL 511	Greece	Border region
+Ξάνθη	EL 512	Greece	Border region
+Ροδόπη	EL 513	Greece	Border region
+Δράμα	EL 514	Greece	Border region
+Θάσος, Καβάλα	EL 515	Greece	Non-border region
+Ημαθία	EL 521	Greece	Non-border region
+Θεσσαλονίκη	EL 522	Greece	Non-border region
+Κιλκίς	EL 523	Greece	Border region
+Πέλλα	EL 524	Greece	Border region
+Πιερία	EL 525	Greece	Non-border region
+Σέρρες	EL 526	Greece	Border region
+Χαλκιδική	EL 527	Greece	Non-border region
+Γρεβενά, Κοζάνη	EL 531	Greece	Border region
+Καστοριά	EL 532	Greece	Border region
+Φλώρινα	EL 533	Greece	Border region
+Άρτα, Πρέβεζα	EL 541	Greece	Non-border region
+Θεσπρωτία	EL 542	Greece	Border region
+Ιωάννινα	EL 543	Greece	Border region
+Καρδίτσα, Τρίκαλα	EL 611	Greece	Non-border region
+Λάρισα	EL 612	Greece	Non-border region
+Μαγνησία, Σποράδες	EL 613	Greece	Non-border region
+Ζάκυνθος	EL 621	Greece	Non-border region
+Κέρκυρα	EL 622	Greece	Non-border region
+Ιθάκη, Κεφαλληνία	EL 623	Greece	Non-border region
+Λευκάδα	EL 624	Greece	Non-border region
+Αιτωλοακαρνανία	EL 631	Greece	Non-border region
+Αχαΐα	EL 632	Greece	Non-border region
+Ηλεία	EL 633	Greece	Non-border region
+Βοιωτία	EL 641	Greece	Non-border region
+Εύβοια	EL 642	Greece	Non-border region
+Ευρυτανία	EL 643	Greece	Non-border region
+Φθιώτιδα	EL 644	Greece	Non-border region
+Φωκίδα	EL 645	Greece	Non-border region
+Αργολίδα, Αρκαδία	EL 651	Greece	Non-border region
+Κορινθία	EL 652	Greece	Non-border region
+Λακωνία, Μεσσηνία	EL 653	Greece	Non-border region
+A Coruña	ES 111	Spain	Non-border region
+Lugo	ES 112	Spain	Non-border region
+Ourense	ES 113	Spain	Border region
+Pontevedra	ES 114	Spain	Border region
+Asturias	ES 120	Spain	Non-border region
+Cantabria	ES 130	Spain	Non-border region
+Araba/Álava	ES 211	Spain	Non-border region
+Gipuzkoa	ES 212	Spain	Border region
+Bizkaia	ES 213	Spain	Non-border region
+Navarra	ES 220	Spain	Border region
+La Rioja	ES 230	Spain	Non-border region
+Huesca	ES 241	Spain	Border region
+Teruel	ES 242	Spain	Non-border region
+Zaragoza	ES 243	Spain	Border region
+Madrid	ES 300	Spain	Non-border region
+Ávila	ES 411	Spain	Non-border region
+Burgos	ES 412	Spain	Non-border region
+León	ES 413	Spain	Border region
+Palencia	ES 414	Spain	Non-border region
+Salamanca	ES 415	Spain	Border region
+Segovia	ES 416	Spain	Non-border region
+Soria	ES 417	Spain	Non-border region
+Valladolid	ES 418	Spain	Non-border region
+Zamora	ES 419	Spain	Border region
+Albacete	ES 421	Spain	Non-border region
+Ciudad Real	ES 422	Spain	Non-border region
+Cuenca	ES 423	Spain	Non-border region
+Guadalajara	ES 424	Spain	Non-border region
+Toledo	ES 425	Spain	Non-border region
+Badajoz	ES 431	Spain	Border region
+Cáceres	ES 432	Spain	Border region
+Barcelona	ES 511	Spain	Non-border region
+Girona	ES 512	Spain	Border region
+Lleida	ES 513	Spain	Border region
+Tarragona	ES 514	Spain	Non-border region
+Alicante / Alacant	ES 521	Spain	Non-border region
+Castellón / Castelló	ES 522	Spain	Non-border region
+Valencia / València	ES 523	Spain	Non-border region
+Eivissa y Formentera	ES 531	Spain	Non-border region
+Mallorca	ES 532	Spain	Non-border region
+Menorca	ES 533	Spain	Non-border region
+Almería	ES 611	Spain	Non-border region
+Cádiz	ES 612	Spain	Border region
+Córdoba	ES 613	Spain	Non-border region
+Granada	ES 614	Spain	Non-border region
+Huelva	ES 615	Spain	Border region
+Jaén	ES 616	Spain	Non-border region
+Málaga	ES 617	Spain	Non-border region
+Sevilla	ES 618	Spain	Non-border region
+Murcia	ES 620	Spain	Non-border region
+Ceuta	ES 630	Spain	Border region
+Melilla	ES 640	Spain	Border region
+El Hierro	ES 703	Spain	Non-border region
+Fuerteventura	ES 704	Spain	Non-border region
+Gran Canaria	ES 705	Spain	Non-border region
+La Gomera	ES 706	Spain	Non-border region
+La Palma	ES 707	Spain	Non-border region
+Lanzarote	ES 708	Spain	Non-border region
+Tenerife	ES 709	Spain	Non-border region
+Paris	FR 101	France	Non-border region
+Seine-et-Marne	FR 102	France	Non-border region
+Yvelines	FR 103	France	Non-border region
+Essonne	FR 104	France	Non-border region
+Hauts-de-Seine	FR 105	France	Non-border region
+Seine-Saint-Denis	FR 106	France	Non-border region
+Val-de-Marne	FR 107	France	Non-border region
+Val-d'Oise	FR 108	France	Non-border region
+Cher	FRB01	France	Non-border region
+Eure-et-Loir	FRB02	France	Non-border region
+Indre	FRB03	France	Non-border region
+Indre-et-Loire	FRB04	France	Non-border region
+Loir-et-Cher	FRB05	France	Non-border region
+Loiret	FRB06	France	Non-border region
+Côte-d’Or	FRC11	France	Non-border region
+Nièvre	FRC12	France	Non-border region
+Saône-et-Loire	FRC13	France	Non-border region
+Yonne	FRC14	France	Non-border region
+Doubs	FRC21	France	Border region
+Jura	FRC22	France	Border region
+Haute-Saône	FRC23	France	Border region
+Territoire de Belfort	FRC24	France	Border region
+Calvados	FRD11	France	Non-border region
+Manche	FRD12	France	Non-border region
+Orne	FRD13	France	Non-border region
+Eure	FRD21	France	Non-border region
+Seine-Maritime	FRD22	France	Non-border region
+Nord	FRE11	France	Border region
+Pas-de-Calais	FRE12	France	Non-border region
+Aisne	FRE21	France	Border region
+Oise	FRE22	France	Non-border region
+Somme	FRE23	France	Non-border region
+Bas-Rhin	FRF11	France	Border region
+Haut-Rhin	FRF12	France	Border region
+Ardennes	FRF21	France	Border region
+Aube	FRF22	France	Non-border region
+Marne	FRF23	France	Non-border region
+Haute-Marne	FRF24	France	Non-border region
+Meurthe-et-Moselle	FRF31	France	Border region
+Meuse	FRF32	France	Border region
+Moselle	FRF33	France	Border region
+Vosges	FRF34	France	Non-border region
+Loire-Atlantique	FRG01	France	Non-border region
+Maine-et-Loire	FRG02	France	Non-border region
+Mayenne	FRG03	France	Non-border region
+Sarthe	FRG04	France	Non-border region
+Vendée	FRG05	France	Non-border region
+Côtes-d’Armor	FRH01	France	Non-border region
+Finistère	FRH02	France	Non-border region
+Ille-et-Vilaine	FRH03	France	Non-border region
+Morbihan	FRH04	France	Non-border region
+Dordogne	FRI11	France	Non-border region
+Gironde	FRI12	France	Non-border region
+Landes	FRI13	France	Non-border region
+Lot-et-Garonne	FRI14	France	Non-border region
+Pyrénées-Atlantiques	FRI15	France	Border region
+Corrèze	FRI21	France	Non-border region
+Creuse	FRI22	France	Non-border region
+Haute-Vienne	FRI23	France	Non-border region
+Charente	FRI31	France	Non-border region
+Charente-Maritime	FRI32	France	Non-border region
+Deux-Sèvres	FRI33	France	Non-border region
+Vienne	FRI34	France	Non-border region
+Aude	FRJ11	France	Non-border region
+Gard	FRJ12	France	Non-border region
+Hérault	FRJ13	France	Non-border region
+Lozère	FRJ14	France	Non-border region
+Pyrénées-Orientales	FRJ15	France	Border region
+Ariège	FRJ21	France	Border region
+Aveyron	FRJ22	France	Non-border region
+Haute-Garonne	FRJ23	France	Border region
+Gers	FRJ24	France	Non-border region
+Lot	FRJ25	France	Non-border region
+Hautes-Pyrénées	FRJ26	France	Border region
+Tarn	FRJ27	France	Non-border region
+Tarn-et-Garonne	FRJ28	France	Non-border region
+Allier	FRK11	France	Non-border region
+Cantal	FRK12	France	Non-border region
+Haute-Loire	FRK13	France	Non-border region
+Puy-de-Dôme	FRK14	France	Non-border region
+Ain	FRK21	France	Border region
+Ardèche	FRK22	France	Non-border region
+Drôme	FRK23	France	Non-border region
+Isère	FRK24	France	Non-border region
+Loire	FRK25	France	Non-border region
+Rhône	FRK26	France	Non-border region
+Savoie	FRK27	France	Border region
+Haute-Savoie	FRK28	France	Border region
+Alpes-de-Haute-Provence	FRL01	France	Border region
+Hautes-Alpes	FRL02	France	Border region
+Alpes-Maritimes	FRL03	France	Border region
+Bouches-du-Rhône	FRL04	France	Non-border region
+Var	FRL05	France	Non-border region
+Vaucluse	FRL06	France	Non-border region
+Corse-du-Sud	FRM01	France	Non-border region
+Haute-Corse	FRM02	France	Non-border region
+Guadeloupe	FRY10	France	Border region
+Martinique	FRY20	France	Non-border region
+Guyane	FRY30	France	Border region
+La Réunion	FRY40	France	Non-border region
+Mayotte	FRY50	France	Non-border region
+Primorsko-goranska županija	HR 031	Croatia	Border region
+Ličko-senjska županija	HR 032	Croatia	Border region
+Zadarska županija	HR 033	Croatia	Border region
+Šibensko-kninska županija	HR 034	Croatia	Border region
+Splitsko-dalmatinska županija	HR 035	Croatia	Border region
+Istarska županija	HR 036	Croatia	Border region
+Dubrovačko-neretvanska županija	HR 037	Croatia	Border region
+Grad Zagreb	HR 041	Croatia	Border region
+Zagrebačka županija	HR 042	Croatia	Border region
+Krapinsko-zagorska županija	HR 043	Croatia	Border region
+Varaždinska županija	HR 044	Croatia	Border region
+Koprivničko-križevačka županija	HR 045	Croatia	Border region
+Međimurska županija	HR 046	Croatia	Border region
+Bjelovarsko-bilogorska županija	HR 047	Croatia	Border region
+Virovitičko-podravska županija	HR 048	Croatia	Border region
+Požeško-slavonska županija	HR 049	Croatia	Border region
+Brodsko-posavska županija	HR04A	Croatia	Border region
+Osječko-baranjska županija	HR04B	Croatia	Border region
+Vukovarsko-srijemska županija	HR04C	Croatia	Border region
+Karlovačka županija	HR04D	Croatia	Border region
+Sisačko-moslavačka županija	HR04E	Croatia	Border region
+Torino	ITC11	Italy	Border region
+Vercelli	ITC12	Italy	Border region
+Biella	ITC13	Italy	Border region
+Verbano-Cusio-Ossola	ITC14	Italy	Border region
+Novara	ITC15	Italy	Border region
+Cuneo	ITC16	Italy	Border region
+Asti	ITC17	Italy	Non-border region
+Alessandria	ITC18	Italy	Non-border region
+Valle d'Aosta/Vallée d'Aoste	ITC20	Italy	Border region
+Imperia	ITC31	Italy	Border region
+Savona	ITC32	Italy	Non-border region
+Genova	ITC33	Italy	Non-border region
+La Spezia	ITC34	Italy	Non-border region
+Varese	ITC41	Italy	Border region
+Como	ITC42	Italy	Border region
+Lecco	ITC43	Italy	Border region
+Sondrio	ITC44	Italy	Border region
+Bergamo	ITC46	Italy	Border region
+Brescia	ITC47	Italy	Border region
+Pavia	ITC48	Italy	Non-border region
+Lodi	ITC49	Italy	Non-border region
+Cremona	ITC4A	Italy	Non-border region
+Mantova	ITC4B	Italy	Non-border region
+Milano	ITC4C	Italy	Border region
+Monza e della Brianza	ITC4D	Italy	Border region
+L'Aquila	ITF11	Italy	Non-border region
+Teramo	ITF12	Italy	Non-border region
+Pescara	ITF13	Italy	Non-border region
+Chieti	ITF14	Italy	Non-border region
+Isernia	ITF21	Italy	Non-border region
+Campobasso	ITF22	Italy	Non-border region
+Caserta	ITF31	Italy	Non-border region
+Benevento	ITF32	Italy	Non-border region
+Napoli	ITF33	Italy	Non-border region
+Avellino	ITF34	Italy	Non-border region
+Salerno	ITF35	Italy	Non-border region
+Taranto	ITF43	Italy	Non-border region
+Brindisi	ITF44	Italy	Non-border region
+Lecce	ITF45	Italy	Non-border region
+Foggia	ITF46	Italy	Non-border region
+Bari	ITF47	Italy	Non-border region
+Barletta-Andria-Trani	ITF48	Italy	Non-border region
+Potenza	ITF51	Italy	Non-border region
+Matera	ITF52	Italy	Non-border region
+Cosenza	ITF61	Italy	Non-border region
+Crotone	ITF62	Italy	Non-border region
+Catanzaro	ITF63	Italy	Non-border region
+Vibo Valentia	ITF64	Italy	Non-border region
+Reggio di Calabria	ITF65	Italy	Non-border region
+Trapani	ITG11	Italy	Non-border region
+Palermo	ITG12	Italy	Non-border region
+Messina	ITG13	Italy	Non-border region
+Agrigento	ITG14	Italy	Non-border region
+Caltanissetta	ITG15	Italy	Non-border region
+Enna	ITG16	Italy	Non-border region
+Catania	ITG17	Italy	Non-border region
+Ragusa	ITG18	Italy	Non-border region
+Siracusa	ITG19	Italy	Non-border region
+Sassari	ITG25	Italy	Non-border region
+Nuoro	ITG26	Italy	Non-border region
+Cagliari	ITG27	Italy	Non-border region
+Oristano	ITG28	Italy	Non-border region
+Olbia-Tempio	ITG29	Italy	Non-border region
+Ogliastra	ITG2A	Italy	Non-border region
+Medio Campidano	ITG2B	Italy	Non-border region
+Carbonia-Iglesias	ITG2C	Italy	Non-border region
+Bolzano-Bozen	ITH10	Italy	Border region
+Trento	ITH20	Italy	Border region
+Verona	ITH31	Italy	Non-border region
+Vicenza	ITH32	Italy	Non-border region
+Belluno	ITH33	Italy	Border region
+Treviso	ITH34	Italy	Non-border region
+Venezia	ITH35	Italy	Non-border region
+Padova	ITH36	Italy	Non-border region
+Rovigo	ITH37	Italy	Non-border region
+Pordenone	ITH41	Italy	Non-border region
+Udine	ITH42	Italy	Border region
+Gorizia	ITH43	Italy	Border region
+Trieste	ITH44	Italy	Border region
+Piacenza	ITH51	Italy	Non-border region
+Parma	ITH52	Italy	Non-border region
+Reggio nell'Emilia	ITH53	Italy	Non-border region
+Modena	ITH54	Italy	Non-border region
+Bologna	ITH55	Italy	Non-border region
+Ferrara	ITH56	Italy	Non-border region
+Ravenna	ITH57	Italy	Non-border region
+Forlì-Cesena	ITH58	Italy	Non-border region
+Rimini	ITH59	Italy	Border region
+Massa-Carrara	ITI11	Italy	Non-border region
+Lucca	ITI12	Italy	Non-border region
+Pistoia	ITI13	Italy	Non-border region
+Firenze	ITI14	Italy	Non-border region
+Prato	ITI15	Italy	Non-border region
+Livorno	ITI16	Italy	Non-border region
+Pisa	ITI17	Italy	Non-border region
+Arezzo	ITI18	Italy	Border region
+Siena	ITI19	Italy	Non-border region
+Grosseto	ITI1A	Italy	Non-border region
+Perugia	ITI21	Italy	Non-border region
+Terni	ITI22	Italy	Non-border region
+Pesaro e Urbino	ITI31	Italy	Border region
+Ancona	ITI32	Italy	Non-border region
+Macerata	ITI33	Italy	Non-border region
+Ascoli Piceno	ITI34	Italy	Non-border region
+Fermo	ITI35	Italy	Non-border region
+Viterbo	ITI41	Italy	Non-border region
+Rieti	ITI42	Italy	Non-border region
+Roma	ITI43	Italy	Border region
+Latina	ITI44	Italy	Non-border region
+Frosinone	ITI45	Italy	Non-border region
+Κύπρος	CY 000	Cyprus	Non-border region
+Kurzeme	LV 003	Latvia	Border region
+Latgale	LV 005	Latvia	Border region
+Rīga	LV 006	Latvia	Non-border region
+Pierīga	LV 007	Latvia	Border region
+Vidzeme	LV 008	Latvia	Border region
+Zemgale	LV 009	Latvia	Border region
+Vilniaus apskritis	LT 011	Lithuania	Border region
+Alytaus apskritis	LT 021	Lithuania	Border region
+Kauno apskritis	LT 022	Lithuania	Non-border region
+Klaipėdos apskritis	LT 023	Lithuania	Border region
+Marijampolės apskritis	LT 024	Lithuania	Border region
+Panevėžio apskritis	LT 025	Lithuania	Border region
+Šiaulių apskritis	LT 026	Lithuania	Border region
+Tauragės apskritis	LT 027	Lithuania	Border region
+Telšių apskritis	LT 028	Lithuania	Border region
+Utenos apskritis	LT 029	Lithuania	Border region
+Luxembourg	LU 000	Luxembourg	Border region
+Budapest	HU 110	Hungary	Non-border region
+Pest	HU 120	Hungary	Border region
+Fejér	HU 211	Hungary	Border region
+Komárom-Esztergom	HU 212	Hungary	Border region
+Veszprém	HU 213	Hungary	Non-border region
+Győr-Moson-Sopron	HU 221	Hungary	Border region
+Vas	HU 222	Hungary	Border region
+Zala	HU 223	Hungary	Border region
+Baranya	HU 231	Hungary	Border region
+Somogy	HU 232	Hungary	Border region
+Tolna	HU 233	Hungary	Border region
+Borsod-Abaúj-Zemplén	HU 311	Hungary	Border region
+Heves	HU 312	Hungary	Border region
+Nógrád	HU 313	Hungary	Border region
+Hajdú-Bihar	HU 321	Hungary	Border region
+Jász-Nagykun-Szolnok	HU 322	Hungary	Non-border region
+Szabolcs-Szatmár-Bereg	HU 323	Hungary	Border region
+Bács-Kiskun	HU 331	Hungary	Border region
+Békés	HU 332	Hungary	Border region
+Csongrád	HU 333	Hungary	Border region
+Malta	MT 001	Malta	Non-border region
+Gozo and Comino/Għawdex u Kemmuna	MT 002	Malta	Non-border region
+Oost-Groningen	NL 111	Netherlands	Border region
+Delfzijl en omgeving	NL 112	Netherlands	Non-border region
+Overig Groningen	NL 113	Netherlands	Non-border region
+Noord-Friesland	NL 124	Netherlands	Non-border region
+Zuidwest-Friesland	NL 125	Netherlands	Non-border region
+Zuidoost-Friesland	NL 126	Netherlands	Non-border region
+Noord-Drenthe	NL 131	Netherlands	Border region
+Zuidoost-Drenthe	NL 132	Netherlands	Border region
+Zuidwest-Drenthe	NL 133	Netherlands	Border region
+Noord-Overijssel	NL 211	Netherlands	Border region
+Zuidwest-Overijssel	NL 212	Netherlands	Border region
+Twente	NL 213	Netherlands	Border region
+Veluwe	NL 221	Netherlands	Border region
+Zuidwest-Gelderland	NL 224	Netherlands	Border region
+Mittelburgenland	AT 111	Netherlands	Border region
+Nordburgenland	AT 112	Netherlands	Border region
+Südburgenland	AT 113	Netherlands	Non-border region
+Mostviertel-Eisenwurzen	AT 121	Netherlands	Non-border region
+Niederösterreich-Süd	AT 122	Netherlands	Non-border region
+Sankt Pölten	AT 123	Netherlands	Non-border region
+Waldviertel	AT 124	Netherlands	Non-border region
+Weinviertel	AT 125	Netherlands	Non-border region
+Wiener Umland/Nordteil	AT 126	Netherlands	Non-border region
+Wiener Umland/Südteil	AT 127	Netherlands	Non-border region
+Wien	AT 130	Netherlands	Non-border region
+Klagenfurt-Villach	AT 211	Netherlands	Non-border region
+Oberkärnten	AT 212	Netherlands	Non-border region
+Unterkärnten	AT 213	Netherlands	Non-border region
+Graz	AT 221	Netherlands	Non-border region
+Liezen	AT 222	Netherlands	Non-border region
+Östliche Obersteiermark	AT 223	Netherlands	Non-border region
+Oststeiermark	AT 224	Netherlands	Border region
+West- und Südsteiermark	AT 225	Netherlands	Border region
+Westliche Obersteiermark	AT 226	Netherlands	Border region
+Innviertel	AT 311	Netherlands	Border region
+Linz-Wels	AT 312	Netherlands	Border region
+Mühlviertel	AT 313	Netherlands	Border region
+Steyr-Kirchdorf	AT 314	Netherlands	Border region
+Traunviertel	AT 315	Netherlands	Border region
+Lungau	AT 321	Netherlands	Border region
+Pinzgau-Pongau	AT 322	Austria	Border region
+Salzburg und Umgebung	AT 323	Austria	Border region
+Außerfern	AT 331	Austria	Border region
+Innsbruck	AT 332	Austria	Border region
+Osttirol	AT 333	Austria	Border region
+Tiroler Oberland	AT 334	Austria	Border region
+Tiroler Unterland	AT 335	Austria	Border region
+Bludenz-Bregenzer Wald	AT 341	Austria	Border region
+Rheintal-Bodenseegebiet	AT 342	Austria	Border region
+Miasto Kraków	PL 213	Poland	Non-border region
+Krakowski	PL 214	Poland	Border region
+Tarnowski	PL 217	Poland	Non-border region
+Nowosądecki	PL 218	Poland	Border region
+Nowotarski	PL 219	Poland	Border region
+Oświęcimski	PL21A	Poland	Border region
+Częstochowski	PL 224	Poland	Non-border region
+Bielski	PL 225	Poland	Border region
+Rybnicki	PL 227	Poland	Border region
+Bytomski	PL 228	Poland	Non-border region
+Gliwicki	PL 229	Poland	Non-border region
+Katowicki	PL22A	Poland	Non-border region
+Sosnowiecki	PL22B	Poland	Non-border region
+Tyski	PL22C	Poland	Border region
+Pilski	PL 411	Poland	Non-border region
+Koniński	PL 414	Poland	Non-border region
+Miasto Poznań	PL 415	Poland	Non-border region
+Kaliski	PL 416	Poland	Non-border region
+Leszczyński	PL 417	Poland	Non-border region
+Poznański	PL 418	Poland	Non-border region
+Miasto Szczecin	PL 424	Poland	Border region
+Koszaliński	PL 426	Poland	Non-border region
+Szczecinecko-pyrzycki	PL 427	Poland	Border region
+Szczeciński	PL 428	Poland	Border region
+Gorzowski	PL 431	Poland	Border region
+Zielonogórski	PL 432	Poland	Border region
+Miasto Wrocław	PL 514	Poland	Non-border region
+Jeleniogórski	PL 515	Poland	Border region
+Legnicko-głogowski	PL 516	Poland	Non-border region
+Wałbrzyski	PL 517	Poland	Border region
+Wrocławski	PL 518	Poland	Border region
+Nyski	PL 523	Poland	Border region
+Opolski	PL 524	Poland	Border region
+Bydgosko-toruński	PL 613	Poland	Non-border region
+Grudziądzki	PL 616	Poland	Non-border region
+Inowrocławski	PL 617	Poland	Non-border region
+Świecki	PL 618	Poland	Non-border region
+Włocławski	PL 619	Poland	Non-border region
+Elbląski	PL 621	Poland	Border region
+Olsztyński	PL 622	Poland	Border region
+Ełcki	PL 623	Poland	Border region
+Trójmiejski	PL 633	Poland	Non-border region
+Gdański	PL 634	Poland	Border region
+Słupski	PL 636	Poland	Non-border region
+Chojnicki	PL 637	Poland	Non-border region
+Starogardzki	PL 638	Poland	Non-border region
+Miasto Łódź	PL 711	Poland	Non-border region
+Łódzki	PL 712	Poland	Non-border region
+Piotrkowski	PL 713	Poland	Non-border region
+Sieradzki	PL 714	Poland	Non-border region
+Skierniewicki	PL 715	Poland	Non-border region
+Kielecki	PL 721	Poland	Non-border region
+Sandomiersko-jędrzejowski	PL 722	Poland	Non-border region
+Bialski	PL 811	Poland	Border region
+Chełmsko-zamojski	PL 812	Poland	Border region
+Lubelski	PL 814	Poland	Non-border region
+Puławski	PL 815	Poland	Non-border region
+Krośnieński	PL 821	Poland	Border region
+Przemyski	PL 822	Poland	Border region
+Rzeszowski	PL 823	Poland	Non-border region
+Tarnobrzeski	PL 824	Poland	Non-border region
+Białostocki	PL 841	Poland	Border region
+Łomżyński	PL 842	Poland	Border region
+Suwalski	PL 843	Poland	Border region
+Miasto Warszawa	PL 911	Poland	Non-border region
+Warszawski wschodni	PL 912	Poland	Non-border region
+Warszawski zachodni	PL 913	Poland	Non-border region
+Radomski	PL 921	Poland	Non-border region
+Ciechanowski	PL 922	Poland	Non-border region
+Płocki	PL 923	Poland	Non-border region
+Ostrołęcki	PL 924	Poland	Non-border region
+Siedlecki	PL 925	Poland	Border region
+Żyrardowski	PL 926	Poland	Non-border region
+Alto Minho	PT 111	Portugal	Border region
+Cávado	PT 112	Portugal	Border region
+Ave	PT 119	Portugal	Border region
+Área Metropolitana do Porto	PT11A	Portugal	Non-border region
+Alto Tâmega	PT11B	Portugal	Border region
+Tâmega e Sousa	PT11C	Portugal	Non-border region
+Douro	PT11D	Portugal	Border region
+Terras de Trás-os-Montes	PT11E	Portugal	Border region
+Algarve	PT 150	Portugal	Border region
+Oeste	PT16B	Portugal	Non-border region
+Região de Aveiro	PT16D	Portugal	Non-border region
+Região de Coimbra	PT16E	Portugal	Non-border region
+Região de Leiria	PT16F	Portugal	Non-border region
+Viseu Dão Lafões	PT16G	Portugal	Non-border region
+Beira Baixa	PT16H	Portugal	Border region
+Médio Tejo	PT16I	Portugal	Border region
+Beiras e Serra da Estrela	PT16J	Portugal	Border region
+Área Metropolitana de Lisboa	PT 170	Portugal	Non-border region
+Alentejo Litoral	PT 181	Portugal	Non-border region
+Baixo Alentejo	PT 184	Portugal	Border region
+Lezíria do Tejo	PT 185	Portugal	Non-border region
+Alto Alentejo	PT 186	Portugal	Border region
+Alentejo Central	PT 187	Portugal	Border region
+Região Autónoma dos Açores	PT 200	Portugal	Non-border region
+Região Autónoma da Madeira	PT 300	Portugal	Non-border region
+Bihor	RO 111	Romania	Border region
+Bistriţa-Năsăud	RO 112	Romania	Border region
+Cluj	RO 113	Romania	Non-border region
+Maramureş	RO 114	Romania	Border region
+Satu Mare	RO 115	Romania	Border region
+Sălaj	RO 116	Romania	Non-border region
+Alba	RO 121	Romania	Non-border region
+Braşov	RO 122	Romania	Non-border region
+Covasna	RO 123	Romania	Non-border region
+Harghita	RO 124	Romania	Non-border region
+Mureş	RO 125	Romania	Non-border region
+Sibiu	RO 126	Romania	Non-border region
+Bacău	RO 211	Romania	Non-border region
+Botoşani	RO 212	Romania	Border region
+Iaşi	RO 213	Romania	Border region
+Neamţ	RO 214	Romania	Non-border region
+Suceava	RO 215	Romania	Border region
+Vaslui	RO 216	Romania	Border region
+Brăila	RO 221	Romania	Border region
+Buzău	RO 222	Romania	Non-border region
+Constanţa	RO 223	Romania	Border region
+Galaţi	RO 224	Romania	Border region
+Tulcea	RO 225	Romania	Border region
+Vrancea	RO 226	Romania	Non-border region
+Argeş	RO 311	Romania	Non-border region
+Călăraşi	RO 312	Romania	Border region
+Dâmboviţa	RO 313	Romania	Non-border region
+Giurgiu	RO 314	Romania	Border region
+Ialomiţa	RO 315	Romania	Non-border region
+Prahova	RO 316	Romania	Non-border region
+Teleorman	RO 317	Romania	Border region
+Bucureşti	RO 321	Romania	Non-border region
+Ilfov	RO 322	Romania	Non-border region
+Dolj	RO 411	Romania	Border region
+Gorj	RO 412	Romania	Non-border region
+Mehedinţi	RO 413	Romania	Border region
+Olt	RO 414	Romania	Border region
+Vâlcea	RO 415	Romania	Non-border region
+Arad	RO 421	Romania	Border region
+Caraş-Severin	RO 422	Romania	Border region
+Hunedoara	RO 423	Romania	Non-border region
+Timiş	RO 424	Romania	Border region
+Pomurska	SI 031	Slovenia	Border region
+Podravska	SI 032	Slovenia	Border region
+Koroška	SI 033	Slovenia	Border region
+Savinjska	SI 034	Slovenia	Border region
+Zasavska	SI 035	Slovenia	Non-border region
+Posavska	SI 036	Slovenia	Border region
+Jugovzhodna Slovenija	SI 037	Slovenia	Border region
+Primorsko-notranjska	SI 038	Slovenia	Border region
+Osrednjeslovenska	SI 041	Slovenia	Border region
+Gorenjska	SI 042	Slovenia	Border region
+Goriška	SI 043	Slovenia	Border region
+Obalno-kraška	SI 044	Slovenia	Border region
+Bratislavský kraj	SK 010	Slovakia	Border region
+Trnavský kraj	SK 021	Slovakia	Border region
+Trenčiansky kraj	SK 022	Slovakia	Border region
+Nitriansky kraj	SK 023	Slovakia	Border region
+Žilinský kraj	SK 031	Slovakia	Border region
+Banskobystrický kraj	SK 032	Slovakia	Border region
+Prešovský kraj	SK 041	Slovakia	Border region
+Košický kraj	SK 042	Slovakia	Border region
+Keski-Suomi	FI 193	Finland	Non-border region
+Etelä-Pohjanmaa	FI 194	Finland	Non-border region
+Pohjanmaa	FI 195	Finland	Non-border region
+Satakunta	FI 196	Finland	Non-border region
+Pirkanmaa	FI 197	Finland	Non-border region
+Helsinki-Uusimaa	FI1B1	Finland	Non-border region
+Varsinais-Suomi	FI1C1	Finland	Non-border region
+Kanta-Häme	FI1C2	Finland	Non-border region
+Päijät-Häme	FI1C3	Finland	Non-border region
+Kymenlaakso	FI1C4	Finland	Border region
+Etelä-Karjala	FI1C5	Finland	Border region
+Etelä-Savo	FI1D1	Finland	Border region
+Pohjois-Savo	FI1D2	Finland	Non-border region
+Pohjois-Karjala	FI1D3	Finland	Border region
+Keski-Pohjanmaa	FI1D5	Finland	Non-border region
+Lappi	FI1D7	Finland	Border region
+Kainuu	FI1D8	Finland	Border region
+Pohjois-Pohjanmaa	FI1D9	Finland	Border region
+Åland	FI 200	Finland	Non-border region
+Stockholms län	SE 110	Sweden	Non-border region
+Uppsala län	SE 121	Sweden	Non-border region
+Södermanlands län	SE 122	Sweden	Non-border region
+Östergötlands län	SE 123	Sweden	Non-border region
+Örebro län	SE 124	Sweden	Non-border region
+Västmanlands län	SE 125	Sweden	Non-border region
+Jönköpings län	SE 211	Sweden	Non-border region
+Kronobergs län	SE 212	Sweden	Non-border region
+Kalmar län	SE 213	Sweden	Non-border region
+Gotlands län	SE 214	Sweden	Non-border region
+Blekinge län	SE 221	Sweden	Non-border region
+Skåne län	SE 224	Sweden	Non-border region
+Hallands län	SE 231	Sweden	Non-border region
+Västra Götalands län	SE 232	Sweden	Border region
+Värmlands län	SE 311	Sweden	Border region
+Dalarnas län	SE 312	Sweden	Border region
+Gävleborgs län	SE 313	Sweden	Non-border region
+Västernorrlands län	SE 321	Sweden	Non-border region
+Jämtlands län	SE 322	Sweden	Border region
+Västerbottens län	SE 331	Sweden	Border region
+Norrbottens län	SE 332	Sweden	Border region
+Hartlepool and Stockton-on-Tees	UKC11	United Kingdom	Non-border region
+South Teesside	UKC12	United Kingdom	Non-border region
+Darlington	UKC13	United Kingdom	Non-border region
+Durham CC	UKC14	United Kingdom	Non-border region
+Northumberland	UKC21	United Kingdom	Non-border region
+Tyneside	UKC22	United Kingdom	Non-border region
+Sunderland	UKC23	United Kingdom	Non-border region
+West Cumbria	UKD11	United Kingdom	Non-border region
+East Cumbria	UKD12	United Kingdom	Non-border region
+Manchester	UKD33	United Kingdom	Non-border region
+Greater Manchester South West	UKD34	United Kingdom	Non-border region
+Greater Manchester South East	UKD35	United Kingdom	Non-border region
+Greater Manchester North West	UKD36	United Kingdom	Non-border region
+Greater Manchester North East	UKD37	United Kingdom	Non-border region
+Blackburn with Darwen	UKD41	United Kingdom	Non-border region
+Blackpool	UKD42	United Kingdom	Non-border region
+Lancaster and Wyre	UKD44	United Kingdom	Non-border region
+Mid Lancashire	UKD45	United Kingdom	Non-border region
+East Lancashire	UKD46	United Kingdom	Non-border region
+Chorley and West Lancashire	UKD47	United Kingdom	Non-border region
+Warrington	UKD61	United Kingdom	Non-border region
+Cheshire East	UKD62	United Kingdom	Non-border region
+Cheshire West and Chester	UKD63	United Kingdom	Non-border region
+East Merseyside	UKD71	United Kingdom	Non-border region
+Liverpool	UKD72	United Kingdom	Non-border region
+Sefton	UKD73	United Kingdom	Non-border region
+Wirral	UKD74	United Kingdom	Non-border region
+Kingston upon Hull, City of	UKE11	United Kingdom	Non-border region
+East Riding of Yorkshire	UKE12	United Kingdom	Non-border region
+North and North East Lincolnshire	UKE13	United Kingdom	Non-border region
+York	UKE21	United Kingdom	Non-border region
+North Yorkshire CC	UKE22	United Kingdom	Non-border region
+Barnsley, Doncaster and Rotherham	UKE31	United Kingdom	Non-border region
+Sheffield	UKE32	United Kingdom	Non-border region
+Bradford	UKE41	United Kingdom	Non-border region
+Leeds	UKE42	United Kingdom	Non-border region
+Calderdale and Kirklees	UKE44	United Kingdom	Non-border region
+Wakefield	UKE45	United Kingdom	Non-border region
+Derby	UKF11	United Kingdom	Non-border region
+East Derbyshire	UKF12	United Kingdom	Non-border region
+South and West Derbyshire	UKF13	United Kingdom	Non-border region
+Nottingham	UKF14	United Kingdom	Non-border region
+North Nottinghamshire	UKF15	United Kingdom	Non-border region
+South Nottinghamshire	UKF16	United Kingdom	Non-border region
+Leicester	UKF21	United Kingdom	Non-border region
+Leicestershire CC and Rutland	UKF22	United Kingdom	Non-border region
+West Northamptonshire	UKF24	United Kingdom	Non-border region
+North Northamptonshire	UKF25	United Kingdom	Non-border region
+Lincolnshire	UKF30	United Kingdom	Non-border region
+Herefordshire, County of	UKG11	United Kingdom	Non-border region
+Worcestershire	UKG12	United Kingdom	Non-border region
+Warwickshire	UKG13	United Kingdom	Non-border region
+Telford and Wrekin	UKG21	United Kingdom	Non-border region
+Shropshire CC	UKG22	United Kingdom	Non-border region
+Stoke-on-Trent	UKG23	United Kingdom	Non-border region
+Staffordshire CC	UKG24	United Kingdom	Non-border region
+Birmingham	UKG31	United Kingdom	Non-border region
+Solihull	UKG32	United Kingdom	Non-border region
+Coventry	UKG33	United Kingdom	Non-border region
+Dudley	UKG36	United Kingdom	Non-border region
+Sandwell	UKG37	United Kingdom	Non-border region
+Walsall	UKG38	United Kingdom	Non-border region
+Wolverhampton	UKG39	United Kingdom	Non-border region
+Peterborough	UKH11	United Kingdom	Non-border region
+Cambridgeshire CC	UKH12	United Kingdom	Non-border region
+Suffolk	UKH14	United Kingdom	Non-border region
+Norwich and East Norfolk	UKH15	United Kingdom	Non-border region
+North and West Norfolk	UKH16	United Kingdom	Non-border region
+Breckland and South Norfolk	UKH17	United Kingdom	Non-border region
+Luton	UKH21	United Kingdom	Non-border region
+Hertfordshire	UKH23	United Kingdom	Non-border region
+Bedford	UKH24	United Kingdom	Non-border region
+Central Bedfordshire	UKH25	United Kingdom	Non-border region
+Southend-on-Sea	UKH31	United Kingdom	Non-border region
+Thurrock	UKH32	United Kingdom	Non-border region
+Essex Haven Gateway	UKH34	United Kingdom	Non-border region
+West Essex	UKH35	United Kingdom	Non-border region
+Heart of Essex	UKH36	United Kingdom	Non-border region
+Essex Thames Gateway	UKH37	United Kingdom	Non-border region
+Camden and City of London	UKI31	United Kingdom	Non-border region
+Westminster	UKI32	United Kingdom	Non-border region
+Kensington & Chelsea and Hammersmith & Fulham	UKI33	United Kingdom	Non-border region
+Wandsworth	UKI34	United Kingdom	Non-border region
+Hackney and Newham	UKI41	United Kingdom	Non-border region
+Tower Hamlets	UKI42	United Kingdom	Non-border region
+Haringey and Islington	UKI43	United Kingdom	Non-border region
+Lewisham and Southwark	UKI44	United Kingdom	Non-border region
+Lambeth	UKI45	United Kingdom	Non-border region
+Bexley and Greenwich	UKI51	United Kingdom	Non-border region
+Barking & Dagenham and Havering	UKI52	United Kingdom	Non-border region
+Redbridge and Waltham Forest	UKI53	United Kingdom	Non-border region
+Enfield	UKI54	United Kingdom	Non-border region
+Bromley	UKI61	United Kingdom	Non-border region
+Croydon	UKI62	United Kingdom	Non-border region
+Merton, Kingston upon Thames and Sutton	UKI63	United Kingdom	Non-border region
+Barnet	UKI71	United Kingdom	Non-border region
+Brent	UKI72	United Kingdom	Non-border region
+Ealing	UKI73	United Kingdom	Non-border region
+Harrow and Hillingdon	UKI74	United Kingdom	Non-border region
+Hounslow and Richmond upon Thames	UKI75	United Kingdom	Non-border region
+Berkshire	UKJ11	United Kingdom	Non-border region
+Milton Keynes	UKJ12	United Kingdom	Non-border region
+Buckinghamshire CC	UKJ13	United Kingdom	Non-border region
+Oxfordshire	UKJ14	United Kingdom	Non-border region
+Brighton and Hove	UKJ21	United Kingdom	Non-border region
+East Sussex CC	UKJ22	United Kingdom	Non-border region
+West Surrey	UKJ25	United Kingdom	Non-border region
+East Surrey	UKJ26	United Kingdom	Non-border region
+West Sussex (South West)	UKJ27	United Kingdom	Non-border region
+West Sussex (North East)	UKJ28	United Kingdom	Non-border region
+Portsmouth	UKJ31	United Kingdom	Non-border region
+Southampton	UKJ32	United Kingdom	Non-border region
+Isle of Wight	UKJ34	United Kingdom	Non-border region
+South Hampshire	UKJ35	United Kingdom	Non-border region
+Central Hampshire	UKJ36	United Kingdom	Non-border region
+North Hampshire	UKJ37	United Kingdom	Non-border region
+Medway	UKJ41	United Kingdom	Non-border region
+Kent Thames Gateway	UKJ43	United Kingdom	Non-border region
+East Kent	UKJ44	United Kingdom	Non-border region
+Mid Kent	UKJ45	United Kingdom	Non-border region
+West Kent	UKJ46	United Kingdom	Non-border region
+Bristol, City of	UKK11	United Kingdom	Non-border region
+Bath and North East Somerset, North Somerset and South Gloucestershire	UKK12	United Kingdom	Non-border region
+Gloucestershire	UKK13	United Kingdom	Non-border region
+Swindon	UKK14	United Kingdom	Non-border region
+Wiltshire CC	UKK15	United Kingdom	Non-border region
+Bournemouth and Poole	UKK21	United Kingdom	Non-border region
+Dorset CC	UKK22	United Kingdom	Non-border region
+Somerset	UKK23	United Kingdom	Non-border region
+Cornwall and Isles of Scilly	UKK30	United Kingdom	Non-border region
+Plymouth	UKK41	United Kingdom	Non-border region
+Torbay	UKK42	United Kingdom	Non-border region
+Devon CC	UKK43	United Kingdom	Non-border region
+Isle of Anglesey	UKL11	United Kingdom	Non-border region
+Gwynedd	UKL12	United Kingdom	Non-border region
+Conwy and Denbighshire	UKL13	United Kingdom	Non-border region
+South West Wales	UKL14	United Kingdom	Non-border region
+Central Valleys	UKL15	United Kingdom	Non-border region
+Gwent Valleys	UKL16	United Kingdom	Non-border region
+Bridgend and Neath Port Talbot	UKL17	United Kingdom	Non-border region
+Swansea	UKL18	United Kingdom	Non-border region
+Monmouthshire and Newport	UKL21	United Kingdom	Non-border region
+Cardiff and Vale of Glamorgan	UKL22	United Kingdom	Non-border region
+Flintshire and Wrexham	UKL23	United Kingdom	Non-border region
+Powys	UKL24	United Kingdom	Non-border region
+Aberdeen City and Aberdeenshire	UKM50	United Kingdom	Non-border region
+Caithness & Sutherland and Ross & Cromarty	UKM61	United Kingdom	Non-border region
+Inverness & Nairn and Moray, Badenoch & Strathspey	UKM62	United Kingdom	Non-border region
+Lochaber, Skye & Lochalsh, Arran & Cumbrae and Argyll & Bute	UKM63	United Kingdom	Non-border region
+Na h-Eileanan Siar (Western Isles)	UKM64	United Kingdom	Non-border region
+Orkney Islands	UKM65	United Kingdom	Non-border region
+Shetland Islands	UKM66	United Kingdom	Non-border region
+Angus and Dundee City	UKM71	United Kingdom	Non-border region
+Clackmannanshire and Fife	UKM72	United Kingdom	Non-border region
+East Lothian and Midlothian	UKM73	United Kingdom	Non-border region
+Edinburgh, City of	UKM75	United Kingdom	Non-border region
+Falkirk	UKM76	United Kingdom	Non-border region
+Perth & Kinross and Stirling	UKM77	United Kingdom	Non-border region
+West Lothian	UKM78	United Kingdom	Non-border region
+East Dunbartonshire, West Dunbartonshire and Helensburgh & Lomond	UKM81	United Kingdom	Non-border region
+Glasgow City	UKM82	United Kingdom	Non-border region
+Inverclyde, East Renfrewshire and Renfrewshire	UKM83	United Kingdom	Non-border region
+North Lanarkshire	UKM84	United Kingdom	Non-border region
+Scottish Borders	UKM91	United Kingdom	Non-border region
+Dumfries & Galloway	UKM92	United Kingdom	Non-border region
+East Ayrshire and North Ayrshire mainland	UKM93	United Kingdom	Non-border region
+South Ayrshire	UKM94	United Kingdom	Non-border region
+South Lanarkshire	UKM95	United Kingdom	Non-border region
+Belfast	UKN06	United Kingdom	Non-border region
+Armagh City, Banbridge and Craigavon	UKN07	United Kingdom	Border region
+Newry, Mourne and Down	UKN08	United Kingdom	Border region
+Ards and North Down	UKN09	United Kingdom	Non-border region
+Derry City and Strabane	UKN10	United Kingdom	Border region
+Mid Ulster	UKN11	United Kingdom	Border region
+Causeway Coast and Glens	UKN12	United Kingdom	Non-border region
+Antrim and Newtownabbey	UKN13	United Kingdom	Non-border region
+Lisburn and Castlereagh	UKN14	United Kingdom	Non-border region
+Mid and East Antrim	UKN15	United Kingdom	Non-border region
+Fermanagh and Omagh	UKN16	United Kingdom	Border region
+Höfuðborgarsvæði	IS 001	Iceland	Non-border region
+Landsbyggð	IS 002	Iceland	Non-border region
+Liechtenstein	LI 000	Liechtenstein	Border region
+Oslo	NO 011	Norway	Non-border region
+Akershus	NO 012	Norway	Border region
+Hedmark	NO 021	Norway	Border region
+Oppland	NO 022	Norway	Non-border region
+Østfold	NO 031	Norway	Border region
+Buskerud	NO 032	Norway	Non-border region
+Vestfold	NO 033	Norway	Non-border region
+Telemark	NO 034	Norway	Non-border region
+Aust-Agder	NO 041	Norway	Non-border region
+Vest-Agder	NO 042	Norway	Non-border region
+Rogaland	NO 043	Norway	Non-border region
+Hordaland	NO 051	Norway	Non-border region
+Sogn og Fjordane	NO 052	Norway	Non-border region
+Møre og Romsdal	NO 053	Norway	Non-border region
+Trøndelag	NO 060	Norway	Border region
+Nordland	NO 071	Norway	Border region
+Troms	NO 072	Norway	Border region
+Finnmark	NO 073	Norway	Border region
+Vaud	CH 011	Switzerland	Border region
+Valais	CH 012	Switzerland	Border region
+Genève	CH 013	Switzerland	Border region
+Bern	CH 021	Switzerland	Border region
+Freiburg	CH 022	Switzerland	Border region
+Solothurn	CH 023	Switzerland	Border region
+Neuchâtel	CH 024	Switzerland	Border region
+Jura	CH 025	Switzerland	Border region
+Basel-Stadt	CH 031	Switzerland	Border region
+Basel-Landschaft	CH 032	Switzerland	Border region
+Aargau	CH 033	Switzerland	Border region
+Zürich	CH 040	Switzerland	Border region
+Glarus	CH 051	Switzerland	Border region
+Schaffhausen	CH 052	Switzerland	Border region
+Appenzell Ausserrhoden	CH 053	Switzerland	Border region
+Appenzell Innerrhoden	CH 054	Switzerland	Border region
+St. Gallen	CH 055	Switzerland	Border region
+Graubünden	CH 056	Switzerland	Border region
+Thurgau	CH 057	Switzerland	Border region
+Luzern	CH 061	Switzerland	Non-border region
+Uri	CH 062	Switzerland	Border region
+Schwyz	CH 063	Switzerland	Non-border region
+Obwalden	CH 064	Switzerland	Non-border region
+Nidwalden	CH 065	Switzerland	Non-border region
+Zug	CH 066	Switzerland	Non-border region
+Ticino	CH 070	Switzerland	Border region
+Црна Гора	ME 000	Montenegro	Border region
+Вардарски	MK 001	North Macedonia	Border region
+Источен	MK 002	North Macedonia	Border region
+Југозападен	MK 003	North Macedonia	Border region
+Југоисточен	MK 004	North Macedonia	Border region
+Пелагониски	MK 005	North Macedonia	Border region
+Полошки	MK 006	North Macedonia	Border region
+Североисточен	MK 007	North Macedonia	Border region
+Скопски	MK 008	North Macedonia	Border region
+Dibër	AL 011	Albania	Border region
+Durrës	AL 012	Albania	Border region
+Kukës	AL 013	Albania	Non-border region
+Lezhë	AL 014	Albania	Border region
+Shkodër	AL 015	Albania	Non-border region
+Elbasan	AL 021	Albania	Border region
+Tiranë	AL 022	Albania	Non-border region
+Berat	AL 031	Albania	Border region
+Fier	AL 032	Albania	Non-border region
+Gjirokastër	AL 033	Albania	Non-border region
+Korcë	AL 034	Albania	Border region
+Vlorë	AL 035	Albania	Border region
+Београдска област	RS 110	Serbia	Non-border region
+Западнобачка област	RS 121	Serbia	Border region
+Јужнобанатска област	RS 122	Serbia	Border region
+Јужнобачка област	RS 123	Serbia	Border region
+Севернобанатска област	RS 124	Serbia	Border region
+Севернобачка област	RS 125	Serbia	Border region
+Средњобанатска област	RS 126	Serbia	Border region
+Сремска област	RS 127	Serbia	Border region
+Златиборска област	RS 211	Serbia	Border region
+Колубарска област	RS 212	Serbia	Border region
+Мачванска област	RS 213	Serbia	Border region
+Моравичка област	RS 214	Serbia	Non-border region
+Поморавска област	RS 215	Serbia	Non-border region
+Расинска област	RS 216	Serbia	Non-border region
+Рашка област	RS 217	Serbia	Border region
+Шумадијска област	RS 218	Serbia	Non-border region
+Борска област	RS 221	Serbia	Border region
+Браничевска област	RS 222	Serbia	Border region
+Зајечарска област	RS 223	Serbia	Border region
+Јабланичка област	RS 224	Serbia	Border region
+Нишавска област	RS 225	Serbia	Border region
+Пиротска област	RS 226	Serbia	Border region
+Подунавска област	RS 227	Serbia	Non-border region
+Пчињска област	RS 228	Serbia	Border region
+Топличка област	RS 229	Serbia	Non-border region
+Istanbul	TR 100	Türkiye	Non-border region
+Tekirdag	TR 211	Türkiye	Non-border region
+Edirne	TR 212	Türkiye	Border region
+Kirklareli	TR 213	Türkiye	Border region
+Balikesir	TR 221	Türkiye	Non-border region
+Çanakkale	TR 222	Türkiye	Non-border region
+Izmir	TR 310	Türkiye	Non-border region
+Aydin	TR 321	Türkiye	Non-border region
+Denizli	TR 322	Türkiye	Non-border region
+Mugla	TR 323	Türkiye	Non-border region
+Manisa	TR 331	Türkiye	Non-border region
+Afyon	TR 332	Türkiye	Non-border region
+Kütahya	TR 333	Türkiye	Non-border region
+Usak	TR 334	Türkiye	Non-border region
+Bursa	TR 411	Türkiye	Non-border region
+Eskisehir	TR 412	Türkiye	Non-border region
+Bilecik	TR 413	Türkiye	Non-border region
+Kocaeli	TR 421	Türkiye	Non-border region
+Sakarya	TR 422	Türkiye	Non-border region
+Düzce	TR 423	Türkiye	Non-border region
+Bolu	TR 424	Türkiye	Non-border region
+Yalova	TR 425	Türkiye	Non-border region
+Ankara	TR 510	Türkiye	Non-border region
+Konya	TR 521	Türkiye	Non-border region
+Karaman	TR 522	Türkiye	Non-border region
+Antalya	TR 611	Türkiye	Non-border region
+Isparta	TR 612	Türkiye	Non-border region
+Burdur	TR 613	Türkiye	Non-border region
+Adana	TR 621	Türkiye	Non-border region
+Içel	TR 622	Türkiye	Non-border region
+Hatay	TR 631	Türkiye	Border region
+Kahramanmaras	TR 632	Türkiye	Non-border region
+Osmaniye	TR 633	Türkiye	Border region
+Kirikkale	TR 711	Türkiye	Non-border region
+Aksaray	TR 712	Türkiye	Non-border region
+Nigde	TR 713	Türkiye	Non-border region
+Nevsehir	TR 714	Türkiye	Non-border region
+Kirsehir	TR 715	Türkiye	Non-border region
+Kayseri	TR 721	Türkiye	Non-border region
+Sivas	TR 722	Türkiye	Non-border region
+Yozgat	TR 723	Türkiye	Non-border region
+Zonguldak	TR 811	Türkiye	Non-border region
+Karabük	TR 812	Türkiye	Non-border region
+Bartin	TR 813	Türkiye	Non-border region
+Kastamonu	TR 821	Türkiye	Non-border region
+Çankiri	TR 822	Türkiye	Non-border region
+Sinop	TR 823	Türkiye	Non-border region
+Samsun	TR 831	Türkiye	Non-border region
+Tokat	TR 832	Türkiye	Non-border region
+Çorum	TR 833	Türkiye	Non-border region
+Amasya	TR 834	Türkiye	Non-border region
+Trabzon	TR 901	Türkiye	Non-border region
+Ordu	TR 902	Türkiye	Non-border region
+Giresun	TR 903	Türkiye	Non-border region
+Rize	TR 904	Türkiye	Non-border region
+Artvin	TR 905	Türkiye	Border region
+Gümüshane	TR 906	Türkiye	Non-border region
+Erzurum	TRA11	Türkiye	Non-border region
+Erzincan	TRA12	Türkiye	Non-border region
+Bayburt	TRA13	Türkiye	Non-border region
+Agri	TRA21	Türkiye	Border region
+Kars	TRA22	Türkiye	Border region
+Igdir	TRA23	Türkiye	Border region
+Ardahan	TRA24	Türkiye	Border region
+Malatya	TRB11	Türkiye	Non-border region
+Elazig	TRB12	Türkiye	Non-border region
+Bingöl	TRB13	Türkiye	Non-border region
+Tunceli	TRB14	Türkiye	Non-border region
+Van	TRB21	Türkiye	Border region
+Mus	TRB22	Türkiye	Non-border region
+Bitlis	TRB23	Türkiye	Non-border region
+Hakkari	TRB24	Türkiye	Border region
+Gaziantep	TRC11	Türkiye	Border region
+Adiyaman	TRC12	Türkiye	Non-border region
+Kilis	TRC13	Türkiye	Border region
+Sanliurfa	TRC21	Türkiye	Border region
+Diyarbakir	TRC22	Türkiye	Non-border region
+Mardin	TRC31	Türkiye	Border region
+Batman	TRC32	Türkiye	Non-border region
+Sirnak	TRC33	Türkiye	Border region
+Siirt	TRC34	Türkiye	Non-border region

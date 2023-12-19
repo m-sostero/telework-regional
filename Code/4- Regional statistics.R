@@ -1,6 +1,7 @@
 # Load common packages and labels ----
 source("Code/0- Load common.R")
 
+library("broom")
 
 # Load LFS, regional telework data, and NUTS maps -------------------------
 
@@ -40,20 +41,34 @@ country_telework <- LFS %>%
   compute_tw_share(year, country)
 
 country_telework %>% 
+  select(-n_people) %>% 
   pivot_wider(names_from = year, values_from = telework_share) %>% 
   mutate(change = `2021`/`2019`-1) %>% 
   ggplot(aes(x = `2019`, y = change, label = country)) +
   geom_point() + geom_text_repel() +
+  geom_hline(yintercept = 0, linetype = "dotted") +
   geom_smooth(method = "lm") +
   stat_regline_equation(aes(label =  paste(..eq.label.., ..rr.label.., sep = "~~~~")),  label.y = -1) +
   scale_x_continuous(labels = percent_format()) +
   scale_y_continuous(labels = percent_format(prefix = "+")) + 
   labs(
-    x = "Share of population working from home in 2019",
-    y = "Relative growth in work from home 2019-2021"
+    # title = "Working population working from home 'sometimes' or 'usually'", 
+    x = "Share of population working from home (‘sometimes’ or ‘usually’) in 2019",
+    y = "Relative growth in work from home 2019-2021",
   )
 
 ggsave("Figures/telework_convergence.png", width = 8, height = 6,  bg = "white")
+
+
+ggplot2::last_plot() +
+  labs(
+    title = "Countries with lower rates of telework in 2019 increased more",
+    x = "Share of people teleworking in 2019",
+    y = "Relative growth in telework 2019-2021"
+  )
+
+ggsave("Presentation/telework_convergence.png", width = 5, height = 4,  bg = "white")
+ggsave("Figures/telework_convergence.svg", width = 6, height = 6,  bg = "white")
 
 
 LFS %>%
@@ -150,12 +165,19 @@ regional_telework %>%
   scale_y_continuous(labels = scales::percent) +
   labs(
     # title = "The regions with the highest telework rates tend to be capital regions (or surrounding them)",
-    subtitle = "Ten EU NUTS-2 regions with highest share of people teleworking in 2021",
-    y = "Share of people teleworking", x = NULL
+    # subtitle = "Ten EU NUTS-2 regions with highest share of people teleworking in 2021",
+    y = "Share of working population", x = NULL
   )
 
 ggsave("Figures/Telework_nuts_top_2021.pdf", height = 5, width = 8)
 ggsave("Figures/Telework_nuts_top_2021.png", height = 5, width = 8, bg = "white")
+
+ggplot2::last_plot() +   labs(
+  title = "Capital and urban regions have the highest teleworking rates",
+  subtitle = "Ten EU NUTS-2 regions with highest share of people teleworking in 2021",
+  y = "Share of working population", x = NULL
+)
+ggsave("Figures/Telework_nuts_top_2021.svg", height = 5, width = 6.3, bg = "white")
 
 
 # Lowest teleworking regions ----------------------------------------------
@@ -193,6 +215,15 @@ regional_telework %>%
 
 ggsave("Figures/Telework_nuts_bottom_2021.pdf", height = 5, width = 8)
 ggsave("Figures/Telework_nuts_bottom_2021.png", height = 5, width = 8, bg = "white")
+
+
+ggplot2::last_plot() + labs(
+  title = "Rural regions have the lowest teleworking rates",
+  subtitle = "Ten EU NUTS-2 regions with lowes share of people teleworking in 2021",
+  y = "Share of working population", x = NULL
+)
+
+ggsave("Figures/Telework_nuts_bottom_2021.svg", height = 5, width = 6.3, bg = "white")
 
   
 # Teleworking across all regions ------------------------------------------
@@ -234,17 +265,40 @@ map_regional_telework %>%
   geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0) %>% crossing(year = c(2018:2021)) %>% sf::st_as_sf(), fill = "grey70") +
   geom_sf(aes(fill = telework_share)) +
   facet_wrap(. ~ year) +
-  scale_fill_viridis_b("% Teleworking", labels = scales::label_percent()) +
+  scale_fill_viridis_b("Share of\nworking\npopulation", labels = scales::label_percent()) +
   # scale_fill_viridis_c("% Working\nfrom home", labels = scales::label_percent()) +
   coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
   theme_bw() +
   labs(
     # title = "Telework has increased, in some countries, mostly in capital regions",
-    subtitle = "Regional share of the population working from home at least some of the time",
+    # subtitle = "Regional share of the population working from home at least some of the time",
     caption = "Source: EU LFS.\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
   )
 ggsave("Figures/Telework_nuts_map.pdf", width = 8, height = 8)
 ggsave("Figures/Telework_nuts_map.png", width = 8, height = 8,  bg = "white")
+
+
+map_regional_telework %>%
+  filter(year %in% c(2019, 2021)) %>% 
+  ggplot() +
+  # Plot the country boundaries NUTS-0 in light grey in background
+  geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0) %>% crossing(year = c(2019,2021)) %>% sf::st_as_sf(), fill = "grey70") +
+  geom_sf(aes(fill = telework_share)) +
+  facet_wrap(. ~ year) +
+  scale_fill_viridis_b("Share of\nworking\npopulation", labels = scales::label_percent()) +
+  # scale_fill_viridis_c("% Working\nfrom home", labels = scales::label_percent()) +
+  coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
+  theme_bw() +
+  labs(
+    title = "Regional share teleworking",
+    subtitle = "Regional share of population working from ‘sometimes’ or ‘usually’",
+    caption = "Source: EU LFS.\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
+  )
+
+ggsave("Presentation/Telework_nuts_map.png", width = 6, height = 2.5,  bg = "white")
+ggsave("Figures/Telework_nuts_map.svg", width = 8, height = 5,  bg = "white")
+
+
 
 
 # Interactive slider map
@@ -266,6 +320,10 @@ mapview(
   )
 
 # Map of changes in share of people teleworking
+
+regional_telework_change <- table_nuts_change %>% 
+  select(everything(), delta_hw = `Diff %TW\n2019-2021 (pp)`)
+
 map_regional_telework_change <- inner_join(map_nuts, regional_telework_change, by = "NUTS_ID", multiple = "all")
 
 scale_limits <- max(abs(regional_telework_change$delta_hw), na.rm = TRUE) * c(-1, 1)
@@ -288,6 +346,28 @@ map_regional_telework_change %>%
 ggsave("Figures/Telework_nuts_change.pdf", width = 8, height = 8)
 ggsave("Figures/Telework_nuts_change.png", width = 8, height = 8, bg = "white")
 
+
+ggplot2::last_plot() + 
+  labs(
+    title = "Change in regional teleworking, 2019–2021",
+    subtitle = "Variation in population working from home ‘sometimes’ or ‘usually’",
+    caption = NULL)
+
+ggsave("Figures/Telework_nuts_change.svg", width = 5, height = 5, bg = "white")
+
+
+
+
+map_regional_telework_change %>%
+  st_as_sf() %>%
+  ggplot() +
+  # Plot the country boundaries NUTS-0 in light grey in background
+  geom_sf(data = map_nuts %>% crossing(year = c(2018:2021)) %>% sf::st_as_sf(), fill = "grey70") +
+  geom_sf(aes(fill = delta_hw)) +
+  scale_fill_fermenter("Change in share teleworking\n 2019-2021 (pp)", palette = "RdBu", limit = scale_limits, direction = 1) +
+  coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
+  theme(legend.position = "top")
+ggsave("Presentation/Telework_nuts_change.png", width = 5, height = 6, bg = "white")
 
 # Telework intensity by country and NUTS ----------------------------------------------
 
@@ -364,8 +444,61 @@ regional_teleworkability <- LFS %>%
     .groups = "drop"
   ) 
 
+# compute regression telework_share ~ physicalinteraction by year
+# Extract Beta of physicalinteraction and R^2 of regression
+# Add Beta = and R^2 = as annotation on each facet
+reg_year <- regional_teleworkability %>%
+  group_by(year) %>%
+  do(results = lm(telework_share ~ physicalinteraction, data = .)) %>%
+  ungroup() %>%
+  mutate(
+    beta = map_dbl(results, ~summary(.x)$coefficients["physicalinteraction", "Estimate"]),
+    rsqrd = map_dbl(results, ~summary(.x)$r.squared)*100,
+    beta = sprintf("%.2f", beta),
+    rsqrd = sprintf("%.1f", rsqrd),
+    text = paste0("beta *'='*", beta, " * ';  ' * R^2 * '=' *", rsqrd," * '% ' ")
+  )
+
 
 regional_teleworkability %>%
+  ggplot(aes(x = physicalinteraction, y = telework_share, label = reglab)) +
+  geom_point(aes(size = pop, colour = urbrur), shape = 1) +
+  geom_smooth(method = lm, mapping = aes(weight = pop)) +
+  scale_size_area() +
+  facet_grid( ~ year) +
+  coord_equal() +
+  scale_y_continuous(labels = scales::percent) +
+  scale_color_manual(
+    "Type of NUTS region\n(urbrur)",
+    values = c("#1F78B4", "#A6CEE3", "#B2DF8A", "#33A02C", "#FB9A99"),
+    breaks = c("Capital region", "Mainly urban", "Intermediate", "Mainly rural", "Whole country")
+  ) +
+  guides(size = "none") +
+  geom_text(data = reg_year, aes(label = text, x = 0.4, y = 0.6), parse = TRUE, size = 4) +
+  labs(
+    # title = "Regional uptake of telework ",
+    # title = "Correlation between technical teleworkability and actual telework for EU regions",
+    x = "Regional mean technical teleworkability", y = "Share of people working from home"
+  ) 
+
+ggsave("Figures/Regional_correlation_teleworkability_telework_urbrur.pdf", height = 3, width = 8)
+ggsave("Figures/Regional_correlation_teleworkability_telework_urbrur.png", height = 3, width = 8, bg = "white")
+
+ggplot2::last_plot() +
+  theme(legend.position = "top")
+
+ggsave("Presentation/Regional_correlation_teleworkability_telework_urbrur.png", height = 4, width = 8, bg = "white")
+
+ggplot2::last_plot() +
+  labs(
+    title = "Correlation between technical teleworkability and actual telework for EU regions",
+    x = "Regional mean technical teleworkability", y = "Share of people working from home"
+  ) 
+
+ggsave("Figures/Regional_correlation_teleworkability_telework_urbrur.svg", height = 5, width = 12, bg = "white")
+
+regional_teleworkability %>%
+  filter(year %in% c(2019, 2021)) %>% 
   ggplot(aes(x = physicalinteraction, y = telework_share, label = reglab)) +
   geom_point(aes(size = pop, colour = urbrur), shape = 1) +
   geom_smooth(method = lm, mapping = aes(weight = pop)) +
@@ -375,21 +508,20 @@ regional_teleworkability %>%
   coord_equal() +
   scale_y_continuous(labels = scales::percent) +
   scale_color_manual(
-    "Type of NUTS region\n(urbrur)",
+    "Type of region\n(urbrur)",
     values = c("#1F78B4", "#A6CEE3", "#B2DF8A", "#33A02C", "#FB9A99"), 
     breaks = c("Capital region", "Mainly urban", "Intermediate", "Mainly rural", "Whole country")
   ) +
   guides(size = "none") +
   labs(
-    title = "Regional uptake of telework ",
-    subtitle = "Correlation between physical teleworkability and actual telework for EU regions",
-    x = "Regional mean phyisical teleworkability index", y = "Share of people teleworking"
+    # title = "Regional uptake of telework ",
+    title = "Correlation between technical teleworkability\nand actual telework for EU regions",
+    x = "Regional mean technical teleworkability", y = "Share of people teleworking"
   ) 
 
-ggsave("Figures/Regional_correlation_teleworkability_telework_urbrur.pdf", height = 6, width = 9)
-ggsave("Figures/Regional_correlation_teleworkability_telework_urbrur.png", height = 6, width = 9, bg = "white")
+ggsave("Presentation/Regional_correlation_teleworkability_telework_urbrur_small.png", height = 4, width = 6, bg = "white")
 
-
+ggsave("Figures/Regional_correlation_teleworkability_telework_urbrur_small.svg", height = 5, width = 7, bg = "white")
 
 # Interactive version
 plot_regional_teleworkability <- regional_teleworkability %>%
@@ -410,8 +542,8 @@ plot_regional_teleworkability <- regional_teleworkability %>%
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5)) +
   labs(
     title = "Regional uptake of telework in 2021",
-    subtitle = "Correlation between physical teleworkability and actual telework for EU regions",
-    x = "Regional mean phyisical teleworkability index", y = "Share of people teleworking"
+    subtitle = "Correlation between technical teleworkability and actual telework for EU regions",
+    x = "Regional mean technical teleworkability", y = "Share of people teleworking"
   ) 
 
 ggplotly(plot_regional_teleworkability)

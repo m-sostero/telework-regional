@@ -154,7 +154,43 @@ tw_hw_stapro <- LFS %>%
     .groups = "drop"
   ) 
 
+reg_year <- tw_hw_stapro %>%
+  group_by(year, stapro) %>%
+  do(results = lm(telework_share ~ mean_physical_interaction, data = .)) %>%
+  ungroup() %>%
+  mutate(
+    beta = map_dbl(results, ~summary(.x)$coefficients["mean_physical_interaction", "Estimate"]),
+    rsqrd = map_dbl(results, ~summary(.x)$r.squared)*100,
+    beta = sprintf("%.2f", beta),
+    rsqrd = sprintf("%.1f", rsqrd),
+    text = paste0("beta *'='*", beta, " * ';  ' * R^2 * '=' *", rsqrd," * '% ' ")
+  )
+ 
 tw_hw_stapro %>%  
+  ggplot(aes(x = mean_physical_interaction, y = telework_share, group = stapro, color = stapro)) +
+  geom_point(aes(size = coeffy), shape = 1, alpha = 0.5) +
+  geom_smooth(method = lm) +
+  geom_text(data = reg_year %>% filter(stapro == "Self-employed"), aes(label = text, x = 0.3, y = 0.8), parse = TRUE, size = 4, colour = "#E41A1C") + 
+  geom_text(data = reg_year %>% filter(stapro == "Employee"),      aes(label = text, x = 0.3, y = 0.7), parse = TRUE, size = 4, colour = "#377EB8") + 
+  scale_size_area() +
+  facet_grid(~ year) +
+  scale_color_brewer("Professional status", palette = "Set1") +
+  coord_equal() +
+  scale_y_continuous(labels = percent_format()) +
+  guides(size = "none") +
+  theme(legend.position = "top") + #, panel.spacing = unit(1, "lines")) +
+  labs(
+    # title = "Telework for employees is catching up with the self-employed",
+    # title = "Correlation between technical teleworkability and actual telework for NUTS-2 regions",
+    x = "Regional mean technical teleworkability", y = "Share of people working from home"
+  )
+
+ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.pdf", height = 5, width = 9)
+ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.png", height = 4.5, width = 9, bg = "white")
+
+  
+tw_hw_stapro %>%  
+  filter(year %in% c(2019, 2021)) %>% 
   ggplot(aes(x = mean_physical_interaction, y = telework_share, group = stapro, color = stapro)) +
   geom_point(aes(size = coeffy), shape = 1, alpha = 0.5) +
   geom_smooth(method = lm) +
@@ -165,15 +201,17 @@ tw_hw_stapro %>%
   coord_equal() +
   scale_y_continuous(labels = percent_format()) +
   guides(size = "none") +
-  theme(legend.position = "top", panel.spacing = unit(1, "lines")) +
+  # theme(legend.position = "top") + #, panel.spacing = unit(1, "lines")) +
   labs(
-    title = "Telework for employees is cathing up with the self-employed",
-    subtitle = "Correlation between physical teleworkability and actual telework for NUTS-2 regions",
-    x = "Phyisical teleworkability index", y = "Share of people teleworking"
+    # title = "Telework for employees is cathing up with the self-employed",
+    # title = "Correlation between technical teleworkability\nand actual telework for NUTS-2 regions",
+    x = "Mean technical teleworkability index", y = "Share of people working from home"
   )
 
-ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.pdf", height = 5, width = 9)
-ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.png", height = 5, width = 9, bg = "white")
+ggplot2::last_plot() +
+  labs(subtitle = "Correlation of technical teleworkability and telework for NUTS-2 regions")
+ggsave("Presentation/Regional_correlation_teleworkability_telework_stapro_small.png", height = 4, width = 6, bg = "white")
+ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.svg", height = 5, width = 7, bg = "white")
 
 
 # Occupational telework vs teleworkability --------------------------------
@@ -204,7 +242,7 @@ tw_hw_isco %>%
   guides(size = "none") +
   labs(
     title = "Telework is reaching its potential",
-    subtitle = "Correlation between physical teleworkability and actual telework for ISCO 3-digit occupations",
+    subtitle = "Correlation between technical teleworkability and actual telework for ISCO 3-digit occupations",
     x = "Phyisical teleworkability index", y = "Actual telework"
   ) +
   theme(panel.spacing = unit(1, "lines")) +

@@ -25,14 +25,14 @@ TODO:
 
 -   [ ] potential relocation at regional level (Schiccitano et al.)
 
--   [ ] Figure 6: add intermediate vs urban axis
+-   [x] Figure 6: add intermediate vs urban axis
 
--   [ ] scatter homework index x telework \~ degurba
+-   [x] scatter homework index x telework \~ degurba
 
--   [ ] scatter homework index x telework (unit = region) \~ degurba
+-   [x] scatter homework index x telework (unit = region) \~ degurba
 
 -   [ ] TW by age band
 
--   [ ] Clean plot with top/bottom regions
+-   [x] Clean plot with top/bottom regions
 
--   [ ] Ask Patrizia about connectivity data
+-   [x] Ask Patrizia about connectivity data

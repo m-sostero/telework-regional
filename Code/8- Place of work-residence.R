@@ -13,6 +13,23 @@ labels_nuts <- read_rds("Data/map_nuts.rds") %>%
   select(-geometry) %>% 
   distinct(NUTS_ID, .keep_all = TRUE)
 
+border_regions <- read_tsv("Metadata/NUTS Border regions.tsv") %>% 
+  mutate(NUTS3_ID = str_replace_all(Code, "\\s", "")) %>% 
+  mutate(NUTS2_ID = str_sub(NUTS3_ID, 1, 4)) %>% 
+  group_by(NUTS2_ID) %>% 
+  summarise(border = any(Border == "Border region"))
+
+
+map_nuts %>%
+  filter(nuts_year == 2021, LEVL_CODE == 2) %>% 
+  left_join(border_regions, by = c("NUTS_ID" = "NUTS2_ID")) %>% 
+  ggplot() +
+  geom_sf(aes(fill = border)) +
+  geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0, nuts_year == 2021) %>% sf::st_as_sf(), color = "black", fill = NA) +
+  coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
+  scale_fill_manual("Border region", values = c("grey90", "#377EB8", "#E41A1C"), labels = c("Interior", "Border", "Not Applicable"))+
+  theme_bw() 
+
 # Summary statistics of place of work -----------------------------------------
 work_location <- LFS %>%
   group_by(country, year, work_location) %>% 
@@ -52,7 +69,7 @@ work_location %>%
   scale_size_area("Number of respondents", breaks = c(100, 500, 1000, 2000, 3000, 5000, 10000), labels = comma) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust  = 1)) +
   labs(
-    title = "Share of employed people working outside region of residence, over time",
+    # title = "Share of employed people working outside region of residence, over time",
     x = "Year",
     y = "Share of employed people working outside region of residence\n(different scales)",
     caption = "source: EU Labour Force Survey, own elaboration\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
@@ -85,24 +102,42 @@ tw_location %>%
     work_location = str_wrap(work_location, 20) %>% fct_rev()
     ) %>% 
   ggplot(aes(x = year, y = telework_share, group = work_location, color = work_location)) +
-  geom_point(aes(size = n_people)) + geom_line() +
+  geom_point() + geom_line() +
+  # geom_point(aes(size = n_people)) + geom_line() +
   facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") + 
   scale_color_brewer("Place of work", palette = "Set1", direction = -1) +
   scale_size_area("Number of respondents", breaks = c(10, 100, 500, 1000, 2000, 3000, 5000, 10000), labels = comma) +
   # guides(color = guide_legend(reverse = TRUE)) +
   scale_y_continuous(labels = percent_format()) +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust  = 1)) +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust  = 1),
+    legend.position = c(0.91, 0.5),
+    legend.box.background = element_rect(colour = "grey40")
+  ) +
   labs(
     # title = "Telework is not necessarily more common for those working in other regions or countries",
     # subtitle = "Teleworking frequency by respondent's place of work",
-    title = "Teleworking frequency by respondent's place of work",
-    x = "Year",
-    y = "Share of people teleworking \n(different scales)",
+    # title = "Teleworking frequency by respondent's place of work",
+    x = NULL,
+    y = "Share of working population\n(different scales)",
     caption = "Source: EU Labour Force Survey, own elaboration\nRegions are mainly NUTS-2, NUTS-1 (AT and DE), or country (NL)"
   )
 
 ggsave("Figures/Telework_residence_eu.pdf", height = 7, width = 10)
 ggsave("Figures/Telework_residence_eu.png", height = 7, width = 10, bg = "white")
+
+ggplot2::last_plot() + 
+  labs(title = "Teleworking frequency by respondent's place of work", caption = NULL) +
+  theme(
+    legend.position = c(0.05, 0.05),
+    legend.box.background = element_rect(colour = "grey40")
+  )
+
+ggsave("Figures/Telework_residence_eu.svg", height = 6, width = 8, bg = "white")
+
+
+
+
 
 # Export table of sample size and rates of telework by work_location
 tw_location %>% 
