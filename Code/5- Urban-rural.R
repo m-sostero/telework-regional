@@ -141,8 +141,7 @@ ggsave("Figures/Telework_degurba_selected.png", height = 6, width = 9, bg = "whi
 ggplotly(plot_hw_degurba)
 
 
-# Phase plotL growht in cities vs rest ----
-
+# Phase plot growth in cities vs rest ----
 
 hw_cities_rest <- LFS %>%
   mutate(cities = degurba %>% fct_recode("Rest" = "Towns and suburbs", "Rest" = "Rural areas")) %>% 
@@ -174,6 +173,139 @@ hw_cities_rest %>%
 ggsave("Figures/Telework_changes_urban_rest.pdf", height = 5, width = 8.4)
 ggsave("Figures/Telework_changes_urban_rest.png", height = 5, width = 8.4, bg = "white")
 
+
+
+# Population relocation vs telework ---------------------------------------
+
+# Calculate total population in cities vs rest by year
+pop_cities_rest <- LFS %>%
+  mutate(cities = degurba %>% fct_recode("Rest" = "Towns and suburbs", "Rest" = "Rural areas")) %>% 
+  group_by(year, country, cities) %>%  
+  summarise(pop = sum(coeffy, na.rm = TRUE), .groups = "drop")
+
+# Combine %TW in cities/rest with total population in cities vs rest
+#TODO: change reference year 
+hw_cities_rest %>% 
+  full_join(pop_cities_rest, by = c("year", "country", "cities")) %>%
+  # compute differences 2019 2021
+  filter(year %in% c(2019, 2021)) %>% 
+  pivot_wider(id_cols = c(country, country_name), names_from = c(cities, year), values_from = c(telework_share, pop)) %>% 
+  mutate(
+    delta_pop_rest = (`pop_Rest_2021`-`pop_Rest_2019`) / pop_Rest_2019,
+    delta_tw_rest  = (`telework_share_Rest_2021`-telework_share_Rest_2019)/telework_share_Rest_2019
+  ) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = delta_pop_rest, y = delta_tw_rest, label = country)) +
+  geom_vline(xintercept = 0, linetype = "dotted",  color = "grey50") +
+  geom_point() + geom_text_repel(seed = 1235) +
+  annotate("text", x = -0.12, y = 3.7, label = "Population outside cities shrank", color = "grey50", hjust = 0) +
+  annotate("text", x =  0.12, y = 3.7, label = "Population outside cities grew"  , color = "grey50", hjust = 1) +
+  scale_x_continuous(labels = label_percent()) +
+  scale_y_continuous(labels = label_percent(prefix = "+")) +
+  geom_smooth() + 
+  labs(
+    title = "No evidence of relocation because of telework?",
+    subtitle = "Changes in population and telework in in towns, suburbs, and rural areas between 2019 and 2021",
+    x = "Relative changes in population",
+    y = "Relative growth in telework"
+  )
+
+# Trends in population outside cities vs rest ------------------
+ 
+# Normalise population levels in 2018 at 100, look at trends since
+pop_cities_rest %>%
+  pivot_wider(names_from = cities, values_from = pop) %>% 
+  group_by(country) %>% 
+  arrange(country, year) %>%
+  mutate(
+    Cities = (Cities / Cities[1])*100,
+    Rest  = (Rest / Rest[1])*100
+  ) %>%
+  ungroup() %>%
+  pivot_longer(cols = c(Cities, Rest), names_to = "territory") %>% 
+  mutate(territory = factor(territory, labels = c("Cities", "Towns, Suburbs, Rural areas"))) %>% 
+  # Plot trends by country
+  ggplot(aes(x = year, y = value, group = interaction(country, territory), color = territory)) +
+  geom_point() + geom_line() +
+  geom_hline(yintercept = 100) + 
+  scale_color_discrete("Territorial typology", direction = -1) +
+  facet_geo(~ country, grid = eu_grid, label = "name") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  theme(legend.position = "top") +
+  labs(
+    title = "Changes in employed population by territorial typology",
+    subtitle = "Estimated from LFS sampling weights, 2018 value = 100",
+    x = "Year", y = "Population change"
+  )
+
+ggsave("Figures/Population_territory_prop_eu.png", height = 9, width = 9, bg = "white")
+
+pop_cities_rest %>%
+  mutate(territory = factor(cities, labels = c("Cities", "Towns, Suburbs, Rural areas"))) %>% 
+  # Plot values by country
+  ggplot(aes(x = year, y = pop, group = interaction(country, territory), color = territory)) +
+  geom_point() + geom_line() +
+  scale_color_discrete("Territorial typology", direction = -1) +
+  facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
+  scale_y_continuous(labels = scales::comma) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  theme(legend.position = "top") +
+  labs(
+    title = "Changes in employed population by territorial typology",
+    subtitle = "Estimated from LFS sampling weights, absolute numbers",
+    x = "Year", y = "Population (thousands)"
+  )
+
+ggsave("Figures/Population_territory_abs_eu.png", height = 9, width = 9, bg = "white")
+
+
+# Teleworkabile employment by degurba over time --------------
+
+# Aggregate actual telework (homework_any) and potential telework (homework_any) by degurba region
+degurba_teleworkability <- LFS %>%
+  inner_join(teleworkability, by = "isco08_3d") %>%
+  group_by(country, year, degurba) %>% 
+  summarise(
+    share_hw = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE),
+    technical_tw = weighted.mean(physicalinteraction, wt = coeffy, na.rm = TRUE),
+    pop = sum(coeffy, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+degurba_teleworkability %>%
+  ggplot(aes(x = year, y = technical_tw, color = degurba)) +
+  geom_point() + geom_line() + 
+  scale_y_continuous(labels = scales::percent) +
+  scale_color_brewer("Degree of urbanisation", palette = "Set2") +
+  facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Telework potential has remained relatively constant across territorial typologies",
+    subtitle = "Average technical teleworkability by degree of urbanisation",
+    x = "Year", y = "Teleworkability"
+  ) 
+
+#TODO: compute EU aggregate
+degurba_teleworkability_eu <- LFS %>%
+  inner_join(teleworkability, by = "isco08_3d") %>%
+  group_by(year, degurba) %>% 
+  summarise(
+    share_hw = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE),
+    technical_tw = weighted.mean(physicalinteraction, wt = coeffy, na.rm = TRUE),
+    pop = sum(coeffy, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+degurba_teleworkability_eu %>%
+  ggplot(aes(x = year, y = technical_tw, color = degurba)) +
+  geom_point() + geom_line() + 
+  scale_y_continuous(labels = scales::percent) +
+  scale_color_brewer("Degree of urbanisation", palette = "Set2") +
+  labs(
+    title = "Telework potential has remained relatively constant across territorial typologies",
+    subtitle = "EU average technical teleworkability by degree of urbanisation",
+    x = "Year", y = "Teleworkability"
+  ) 
 
 
 # Telework intensity by degurba -----------------------------
