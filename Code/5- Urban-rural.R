@@ -526,3 +526,30 @@ tw_hw_degurba %>%
   )
   
 
+tw_hw_degurba %>% 
+  filter(year == 2019) %>% 
+  ggplot(aes(x = country, y = teleworkability, fill = degurba)) +
+  geom_col(position = "dodge") +
+  coord_flip() +
+  scale_color_brewer("Degree of urbanisation", palette = "Set2") +
+  labs(
+    title = "The occupational structure has remained mostly constant across territorial typologies",
+    subtitle = "Average technical teleworkability by degree of urbanisation over the year",
+    y = "Average technical teleworkability"
+  )
+
+plot_ends <- tw_hw_degurba %>% 
+  filter(year == 2019) %>%
+  filter(degurba == "Rural areas")
+
+tw_hw_degurba %>% 
+  filter(year == 2019) %>% 
+  ggplot(aes(x = degurba, y = teleworkability, group = country)) +
+  geom_point(aes(colour = degurba)) + geom_line(alpha = 0.3) +
+  geom_text_repel(data = plot_ends, aes(label = country)) +
+  scale_color_brewer("Degree of urbanisation", palette = "Set2", direction = -1, guide = NULL) +
+  labs(
+    title = "Across EU, technical teleworkability is higher in cities than in towns or suburbs, than in rural areas",
+    subtitle = "Average technical teleworkability by degree of urbanisation in 2019",
+    y = "Average technical teleworkability", x = "Territorial typology"
+  )
