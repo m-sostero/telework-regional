@@ -386,3 +386,26 @@ map_homework_occup_region %>%
 
 ggsave("Figures/Telework_isco24_map.pdf", height = 8, width = 9)
 ggsave("Figures/Telework_isco24_map.png", height = 8, width = 9, bg = "white")
+
+
+# Telework by country and sector ----------------------------------
+
+tw_nace <- LFS %>% 
+  mutate(year = factor(year)) %>% 
+  compute_tw_share(year, country, nace1d)
+  
+tw_nace %>%
+  filter(year == 2019, nace1d != "Non response") %>% 
+  mutate(nace1d = nace1d %>% fct_rev()) %>% 
+  ggplot(aes(x = telework_share, y = nace1d, group = country)) +
+  geom_point() + 
+  # geom_text_repel(aes(label = country)) +
+  scale_x_continuous(labels = percent_format()) + 
+  labs(
+    title = "Telework has become more common among employees, catching up with the self-employed",
+    subtitle = "Share of people teleworking at least some of the time, by professional status",
+    y = "Sector of economic activity (NACE 1-digit)", x = "Share of people working from home"
+  )
+
+ggsave("Figures/Telework_stapro_eu.pdf", height = 8, width = 11)
+ggsave("Figures/Telework_stapro_eu.png", height = 8, width = 11, bg = "white")

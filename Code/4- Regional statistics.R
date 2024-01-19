@@ -44,8 +44,8 @@ country_telework %>%
   select(-n_people) %>% 
   pivot_wider(names_from = year, values_from = telework_share) %>% 
   mutate(change = `2021`/`2019`-1) %>% 
-  ggplot(aes(x = `2019`, y = change, label = country)) +
-  geom_point() + geom_text_repel() +
+  ggplot(aes(x = `2019`, y = change)) +
+  geom_point() + geom_text_repel(aes(label = country)) +
   geom_smooth(method = "loess") +
   # geom_smooth(method = "lm", formula = y ~ poly(x, 2)) +
   # stat_regline_equation(aes(label =  paste(..eq.label.., ..rr.label.., sep = "~~~~")),  label.y = -1) +
@@ -58,6 +58,7 @@ country_telework %>%
   )
 
 ggsave("Figures/telework_convergence.png", width = 8, height = 6,  bg = "white")
+ggsave("Figures/telework_convergence.svg", width = 8, height = 6,  bg = "white")
 
 
 ggplot2::last_plot() +
@@ -487,8 +488,7 @@ write_xlsx(
 regional_teleworkability <- LFS %>%
   inner_join(teleworkability, by = "isco08_3d") %>%
   # Recode urbrur:  "Regions undifferentiated" and missing values as "whole country"
-  mutate(urbrur = urbrur %>% fct_recode("Whole country" = "Regions undifferentiated") %>% fct_na_value_to_level(level = "Whole country")) %>% 
-  group_by(year, country, reg, reglab, urbrur) %>% 
+  group_by(year, country, degurba) %>% 
   summarise(
     telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE),
     physicalinteraction = weighted.mean(physicalinteraction, wt = coeffy, na.rm = TRUE),
