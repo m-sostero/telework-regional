@@ -141,6 +141,40 @@ ggsave("Figures/Telework_degurba_selected.png", height = 6, width = 9, bg = "whi
 ggplotly(plot_hw_degurba)
 
 
+# Telework by degurba at EU, pre-post --------------------------------------------
+
+telework_degurba <- LFS %>%
+  group_by(year, degurba) %>%
+  summarise(
+    total_pop = sum(coeffy, na.rm = TRUE),
+    total_tw_sometimes = sum(coeffy[homework ==  "Person sometimes works at home"], na.rm = TRUE),
+    total_tw_usually = sum(coeffy[homework ==  "Person mainly works at home"], na.rm = TRUE),
+    Sometimes = total_tw_sometimes/total_pop,
+    Usually = total_tw_usually/total_pop,
+    tw_any = Sometimes + Usually,
+    .groups = "drop"
+  ) 
+
+telework_degurba %>% 
+  select(year, degurba, Sometimes, Usually) %>% 
+  pivot_longer(cols = c(Sometimes, Usually), names_to = "frequency") %>%
+  filter(year %in% c(2019, 2021)) %>% 
+  ggplot(aes(x = degurba, y = value, fill = degurba)) +
+  geom_col(aes(alpha = frequency), position = "stack") +
+  facet_wrap(~ year) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_brewer("Degree of urbanisation", palette = "Set2", direction = -1) +
+  scale_alpha_manual("Work from home", breaks = c("Sometimes", "Usually"), values = c(0.4, 1)) +
+  guides(alpha = guide_legend(order = 1), fill = guide_none()) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    # title = "Share of employees working from home by territorial typology pre and post-COVID (2019 and 2021)",
+    x = NULL, y = "Share of people working from home"
+  )
+
+ggsave("Figures/Telework_urbrur_pre_post.svg", height = 4, width = 8, bg = "white")
+
+
 # Phase plot growth in cities vs rest ----
 
 hw_cities_rest <- LFS %>%

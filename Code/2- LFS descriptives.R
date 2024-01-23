@@ -15,17 +15,20 @@ LFS_respondents <- LFS %>%
 
 LFS_respondents %>%
   pivot_wider(names_from = year, values_from = n_obs) %>% 
-  view("LFS respondents")
-  # write_xlsx("Tables/LFS_respondents.xlsx")
+  # view("LFS respondents")
+  write_xlsx("Tables/LFS_respondents.xlsx")
 
 LFS_respondents %>%
   ggplot(aes(x = year, y = n_obs)) +
   geom_point() +
   geom_line() +
-  facet_geo(~ country, grid = eu_grid, label = "name") +
-  # scale_y_continuous(labels = comma_format()) +
-  scale_y_log10(labels = comma_format()) +
-  theme(panel.spacing = unit(1, "lines")) +
+  facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
+  scale_y_continuous(labels = comma_format()) +
+  # scale_y_log10(labels = comma_format()) +
+  theme(
+    panel.spacing = unit(1, "lines"),
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+    ) +
   labs(
     title = "Number of respondents to the LFS by country, over the years", 
     y = "Number of respondents (log scale)",
@@ -37,8 +40,7 @@ ggsave("Figures/LFS_respondents_time.png", height = 8, width = 11, bg = "white")
 
 
 # missing population weights (coeffy) by country --------------------------
-sum
-#TODO: why coeffy missing (NL in 2021, FI, DK all years?)
+# Why is coeffy missing (NL in 2021, 2022, FI, DK all years?)
 LFS %>%
   group_by(country, year) %>%
   summarise(miss_weights = sum(is.na(coeffy)/n())*100, .groups = "drop") %>%
@@ -68,9 +70,9 @@ missing_homework_pc <- LFS %>%
   group_by(year, country, homework) %>%
   summarise(n_people = sum(coeffy, na.rm = TRUE), .groups = "drop_last") %>% 
   mutate(pc_pop = n_people/sum(n_people)) %>%
-  mutate(pc_pop = pc_pop %>% percent()) %>% 
+  # mutate(pc_pop = pc_pop %>% percent()) %>% 
   select(-n_people) %>% 
-  pivot_wider(names_from = homework, values_from = pc_pop, values_fill = "")
+  pivot_wider(names_from = homework, values_from = pc_pop, values_fill = 0)
 
 write_xlsx(
   list(Population =  missing_homework_pop, Respondents = missing_homework_resp),
@@ -78,7 +80,7 @@ write_xlsx(
   )
   
 
-# Telework intensity ------------------------------------------------------
+# Telework intensity by country --------------------------------------------
 
 LFS_total <- LFS %>%
   group_by(year, country) %>% 
@@ -94,8 +96,6 @@ hw_freq <- LFS %>%
   ) %>% 
   left_join(labels_country, by = c("country" = "country_code"))
 
-
-# Telework intensity by degurba, selected countries -----
 hw_freq %>%
   filter(homework != "never") %>%
   mutate(year = factor(year)) %>%
@@ -109,7 +109,11 @@ hw_freq %>%
     legend.position = c(0.92, 0.5),
     legend.box.background = element_rect(colour = "grey40")
     ) +
-  labs( y = "Share of working population", x = NULL )
+  labs(
+    title = "Frequency of work from home, by country and year",
+    y = "Share of working population", x = NULL,
+    caption = "Source: EU-LFS."
+  )
 
 ggsave("Figures/Telework_intensity_eu.pdf", height = 7, width = 9)
 ggsave("Figures/Telework_intensity_eu.png", height = 7, width = 10, bg = "white")
@@ -120,12 +124,13 @@ ggplot2::last_plot() +
     legend.position = c(0.05, 0.05),
     legend.box.background = element_rect(colour = "grey40")
   ) +
-  labs(title = "Frequency of work from home, by country and year", caption = "Source: EU-LFS.")
-ggsave("Figures/Telework_intensity_eu.svg", height = 6, width = 7, bg = "white")
+  labs(title = NULL)
+ggsave("Figures/Telework_intensity_eu.svg", height = 6, width = 8, bg = "white")
+
 
 # Employees vs self-employed ----------------------------------------------
 
-LFS %>% 
+LFS %>%
   group_by(country, year, stapro) %>%
   summarise(total = sum(coeffy, na.rm = TRUE)) %>% 
   ggplot(aes(x = year, y = total, fill = stapro)) +
@@ -145,9 +150,10 @@ ggsave("Figures/LFS_stapro_eu.png", height = 8, width = 11, bg = "white")
 
 
 # degurba --------------------------------------------------------
-# share of population living in cities, towns, or rural areas
+# share of population pre-COVID living in cities, towns, or rural areas
 
 LFS_pop_degurba <- LFS %>%
+  filter(year == 2019) %>% 
   group_by(reglab, degurba) %>%
   summarise(
     total = sum(coeffy, na.rm = TRUE),
@@ -164,18 +170,19 @@ LFS_pop_degurba %>%
 
 
 # urbrur ---------------------------------------------------------
-# Total population by NUTS-2, with prevailing urban-rural region type
+# Total population by NUTS-2 pre-COVID, with prevailing urban-rural region type
 
 LFS %>%
+  filter(year == 2019) %>% 
   group_by(reglab, urbrur) %>%
   summarise(
     total = sum(coeffy, na.rm = T),
     .groups = "drop"
-  )
-# write_xlsx("Tables/LFS_population_urbur.xlsx")
+  ) # %>% write_xlsx("Tables/LFS_population_urbur.xlsx")
 
 
 # ISCO codes by country ---------------------------------------------------
+# NOTE: all years pooled! Used to show which country/ISCO combination is missing
 
 # number of respondents by ISCO 3-digit
 LFS %>%
@@ -215,11 +222,11 @@ LFS %>%
 
 
 
-# Tabulate occupational structure -----------------------------------------
+# Tabulate occupational structure pre-COVID -----------------------------------------
 
 LFS %>%
   # Exclude occupation missing and non-responding
-  filter(year == 2021, !isco1d %in% "Non response", !is.na(isco1d)) %>%
+  filter(year == 2019, !isco1d %in% "Non response", !is.na(isco1d)) %>%
   group_by(country, isco1d) %>%
   summarise(
     total = sum(coeffy, na.rm = T),
@@ -227,7 +234,7 @@ LFS %>%
   ) %>%
   pivot_wider(names_from = "country", values_from = "total") %>% 
   adorn_percentages(denominator = "col") %>%
-  # write_xlsx("Tables/LFS_occup_ISCO3d.xlsx")
+  write_xlsx("Tables/LFS_occup_ISCO3d.xlsx")
   adorn_pct_formatting()
 
 
@@ -235,7 +242,7 @@ LFS %>%
 # Plot occupational structure by country ----------------------------------
 
 LFS_country_occup <- LFS %>%
-  filter(year == 2021) %>%
+  filter(year == 2019) %>%
   filter(!isco1d %in% "Non response", !is.na(isco1d)) %>%
   group_by(country, isco1d) %>%
   summarise(

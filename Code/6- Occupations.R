@@ -391,21 +391,48 @@ ggsave("Figures/Telework_isco24_map.png", height = 8, width = 9, bg = "white")
 # Telework by country and sector ----------------------------------
 
 tw_nace <- LFS %>% 
-  mutate(year = factor(year)) %>% 
   compute_tw_share(year, country, nace1d)
-  
-tw_nace %>%
+
+tw_nace_EU <- LFS %>%
+  compute_tw_share(year, nace1d) %>% 
+  mutate(
+    country = "EU-27",
+    country_name = "European Union (27)",
+  ) 
+
+bind_rows(tw_nace, tw_nace_EU) %>%
   filter(year == 2019, nace1d != "Non response") %>% 
-  mutate(nace1d = nace1d %>% fct_rev()) %>% 
-  ggplot(aes(x = telework_share, y = nace1d, group = country)) +
+  mutate(
+    nace1d = nace1d %>% fct_rev(),
+    EU = (country == "EU-27")
+    ) %>% 
+  ggplot(aes(x = telework_share, y = nace1d, group = country, colour = EU, size = EU)) +
   geom_point() + 
   # geom_text_repel(aes(label = country)) +
-  scale_x_continuous(labels = percent_format()) + 
+  scale_x_continuous(labels = percent_format()) +
+  scale_color_discrete(direction = -1, guide = NULL) +
+  scale_size_discrete( guide = NULL) +
   labs(
-    title = "Telework has become more common among employees, catching up with the self-employed",
-    subtitle = "Share of people teleworking at least some of the time, by professional status",
+    title = "Telework varies more across countries than sectors",
+    subtitle = "Share of people teleworking at least some of the time, by sector of economic activity",
     y = "Sector of economic activity (NACE 1-digit)", x = "Share of people working from home"
   )
 
-ggsave("Figures/Telework_stapro_eu.pdf", height = 8, width = 11)
-ggsave("Figures/Telework_stapro_eu.png", height = 8, width = 11, bg = "white")
+ggsave("Figures/Telework_nace.pdf", height = 8, width = 11)
+ggsave("Figures/Telework_nace.png", height = 8, width = 11, bg = "white")
+ggsave("Figures/Telework_nace.svg", height = 8, width = 11, bg = "white")
+
+
+LFS %>% 
+  compute_tw_share(year, nace1d, urbrur) %>% 
+  filter(year == 2021,  nace1d != "Non response") %>% 
+  mutate(nace1d = nace1d %>% fct_rev()) %>% 
+  ggplot(aes(x = telework_share, y = nace1d, group = urbrur, colour = urbrur)) +
+  geom_point() + 
+  scale_x_continuous(labels = percent_format()) +
+  scale_color_brewer("Degree of urbanisation", palette = "Set2") +
+  labs(
+    title = "Telework varies more across countries than sectors",
+    subtitle = "Share of people teleworking at least some of the time, by sector of economic activity",
+    y = "Sector of economic activity (NACE 1-digit)", x = "Share of people working from home"
+  )

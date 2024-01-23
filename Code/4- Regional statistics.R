@@ -12,16 +12,17 @@ LFS <- read_feather("Data/LFS.feather") %>%
   # Remove observations with no sampling weights
   filter(!is.na(coeffy)) 
 
-# Maps for NUTS regions
+# Maps for NUTS regions, created in '3- Import NUTS maps.R'
 map_nuts <- read_rds("Data/map_nuts.rds")
 
-# NUTS region names
+# Retrieve NUTS region names and labels from the maps
 labels_nuts <- read_rds("Data/map_nuts.rds") %>% 
+  # remove map component, keep unique NUTS names and labels
   st_drop_geometry() %>% as_tibble() %>% 
   select(NUTS_ID, NUTS_name = NAME_LATN) %>% 
   distinct(NUTS_ID, .keep_all = TRUE)
 
-# Occupational teleworking indices
+# Load occupational teleworking indices
 teleworkability <- read_dta("Data/Teleworkability indices.dta") %>%
   mutate(
     isco_3d_code = as.character(isco08_3d),
@@ -34,7 +35,7 @@ teleworkability <- read_dta("Data/Teleworkability indices.dta") %>%
 
 # Compute telework at national level --------------------------------------
 
-# Share teleworking Based on binary indicator homework_any
+# Share teleworking, based on binary indicator homework_any
 country_telework <- LFS %>% 
   # Recode urbrur:  "Regions undifferentiated" and missing values as "whole country"
   mutate(urbrur = urbrur %>% fct_recode("Whole country" = "Regions undifferentiated") %>% fct_na_value_to_level(level = "Whole country")) %>% 
@@ -83,12 +84,13 @@ LFS %>%
   ) %>% 
   filter(homework_any == 1) %>% 
   mutate(telework_share = n_people/pop) %>% 
-  group_by(year, country) %>% 
+  group_by(country, year) %>% 
   summarise(
     n_nuts = n(),
     tw_min = min(telework_share, na.rm = T),
     tw_max = max(telework_share, na.rm = T),
     tw_weigh_cv = weighted.mean(telework_share, pop, na.rm = TRUE)/sd(telework_share),
+    .groups = "drop"
   ) %>% 
   left_join(country_telework, by = c("year", "country")) %>% 
   rename(tw_country = telework_share) %>% 
@@ -98,7 +100,7 @@ LFS %>%
 
 # Compute telework at regional level --------------------------------------
 
-# Share teleworking Based on binary indicator homework_any
+# Share of people teleworking, based on binary indicator homework_any
 regional_telework <- LFS %>% 
   # Recode urbrur:  "Regions undifferentiated" and missing values as "whole country"
   mutate(urbrur = urbrur %>% fct_recode("Whole country" = "Regions undifferentiated") %>% fct_na_value_to_level(level = "Whole country")) %>% 
@@ -124,15 +126,22 @@ table_nuts <- regional_telework %>%
 table_nuts_change <- regional_telework %>%
   select(year, NUTS_ID = reg, telework_share) %>%
   pivot_wider(names_from = year, values_from = telework_share) %>%
-  mutate(delta_hw = (`2021` - `2019`) * 100) %>%
-  left_join(labels_nuts) %>% 
-  select(NUTS_ID, NUTS_name, `Diff %TW\n2019-2021 (pp)` = delta_hw)
+  mutate(
+    delta_hw_19_21 = (`2021` - `2019`) * 100,
+    delta_hw_21_22 = (`2022` - `2021`) * 100
+    ) %>%
+  left_join(labels_nuts, by = "NUTS_ID") %>% 
+  select(NUTS_ID, NUTS_name, everything())
 
-write_xlsx(
+# Export table Telework by NUTS
+table_nuts_change %>% 
+  rename( 
+    `Diff %TW\n2019-2021 (pp)` = delta_hw_19_21, 
+    `Diff %TW\n2021-2022 (pp)` = delta_hw_21_22
+    ) %>% write_xlsx(
     list("Telework NUTS stapro" = table_nuts, "Telework NUTS change" = table_nuts_change),
     "Tables/Telework_NUTS.xlsx"
 )
-
 
 # Top teleworking regions --------------------------------
 
@@ -151,6 +160,7 @@ telework_regions_intensity <- LFS %>%
   mutate(reg_type = case_when(
     str_detect(reg, "^LU") ~ "Entire country",
     is.na(urbrur) ~ "Entire country",
+    urbrur == "Regions undifferentiated" ~ "Entire country",
     urbrur == "Capital region" ~ "Capital region",
     urbrur != "Capital region" ~ "Other region"
     ) %>% factor(levels = c("Capital region", "Other region", "Entire country"))
@@ -180,104 +190,15 @@ telework_regions_intensity %>%
   labs(
     # title = "Capital regions have some of the highest rates of telework",
     # subtitle = "Regions with highest rate of people teleworking in 2021",
-    x = "Region", y = "Share of people teleworking",
-    caption = "Regions are NUTS-2, except for the Netherlands, which is reported at the country level.\n Luxembourg consists of a single NUTS-2 region."
+    x = "Region", y = "Share of people working from home",
+    caption = "Regions are NUTS-2, except for the Netherlands, which is reported at the country level"
+     # .\n Luxembourg consists of a single NUTS-2 region."
   )
 
 ggsave("Figures/Telework_nuts_top.pdf", height = 4, width = 8)
 ggsave("Figures/Telework_nuts_top.png", height = 4, width = 8, bg = "white")
+ggsave("Figures/Telework_nuts_top.svg", height = 4, width = 8, bg = "white")
   
-
-# Filter the 10 regions with the highest telework rates in 2021
-telework_top_regions_2021 <- regional_telework %>%
-  filter(year == 2021) %>% 
-  slice_max(telework_share, n = 10) 
-
-# Table with names and values of top 10 regions, to decorate plot. 
-plot_ends <- telework_top_regions_2021 %>%
-  slice_max(year, n = 1) %>% 
-  mutate(
-    reglab = as.character(reglab) %>% str_replace("_", ": "),
-    reglab = str_replace_all(reglab, "^BE10.*", "BE10: Brussels-Capital"),
-    reglab = str_wrap(reglab, 30)
-  )
-
-# Retrieve and plot the time series for the 10 regions concerned, add labels at the end
-regional_telework %>% 
-  filter(reg %in% telework_top_regions_2021$reg) %>%
-  ggplot(aes(x = year, y = telework_share, group = reglab, colour = reglab, shape = urbrur)) +
-  geom_point(size = 3) + geom_line() +
-  geom_text_repel(
-    data = plot_ends, aes(label = reglab, x = year, y = telework_share),
-    direction = "y", hjust = -0.2, na.rm = TRUE, segment.linetype = "dotted", size = 3
-  ) +
-  scale_shape("Region type") +
-  scale_color_discrete(guide = "none") +
-  theme(legend.position = "top") +
-  scale_x_continuous(limits = c(2017.9, 2021.9), breaks = 2018:2021) +
-  scale_y_continuous(labels = scales::percent) +
-  labs(
-    # title = "The regions with the highest telework rates tend to be capital regions (or surrounding them)",
-    # subtitle = "Ten EU NUTS-2 regions with highest share of people teleworking in 2021",
-    y = "Share of working population", x = NULL
-  )
-
-ggsave("Figures/Telework_nuts_top_2021.pdf", height = 5, width = 8)
-ggsave("Figures/Telework_nuts_top_2021.png", height = 5, width = 8, bg = "white")
-
-ggplot2::last_plot() +   labs(
-  title = "Capital and urban regions have the highest teleworking rates",
-  subtitle = "Ten EU NUTS-2 regions with highest share of people teleworking in 2021",
-  y = "Share of working population", x = NULL
-)
-ggsave("Figures/Telework_nuts_top_2021.svg", height = 5, width = 6.3, bg = "white")
-
-
-# Lowest teleworking regions ----------------------------------------------
-
-# Same procedure as above
-telework_bottom_regions_2021 <- regional_telework %>%
-  filter(year == 2021) %>% 
-  slice_min(telework_share, n = 10) 
-
-plot_ends <- telework_bottom_regions_2021 %>%
-  slice_max(year, n = 1) %>% 
-  mutate(
-    reglab = as.character(reglab) %>% str_replace("_", ": "),
-    reglab = str_wrap(reglab, 30)
-  )
-
-regional_telework %>% 
-  filter(reg %in% telework_bottom_regions_2021$reg) %>%
-  ggplot(aes(x = year, y = telework_share, group = reglab, colour = reglab, shape = urbrur)) +
-  geom_point(size = 3) + geom_line() +
-  geom_text_repel(
-    data = plot_ends, aes(label = reglab, x = year, y = telework_share),
-    direction = "y", hjust = -0.2, na.rm = TRUE, segment.linetype = "dotted", size = 3
-  ) +
-  scale_shape_manual("Region type", values = c(15, 6), limits = c("Intermediate", "Mainly rural")) +
-  scale_color_discrete(guide = "none") +
-  theme(legend.position = "top") +
-  scale_x_continuous(limits = c(2017.9, 2021.9), breaks = 2018:2021) +
-  scale_y_continuous(labels = scales::percent) +
-  labs(
-    # title = "The regions with the lowest telework rates are rural or intermediate",
-    subtitle = "Ten EU NUTS-2 regions with lowest share of people teleworking in 2021",
-    y = "Share of people teleworking", x = NULL
-  )
-
-ggsave("Figures/Telework_nuts_bottom_2021.pdf", height = 5, width = 8)
-ggsave("Figures/Telework_nuts_bottom_2021.png", height = 5, width = 8, bg = "white")
-
-
-ggplot2::last_plot() + labs(
-  title = "Rural regions have the lowest teleworking rates",
-  subtitle = "Ten EU NUTS-2 regions with lowes share of people teleworking in 2021",
-  y = "Share of working population", x = NULL
-)
-
-ggsave("Figures/Telework_nuts_bottom_2021.svg", height = 5, width = 6.3, bg = "white")
-
   
 # Teleworking across all regions ------------------------------------------
 
@@ -312,10 +233,10 @@ map_regional_telework <- inner_join(map_nuts, regional_telework, by = c("NUTS_ID
 
 # Choropleth, faceted by year
 map_regional_telework %>%
-  filter(!is.na(year)) %>%
+  filter(!is.na(year) & year >= 2019) %>%
   ggplot() +
   # Plot the country boundaries NUTS-0 in light grey in background
-  geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0) %>% crossing(year = c(2018:2021)) %>% sf::st_as_sf(), fill = "grey70") +
+  geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0) %>% crossing(year = c(2019:2022)) %>% sf::st_as_sf(), fill = "grey70") +
   geom_sf(aes(fill = telework_share)) +
   facet_wrap(. ~ year) +
   scale_fill_viridis_b("Share of\nworking\npopulation", labels = scales::label_percent()) +
@@ -329,13 +250,14 @@ map_regional_telework %>%
   )
 ggsave("Figures/Telework_nuts_map.pdf", width = 8, height = 8)
 ggsave("Figures/Telework_nuts_map.png", width = 8, height = 8,  bg = "white")
+ggsave("Figures/Telework_nuts_map.svg", width = 8, height = 8,  bg = "white")
 
 
 map_regional_telework %>%
-  filter(year %in% c(2019, 2021)) %>% 
+  filter(year %in% c(2019, 2022)) %>% 
   ggplot() +
   # Plot the country boundaries NUTS-0 in light grey in background
-  geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0) %>% crossing(year = c(2019,2021)) %>% sf::st_as_sf(), fill = "grey70") +
+  geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0) %>% crossing(year = c(2019,2022)) %>% sf::st_as_sf(), fill = "grey70") +
   geom_sf(aes(fill = telework_share)) +
   facet_wrap(. ~ year) +
   scale_fill_viridis_b("Share of\nworking\npopulation", labels = scales::label_percent()) +
@@ -352,11 +274,9 @@ ggsave("Presentation/Telework_nuts_map.png", width = 6, height = 2.5,  bg = "whi
 ggsave("Figures/Telework_nuts_map.svg", width = 8, height = 5,  bg = "white")
 
 
-
-
 # Interactive slider map
 mapview(
-  map_regional_telework %>% filter(year == 2021),
+  map_regional_telework %>% filter(year == 2022),
   label = "NAME_LATN", # Label (tooltip) that appears on hover: the Latin name of NUTS region
   zcol = "telework_share", # The variable whose gradient is colored in the cartogram
   legend = FALSE, # No legend for 2019; common legend for 2019-2021
@@ -369,35 +289,47 @@ mapview(
     zcol = "telework_share",
     legend = TRUE,
     at = seq(0, 0.6, 0.1),
-    layer.name = "Telework<br>(2019 | 2021)"
+    layer.name = "Telework<br>(2019 | 2022)"
   )
+
 
 # Map of changes in share of people teleworking
 
-regional_telework_change <- table_nuts_change %>% 
-  select(everything(), delta_hw = `Diff %TW\n2019-2021 (pp)`)
+map_regional_telework_change <- table_nuts_change %>% 
+  select(NUTS_ID, starts_with("delta")) %>% 
+  inner_join(map_nuts, by = "NUTS_ID", multiple = "all") %>% 
+  pivot_longer(cols = starts_with("delta"), names_to = "period", values_to = "change") %>% 
+  mutate(
+    period = str_replace(period, "delta_hw_19_21", "2019-2021"),
+    period = str_replace(period, "delta_hw_21_22", "2021-2022")
+  )
 
-map_regional_telework_change <- inner_join(map_nuts, regional_telework_change, by = "NUTS_ID", multiple = "all")
-
-scale_limits <- max(abs(regional_telework_change$delta_hw), na.rm = TRUE) * c(-1, 1)
+# compute range of % changes in TW, to center colour scale
+scale_limits <- max(abs(c(table_nuts_change$delta_hw_19_21, table_nuts_change$delta_hw_21_22)), na.rm = TRUE) * c(-1, 1)
 
 map_regional_telework_change %>%
   st_as_sf() %>%
   ggplot() +
   # Plot the country boundaries NUTS-0 in light grey in background
   geom_sf(data = map_nuts %>% crossing(year = c(2018:2021)) %>% sf::st_as_sf(), fill = "grey70") +
-  geom_sf(aes(fill = delta_hw)) +
-  scale_fill_fermenter("Change (pp)\n2019-2021", palette = "RdBu", limit = scale_limits, direction = 1) +
+  geom_sf(aes(fill = change)) +
+  facet_wrap(~ period) +
+  scale_fill_fermenter("Change (pp)", palette = "RdBu", limit = scale_limits, direction = 1) +
   coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
-  theme(legend.text.align = 1) +
+  theme(
+    # legend.text.align = 1, 
+    legend.position = "top"
+    ) +
   labs(
-    # title = "Telework has increased most in capital and urban regions",
-    subtitle = "Change in regional share of population working from home, 2019–2021",
+    title = "Change in regional share of population working from home",
     caption = "Source: LFS;\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
   )
 
 ggsave("Figures/Telework_nuts_change.pdf", width = 8, height = 8)
 ggsave("Figures/Telework_nuts_change.png", width = 8, height = 8, bg = "white")
+
+last_plot() + labs(title = NULL) %>% 
+  ggsave("Figures/Telework_nuts_change.png", width = 8, height = 6, bg = "white")
 
 
 ggplot2::last_plot() + 
@@ -601,4 +533,97 @@ plot_regional_teleworkability <- regional_teleworkability %>%
 ggplotly(plot_regional_teleworkability)
 
 
+
+# Deprecated --------------------------------------------------------------
+
+
+# Filter the 10 regions with the highest telework rates in 2021
+telework_top_regions_2021 <- regional_telework %>%
+  filter(year == 2021) %>% 
+  slice_max(telework_share, n = 10) 
+
+# Table with names and values of top 10 regions, to decorate plot. 
+plot_ends <- telework_top_regions_2021 %>%
+  slice_max(year, n = 1) %>% 
+  mutate(
+    reglab = as.character(reglab) %>% str_replace("_", ": "),
+    reglab = str_replace_all(reglab, "^BE10.*", "BE10: Brussels-Capital"),
+    reglab = str_wrap(reglab, 30)
+  )
+
+# Retrieve and plot the time series for the 10 regions concerned, add labels at the end
+regional_telework %>% 
+  filter(reg %in% telework_top_regions_2021$reg) %>%
+  ggplot(aes(x = year, y = telework_share, group = reglab, colour = reglab, shape = urbrur)) +
+  geom_point(size = 3) + geom_line() +
+  geom_text_repel(
+    data = plot_ends, aes(label = reglab, x = year, y = telework_share),
+    direction = "y", hjust = -0.2, na.rm = TRUE, segment.linetype = "dotted", size = 3
+  ) +
+  scale_shape("Region type") +
+  scale_color_discrete(guide = "none") +
+  theme(legend.position = "top") +
+  scale_x_continuous(limits = c(2017.9, 2021.9), breaks = 2018:2021) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    # title = "The regions with the highest telework rates tend to be capital regions (or surrounding them)",
+    # subtitle = "Ten EU NUTS-2 regions with highest share of people teleworking in 2021",
+    y = "Share of working population", x = NULL
+  )
+
+ggsave("Figures/Telework_nuts_top_2021.pdf", height = 5, width = 8)
+ggsave("Figures/Telework_nuts_top_2021.png", height = 5, width = 8, bg = "white")
+
+ggplot2::last_plot() +   labs(
+  title = "Capital and urban regions have the highest teleworking rates",
+  subtitle = "Ten EU NUTS-2 regions with highest share of people teleworking in 2021",
+  y = "Share of working population", x = NULL
+)
+ggsave("Figures/Telework_nuts_top_2021.svg", height = 5, width = 6.3, bg = "white")
+
+
+# Lowest teleworking regions ----------------------------------------------
+
+# Same procedure as above
+telework_bottom_regions_2021 <- regional_telework %>%
+  filter(year == 2021) %>% 
+  slice_min(telework_share, n = 10) 
+
+plot_ends <- telework_bottom_regions_2021 %>%
+  slice_max(year, n = 1) %>% 
+  mutate(
+    reglab = as.character(reglab) %>% str_replace("_", ": "),
+    reglab = str_wrap(reglab, 30)
+  )
+
+regional_telework %>% 
+  filter(reg %in% telework_bottom_regions_2021$reg) %>%
+  ggplot(aes(x = year, y = telework_share, group = reglab, colour = reglab, shape = urbrur)) +
+  geom_point(size = 3) + geom_line() +
+  geom_text_repel(
+    data = plot_ends, aes(label = reglab, x = year, y = telework_share),
+    direction = "y", hjust = -0.2, na.rm = TRUE, segment.linetype = "dotted", size = 3
+  ) +
+  scale_shape_manual("Region type", values = c(15, 6), limits = c("Intermediate", "Mainly rural")) +
+  scale_color_discrete(guide = "none") +
+  theme(legend.position = "top") +
+  scale_x_continuous(limits = c(2017.9, 2021.9), breaks = 2018:2021) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    # title = "The regions with the lowest telework rates are rural or intermediate",
+    subtitle = "Ten EU NUTS-2 regions with lowest share of people teleworking in 2021",
+    y = "Share of people teleworking", x = NULL
+  )
+
+ggsave("Figures/Telework_nuts_bottom_2021.pdf", height = 5, width = 8)
+ggsave("Figures/Telework_nuts_bottom_2021.png", height = 5, width = 8, bg = "white")
+
+
+ggplot2::last_plot() + labs(
+  title = "Rural regions have the lowest teleworking rates",
+  subtitle = "Ten EU NUTS-2 regions with lowes share of people teleworking in 2021",
+  y = "Share of working population", x = NULL
+)
+
+ggsave("Figures/Telework_nuts_bottom_2021.svg", height = 5, width = 6.3, bg = "white")
 
