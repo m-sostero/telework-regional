@@ -5,7 +5,11 @@ source("Code/0- Load common.R")
 # Import data -------------------------------------------------------------
 
 # Labour Force Survey microdata, cleaned
-LFS <- read_feather("Data/LFS.feather") 
+LFS <- read_feather("Data/LFS.feather") %>% 
+  # Remove observations that did not answer to homework question
+  filter(!is.na(homework)) %>% 
+  # Remove observations with no sampling weights
+  filter(!is.na(coeffy)) 
 
 # Maps for NUTS regions
 map_nuts <- read_rds("Data/map_nuts.rds")
@@ -18,29 +22,7 @@ teleworkability <- read_dta("Data/Teleworkability indices.dta") %>%
   )
 
 
-# Telework by country and age ----------------------------------
-
-LFS %>% 
-  mutate(year = factor(year)) %>% 
-  group_by(year, country, age) %>% 
-  summarise(telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), .groups = "drop") %>% 
-  ggplot(aes(x = year, y = telework_share, group = age, color = age)) +
-  geom_point() + geom_line() +
-  facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
-  scale_y_continuous(labels = percent_format()) +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-  scale_color_brewer("Professional status", palette = "Set1") +
-  labs(
-    title = "Telework has become more common among employees, catching up with the self-employed",
-    subtitle = "Share of people teleworking at least some of the time, by professional status",
-    y = "Share of people teleworking\n(different scales)"
-  )
-
-ggsave("Figures/Telework_stapro_eu.pdf", height = 8, width = 11)
-ggsave("Figures/Telework_stapro_eu.png", height = 8, width = 11, bg = "white")
-
-
-# Table: Telework by country and professional status
+# Table: Telework by country and professional status ----
 table_tw_stapro <- LFS %>% 
   mutate(year = factor(year)) %>% 
   group_by(year, country, stapro) %>% 
@@ -61,7 +43,7 @@ full_join(table_tw, table_tw_stapro, by = c("year", "country")) %>%
 
 # Telework by country and professional status ----------------------------------
 
-LFS %>% 
+LFS %>%
   mutate(year = factor(year)) %>% 
   compute_tw_share(year, country, stapro) %>% 
   ggplot(aes(x = year, y = telework_share, group = stapro, color = stapro)) +
@@ -170,8 +152,8 @@ tw_hw_stapro %>%
   ggplot(aes(x = mean_physical_interaction, y = telework_share, group = stapro, color = stapro)) +
   geom_point(aes(size = coeffy), shape = 1, alpha = 0.5) +
   geom_smooth(method = lm) +
-  geom_text(data = reg_year %>% filter(stapro == "Self-employed"), aes(label = text, x = 0.3, y = 0.8), parse = TRUE, size = 4, colour = "#E41A1C") + 
-  geom_text(data = reg_year %>% filter(stapro == "Employee"),      aes(label = text, x = 0.3, y = 0.7), parse = TRUE, size = 4, colour = "#377EB8") + 
+  geom_text(data = reg_year %>% filter(stapro == "Self-employed"), aes(label = text, x = 0.3, y = 0.8), parse = TRUE, size = 3, colour = "#E41A1C") + 
+  geom_text(data = reg_year %>% filter(stapro == "Employee"),      aes(label = text, x = 0.3, y = 0.7), parse = TRUE, size = 3, colour = "#377EB8") + 
   scale_size_area() +
   facet_grid(~ year) +
   scale_color_brewer("Professional status", palette = "Set1") +
@@ -185,12 +167,12 @@ tw_hw_stapro %>%
     x = "Regional mean technical teleworkability", y = "Share of people working from home"
   )
 
-ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.pdf", height = 5, width = 9)
-ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.png", height = 4.5, width = 9, bg = "white")
+ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.pdf", height = 3.5, width = 9)
+ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.png", height = 3.5, width = 9, bg = "white")
 
   
 tw_hw_stapro %>%  
-  filter(year %in% c(2019, 2021)) %>% 
+  filter(year %in% c(2019, 2022)) %>% 
   ggplot(aes(x = mean_physical_interaction, y = telework_share, group = stapro, color = stapro)) +
   geom_point(aes(size = coeffy), shape = 1, alpha = 0.5) +
   geom_smooth(method = lm) +
@@ -373,6 +355,8 @@ map_homework_occup_region %>%
   geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0) %>% crossing(year = c(2018:2021)) %>% sf::st_as_sf(), fill = "grey70") +
   # Plot the index values on top
   geom_sf(aes(fill = share_telework)) +
+  # Plot country boundaries (NUTS-0), for all countries
+  geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0), fill = NA, linewidth = 1, color = "grey30") +
   facet_wrap(. ~ year) +
   scale_fill_viridis_b("% Teleworking", labels = label_percent()) +
   # scale_fill_viridis_c("% Teleworking", labels = label_percent()) +
@@ -386,6 +370,58 @@ map_homework_occup_region %>%
 
 ggsave("Figures/Telework_isco24_map.pdf", height = 8, width = 9)
 ggsave("Figures/Telework_isco24_map.png", height = 8, width = 9, bg = "white")
+
+
+# Telework by sector group ----------------------------------------
+
+# Regroup sectors based on John's classification
+LFS <- LFS %>% 
+  mutate(nace1d_numeric = as.numeric(nace1d)) %>% 
+  mutate(
+    sector = case_when(
+      nace1d_numeric %in% c(1, 2, 4, 5, 6) ~ "Construction, extractive & utilities",
+      nace1d_numeric == 3 ~ "Manufacturing",
+      nace1d_numeric %in% c(15:17, 21) ~ "Mainly public services",
+      nace1d_numeric %in% c(7:14, 18:20) ~ "Mainly private services",
+    ) %>% factor(levels = c("Construction, extractive & utilities", "Manufacturing", "Mainly public services", "Mainly private services"))
+  )
+
+tw_sector_degurba <- LFS %>% 
+  filter(year == 2021, homework_any >= 0) %>% 
+  group_by(sector, degurba) %>% 
+  summarise(pop = sum(coeffy, na.rm = T), .groups = "drop") %>% 
+  filter(!is.na(sector)) %>% 
+  mutate(
+    degurba = fct_rev(degurba),
+    sector = fct_rev(sector)
+    ) 
+
+tw_sector_degurba %>% 
+  ggplot(aes(y = degurba, x = pop, fill = sector)) +
+  geom_col(position = "fill") +
+  theme(legend.position = "top") +
+  scale_fill_brewer(palette = "Dark2") +
+  guides(fill = guide_legend(reverse = TRUE)) + 
+  scale_x_continuous(labels = percent_format()) +
+  labs(x = "Share of those working from home", y = "Degree of urbanisation") 
+
+ggsave("Figures/Telework_sector_degurba.pdf", height = 3, width = 9)
+ggsave("Figures/Telework_sector_degurba.png", height = 3, width = 10, bg = "white")
+ggsave("Figures/Telework_sector_degurba.svg", height = 3, width = 10, bg = "white")
+
+tw_sector_degurba %>% 
+  ggplot(aes(y = degurba, x = pop, fill = sector)) +
+  geom_col(position = "stack") +
+  theme(legend.position = "top") +
+  scale_fill_brewer(palette = "Dark2") +
+  guides(fill = guide_legend(reverse = TRUE)) + 
+  scale_x_continuous(labels = comma_format(scale = 0.001, suffix = "M")) +
+  labs(x = "People working from home", y = "Degree of urbanisation") 
+
+ggsave("Figures/Telework_sector_degurba_total.pdf", height = 3, width = 9)
+ggsave("Figures/Telework_sector_degurba_total.png", height = 3, width = 10, bg = "white")
+ggsave("Figures/Telework_sector_degurba_total.svg", height = 3, width = 10, bg = "white")
+
 
 
 # Telework by country and sector ----------------------------------

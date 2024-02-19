@@ -36,3 +36,8 @@ TODO:
 -   [x] Clean plot with top/bottom regions
 
 -   [x] Ask Patrizia about connectivity data
+
+
+- [ ] Differentiate descriptives bw WP and report
+- [ ] Cut section on internet connectivity
+- [ ] Keep only % rural and Capital NUTS in regional model

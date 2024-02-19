@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' class='svglite' width='648.00pt' height='432.00pt' viewBox='0 0 648.00 432.00'>
+<defs>
+  <style type='text/css'><![CDATA[
+    .svglite line, .svglite polyline, .svglite polygon, .svglite path, .svglite rect, .svglite circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+    .svglite text {
+      white-space: pre;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: #FFFFFF;'/>
+<defs>
+  <clipPath id='cpMC4wMHw2NDguMDB8MC4wMHw0MzIuMDA='>
+    <rect x='0.00' y='0.00' width='648.00' height='432.00' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMC4wMHw2NDguMDB8MC4wMHw0MzIuMDA=)'>
+</g>
+<defs>
+  <clipPath id='cpNDAuOTZ8NjQyLjUyfDM4Ljg1fDM3Ny4zNw=='>
+    <rect x='40.96' y='38.85' width='601.56' height='338.52' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpNDAuOTZ8NjQyLjUyfDM4Ljg1fDM3Ny4zNw==)'>
+<polyline points='40.96,358.61 642.52,358.61 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='40.96,243.30 642.52,243.30 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='40.96,127.99 642.52,127.99 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='146.43,377.37 146.43,38.85 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='302.68,377.37 302.68,38.85 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='458.93,377.37 458.93,38.85 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='615.18,377.37 615.18,38.85 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='40.96,300.96 642.52,300.96 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='40.96,185.65 642.52,185.65 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='40.96,70.34 642.52,70.34 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='68.31,377.37 68.31,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='224.56,377.37 224.56,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='380.80,377.37 380.80,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='537.05,377.37 537.05,38.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<circle cx='68.31' cy='184.87' r='1.95' style='stroke-width: 0.71; stroke: #1F78B4; fill: #1F78B4;' />
+<circle cx='68.31' cy='331.56' r='1.95' style='stroke-width: 0.71; stroke: #A6CEE3; fill: #A6CEE3;' />
+<circle cx='68.31' cy='187.73' r='1.95' style='stroke-width: 0.71; stroke: #B2DF8A; fill: #B2DF8A;' />
+<circle cx='68.31' cy='236.28' r='1.95' style='stroke-width: 0.71; stroke: #33A02C; fill: #33A02C;' />
+<circle cx='68.31' cy='110.58' r='1.95' style='stroke-width: 0.71; stroke: #FB9A99; fill: #FB9A99;' />
+<circle cx='224.56' cy='210.05' r='1.95' style='stroke-width: 0.71; stroke: #1F78B4; fill: #1F78B4;' />
+<circle cx='224.56' cy='361.98' r='1.95' style='stroke-width: 0.71; stroke: #A6CEE3; fill: #A6CEE3;' />
+<circle cx='224.56' cy='205.77' r='1.95' style='stroke-width: 0.71; stroke: #B2DF8A; fill: #B2DF8A;' />
+<circle cx='224.56' cy='237.92' r='1.95' style='stroke-width: 0.71; stroke: #33A02C; fill: #33A02C;' />
+<circle cx='224.56' cy='117.42' r='1.95' style='stroke-width: 0.71; stroke: #FB9A99; fill: #FB9A99;' />
+<circle cx='380.80' cy='183.37' r='1.95' style='stroke-width: 0.71; stroke: #1F78B4; fill: #1F78B4;' />
+<circle cx='380.80' cy='343.68' r='1.95' style='stroke-width: 0.71; stroke: #A6CEE3; fill: #A6CEE3;' />
+<circle cx='380.80' cy='190.27' r='1.95' style='stroke-width: 0.71; stroke: #B2DF8A; fill: #B2DF8A;' />
+<circle cx='380.80' cy='246.21' r='1.95' style='stroke-width: 0.71; stroke: #33A02C; fill: #33A02C;' />
+<circle cx='380.80' cy='88.16' r='1.95' style='stroke-width: 0.71; stroke: #FB9A99; fill: #FB9A99;' />
+<circle cx='537.05' cy='141.32' r='1.95' style='stroke-width: 0.71; stroke: #1F78B4; fill: #1F78B4;' />
+<circle cx='537.05' cy='297.85' r='1.95' style='stroke-width: 0.71; stroke: #A6CEE3; fill: #A6CEE3;' />
+<circle cx='537.05' cy='151.63' r='1.95' style='stroke-width: 0.71; stroke: #B2DF8A; fill: #B2DF8A;' />
+<circle cx='537.05' cy='202.70' r='1.95' style='stroke-width: 0.71; stroke: #33A02C; fill: #33A02C;' />
+<circle cx='537.05' cy='54.24' r='1.95' style='stroke-width: 0.71; stroke: #FB9A99; fill: #FB9A99;' />
+<polyline points='68.31,184.87 224.56,210.05 380.80,183.37 537.05,141.32 ' style='stroke-width: 1.07; stroke: #1F78B4; stroke-linecap: butt;' />
+<polyline points='68.31,331.56 224.56,361.98 380.80,343.68 537.05,297.85 ' style='stroke-width: 1.07; stroke: #A6CEE3; stroke-linecap: butt;' />
+<polyline points='68.31,187.73 224.56,205.77 380.80,190.27 537.05,151.63 ' style='stroke-width: 1.07; stroke: #B2DF8A; stroke-linecap: butt;' />
+<polyline points='68.31,236.28 224.56,237.92 380.80,246.21 537.05,202.70 ' style='stroke-width: 1.07; stroke: #33A02C; stroke-linecap: butt;' />
+<polyline points='68.31,110.58 224.56,117.42 380.80,88.16 537.05,54.24 ' style='stroke-width: 1.07; stroke: #FB9A99; stroke-linecap: butt;' />
+<text x='545.56' y='302.15' style='font-size: 12.00px;fill: #A6CEE3; font-family: "Arial";' textLength='68.71px' lengthAdjust='spacingAndGlyphs'>Mainly urban</text>
+<text x='545.56' y='207.00' style='font-size: 12.00px;fill: #33A02C; font-family: "Arial";' textLength='62.02px' lengthAdjust='spacingAndGlyphs'>Mainly rural</text>
+<text x='545.56' y='156.33' style='font-size: 12.00px;fill: #B2DF8A; font-family: "Arial";' textLength='66.71px' lengthAdjust='spacingAndGlyphs'>Intermediate</text>
+<text x='545.56' y='145.21' style='font-size: 12.00px;fill: #1F78B4; font-family: "Arial";' textLength='74.04px' lengthAdjust='spacingAndGlyphs'>Capital region</text>
+<text x='545.56' y='58.54' style='font-size: 12.00px;fill: #FB9A99; font-family: "Arial";' textLength='74.04px' lengthAdjust='spacingAndGlyphs'>Entire country</text>
+</g>
+<g clip-path='url(#cpMC4wMHw2NDguMDB8MC4wMHw0MzIuMDA=)'>
+<text x='36.03' y='304.11' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='17.62px' lengthAdjust='spacingAndGlyphs'>70%</text>
+<text x='36.03' y='188.80' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='17.62px' lengthAdjust='spacingAndGlyphs'>75%</text>
+<text x='36.03' y='73.49' text-anchor='end' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='17.62px' lengthAdjust='spacingAndGlyphs'>80%</text>
+<text x='68.31' y='388.60' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='19.58px' lengthAdjust='spacingAndGlyphs'>2019</text>
+<text x='224.56' y='388.60' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='19.58px' lengthAdjust='spacingAndGlyphs'>2020</text>
+<text x='380.80' y='388.60' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='19.58px' lengthAdjust='spacingAndGlyphs'>2021</text>
+<text x='537.05' y='388.60' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='19.58px' lengthAdjust='spacingAndGlyphs'>2022</text>
+<text x='341.74' y='401.07' text-anchor='middle' style='font-size: 11.00px; font-family: "Arial";' textLength='22.23px' lengthAdjust='spacingAndGlyphs'>Year</text>
+<text transform='translate(13.36,208.11) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-family: "Arial";' textLength='83.17px' lengthAdjust='spacingAndGlyphs'>Employment rate</text>
+<text x='40.96' y='31.05' style='font-size: 11.00px; font-family: "Arial";' textLength='201.85px' lengthAdjust='spacingAndGlyphs'>People aged 20-64, by NUTS region-type</text>
+<text x='40.96' y='14.93' style='font-size: 13.20px; font-family: "Arial";' textLength='207.49px' lengthAdjust='spacingAndGlyphs'>EU employment rate by region-type</text>
+<text x='642.52' y='415.17' text-anchor='end' style='font-size: 8.80px; font-family: "Arial";' textLength='275.67px' lengthAdjust='spacingAndGlyphs'>Regions are NUTS-2. 'Entire country' includes CY, EE, LU, LV, and MT,</text>
+<text x='642.52' y='424.67' text-anchor='end' style='font-size: 8.80px; font-family: "Arial";' textLength='340.48px' lengthAdjust='spacingAndGlyphs'>(which consist of a single NUTS-2 region) and NL, which is reported at the country level</text>
+</g>
+</svg>

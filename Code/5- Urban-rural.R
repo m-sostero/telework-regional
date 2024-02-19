@@ -61,6 +61,10 @@ hw_degurba %>%
   guides(color = guide_legend(reverse = TRUE)) +
   scale_y_continuous(labels = percent_format()) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust  = 1)) +
+  theme(
+    legend.position = c(0.05, 0.05),
+    legend.box.background = element_rect(colour = "grey40")
+  ) +
   labs(
     # title = "Telework has become more common, especially in cities, since 2020",
     # subtitle = "Share of people teleworking by degree of urbanisation, over the years",
@@ -69,41 +73,10 @@ hw_degurba %>%
     caption = "Source: EU Labour Force Survey,\n own elaboration"
   )
 
-ggsave("Figures/Telework_degurba_eu.pdf", height = 8, width = 13)
+ggsave("Figures/Telework_degurba_eu.pdf", height = 7, width = 13)
 ggsave("Figures/Telework_degurba_eu.png", height = 7, width = 10, bg = "white")
-
-ggplot2::last_plot() + labs(
-  title = "Share of people teleworking by degree of urbanisation, over the years",
-  x = NULL,
-  y = "Share of working population \n(different scales)"
-) + theme(
-  legend.position = c(0.05, 0),
-  legend.box.background = element_rect(colour = "grey40")
-)
-
-ggsave("Figures/Telework_degurba_eu.svg", height = 6, width = 8, bg = "white")
-
-
-hw_degurba %>% 
-  mutate(year = factor(year)) %>% 
-  ggplot(aes(x = year, y = telework_share, group = degurba, color = degurba)) +
-  geom_point() + geom_line() +
-  facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") + 
-  # scale_color_manual("Degree of urbanisation", values = c("#33A02C", "#A6CEE3", "#1F78B4"), breaks = c("Rural areas", "Towns and suburbs", "Cities")) +
-  scale_color_brewer("Degree of urbanisation", palette = "Set2") +
-  guides(color = guide_legend(reverse = TRUE)) +
-  scale_y_continuous(labels = percent_format()) +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust  = 1), legend.position = "top") +
-  labs(
-    # title = "Telework has become more common, especially in cities, since 2020",
-    title = "Share of people teleworking by degree of urbanisation, over the years",
-    x = "Year",
-    y = "Share of people teleworking \n(different scales)",
-    caption = "Source: EU Labour Force Survey,\n own elaboration"
-  )
-
-ggsave("Presentation/Telework_degurba_eu.png", height = 8, width = 10, bg = "white")
-
+ggsave("Figures/Telework_degurba_eu.svg", height = 7, width = 10, bg = "white")
+ggsave("Presentation/Telework_degurba_eu.png", height = 7, width = 10, bg = "white")
 
 
 # Zoom in on selected countries
@@ -141,7 +114,7 @@ ggsave("Figures/Telework_degurba_selected.png", height = 6, width = 9, bg = "whi
 ggplotly(plot_hw_degurba)
 
 
-# Telework by degurba at EU, pre-post --------------------------------------------
+# Telework by degurba  --------------------------------------------
 
 telework_degurba <- LFS %>%
   group_by(year, degurba) %>%
@@ -158,11 +131,14 @@ telework_degurba <- LFS %>%
 telework_degurba %>% 
   select(year, degurba, Sometimes, Usually) %>% 
   pivot_longer(cols = c(Sometimes, Usually), names_to = "frequency") %>%
-  filter(year %in% c(2019, 2021)) %>% 
-  ggplot(aes(x = degurba, y = value, fill = degurba)) +
+  ggplot(aes(x = year, y = value, fill = degurba, label = percent(value, accuracy  = 0.1, suffix = ""))) +
   geom_col(aes(alpha = frequency), position = "stack") +
-  facet_wrap(~ year) +
-  scale_y_continuous(labels = scales::percent) +
+  # Add values inside stacked columns
+  geom_text(position = position_stack(vjust = 0.5), colour = "white") +
+  # Add total values on top of stacked columns
+  geom_text(aes(label = percent(after_stat(y), accuracy  = 0.1, suffix = ""), group = degurba), stat = 'summary', fun = sum, vjust = 0, colour = "grey50") +
+  facet_wrap(~ degurba) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 0.31)) +
   scale_fill_brewer("Degree of urbanisation", palette = "Set2", direction = -1) +
   scale_alpha_manual("Work from home", breaks = c("Sometimes", "Usually"), values = c(0.4, 1)) +
   guides(alpha = guide_legend(order = 1), fill = guide_none()) +
@@ -172,7 +148,29 @@ telework_degurba %>%
     x = NULL, y = "Share of people working from home"
   )
 
-ggsave("Figures/Telework_urbrur_pre_post.svg", height = 4, width = 8, bg = "white")
+telework_degurba %>% 
+  select(year, degurba, Sometimes, Usually) %>% 
+  pivot_longer(cols = c(Sometimes, Usually), names_to = "frequency") %>%
+  ggplot(aes(x = year, y = value, fill = degurba, label = percent(value, accuracy  = 0.1, suffix = ""))) +
+  geom_col(aes(alpha = frequency), position = "stack") +
+  # Add values inside stacked columns
+  geom_text(position = position_stack(vjust = 0.5), colour = "white") +
+  # Add total values on top of stacked columns
+  geom_text(aes(label = percent(after_stat(y), accuracy  = 0.1, suffix = ""), group = degurba), stat = 'summary', fun = sum, vjust = 0, colour = "grey50") +
+  facet_wrap(~ degurba) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 0.31)) +
+  scale_fill_brewer("Degree of urbanisation", palette = "Set2", direction = -1) +
+  scale_alpha_manual("Work from home", breaks = c("Sometimes", "Usually"), values = c(0.4, 1)) +
+  guides(alpha = guide_legend(order = 1), fill = guide_none()) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    # title = "Share of employees working from home by territorial typology pre and post-COVID (2019 and 2021)",
+    x = NULL, y = "Share of people working from home"
+  )
+
+ggsave("Figures/Telework_urbrur.svg", height = 4, width = 8, bg = "white")
+ggsave("Figures/Telework_urbrur.png", height = 4, width = 8, bg = "white")
+
 
 
 # Phase plot growth in cities vs rest ----
@@ -298,25 +296,26 @@ ggsave("Figures/Population_territory_abs_eu.png", height = 9, width = 9, bg = "w
 # Aggregate actual telework (homework_any) and potential telework (homework_any) by degurba region
 degurba_teleworkability <- LFS %>%
   inner_join(teleworkability, by = "isco08_3d") %>%
-  group_by(country, year, degurba) %>% 
+  group_by(year, degurba) %>% 
   summarise(
-    share_hw = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE),
-    technical_tw = weighted.mean(physicalinteraction, wt = coeffy, na.rm = TRUE),
-    pop = sum(coeffy, na.rm = TRUE),
+    `Actually working from home` = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE),
+    `Technically teleworkable` = weighted.mean(physicalinteraction, wt = coeffy, na.rm = TRUE),
     .groups = "drop"
-  )
+  ) %>% 
+  pivot_longer(cols = c(`Technically teleworkable`, `Actually working from home`), names_to = "Population")
 
 degurba_teleworkability %>%
-  ggplot(aes(x = year, y = technical_tw, color = degurba)) +
-  geom_point() + geom_line() + 
-  scale_y_continuous(labels = scales::percent) +
+  ggplot(aes(x = year, y = value, color = degurba, linetype = Population)) +
+  geom_point() + geom_line() +
   scale_color_brewer("Degree of urbanisation", palette = "Set2") +
-  facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
+  facet_wrap(~ degurba) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  scale_y_continuous(labels = scales::percent, limits = c(0,NA)) +
+  guides(color = "none") + 
   labs(
     title = "Telework potential has remained relatively constant across territorial typologies",
     subtitle = "Average technical teleworkability by degree of urbanisation",
-    x = "Year", y = "Teleworkability"
+    x = "Year", y = "Potential and actual telework"
   ) 
 
 #TODO: compute EU aggregate

@@ -5,30 +5,17 @@ source("Code/0- Load common.R")
 # Load data ---------------------------------------------------------------
 
 # Labour Force Survey microdata, cleaned
-LFS <- read_feather("Data/LFS.feather") 
+LFS <- read_feather("Data/LFS.feather") %>% 
+  # Remove observations that did not answer to homework question
+  filter(!is.na(homework)) %>% 
+  # Remove observations with no sampling weights
+  filter(!is.na(coeffy)) 
 
 # Official region NUTS codes and names
 labels_nuts <- read_rds("Data/map_nuts.rds") %>%
   as_tibble() %>% 
   select(-geometry) %>% 
   distinct(NUTS_ID, .keep_all = TRUE)
-
-border_regions <- read_tsv("Metadata/NUTS Border regions.tsv") %>% 
-  mutate(NUTS3_ID = str_replace_all(Code, "\\s", "")) %>% 
-  mutate(NUTS2_ID = str_sub(NUTS3_ID, 1, 4)) %>% 
-  group_by(NUTS2_ID) %>% 
-  summarise(border = any(Border == "Border region"))
-
-
-map_nuts %>%
-  filter(nuts_year == 2021, LEVL_CODE == 2) %>% 
-  left_join(border_regions, by = c("NUTS_ID" = "NUTS2_ID")) %>% 
-  ggplot() +
-  geom_sf(aes(fill = border)) +
-  geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0, nuts_year == 2021) %>% sf::st_as_sf(), color = "black", fill = NA) +
-  coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
-  scale_fill_manual("Border region", values = c("grey90", "#377EB8", "#E41A1C"), labels = c("Interior", "Border", "Not Applicable"))+
-  theme_bw() 
 
 # Summary statistics of place of work -----------------------------------------
 work_location <- LFS %>%
@@ -43,13 +30,13 @@ work_location <- LFS %>%
 
 
 # Export summary statistics
-# write_xlsx(
-#   list(
-#     Population = work_location %>% select(-n_obs) %>% pivot_wider(names_from = work_location, values_from = n_people),
-#     Respondents = work_location %>% select(-n_people) %>% pivot_wider(names_from = work_location, values_from = n_obs)
-#   ), 
-#   "Tables/LFS_work_location.xlsx"
-# )
+write_xlsx(
+  list(
+    Population = work_location %>% select(-n_obs) %>% pivot_wider(names_from = work_location, values_from = n_people),
+    Respondents = work_location %>% select(-n_people) %>% pivot_wider(names_from = work_location, values_from = n_obs)
+  ),
+  "Tables/LFS_work_location.xlsx"
+)
 
 # Plot share of people working outside region of residence -------------------
 work_location %>% 
@@ -77,6 +64,7 @@ work_location %>%
 
 ggsave("Figures/LFS_residence_work_eu.pdf", height = 7, width = 10)
 ggsave("Figures/LFS_residence_work_eu.png", height = 7, width = 10, bg = "white")
+ggsave("Figures/LFS_residence_work_eu.svg", height = 7, width = 10, bg = "white")
 
 
 # Telework by location of work (region or country of work vs residence) ----
@@ -125,6 +113,7 @@ tw_location %>%
 
 ggsave("Figures/Telework_residence_eu.pdf", height = 7, width = 10)
 ggsave("Figures/Telework_residence_eu.png", height = 7, width = 10, bg = "white")
+ggsave("Figures/Telework_residence_eu.svg", height = 7, width = 10, bg = "white")
 
 ggplot2::last_plot() + 
   labs(title = "Teleworking frequency by respondent's place of work", caption = NULL) +
@@ -200,6 +189,26 @@ work_country %>%
   pivot_wider(names_from = work_abroad, values_from = n_obs) 
 
 
+# Border regions ----------------------------------------------------------
+
+# Maps for NUTS regions, created in '3- Import NUTS maps.R'
+map_nuts <- read_rds("Data/map_nuts.rds")
+
+border_regions <- read_tsv("Metadata/NUTS Border regions.tsv") %>% 
+  mutate(NUTS3_ID = str_replace_all(Code, "\\s", "")) %>% 
+  mutate(NUTS2_ID = str_sub(NUTS3_ID, 1, 4)) %>% 
+  group_by(NUTS2_ID) %>% 
+  summarise(border = any(Border == "Border region"))
+
+map_nuts %>%
+  filter(nuts_year == 2021, LEVL_CODE == 2) %>% 
+  left_join(border_regions, by = c("NUTS_ID" = "NUTS2_ID")) %>% 
+  ggplot() +
+  geom_sf(aes(fill = border)) +
+  geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0, nuts_year == 2021) %>% sf::st_as_sf(), color = "black", fill = NA) +
+  coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
+  scale_fill_manual("Border region", values = c("grey90", "#377EB8", "#E41A1C"), labels = c("Interior", "Border", "Not Applicable"))+
+  theme_bw() 
 
 # Diagnostics: Check NUTS codes for `reg`, `regw`, `region_2d` ------------------------------
 

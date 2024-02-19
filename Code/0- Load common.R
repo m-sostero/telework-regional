@@ -22,9 +22,10 @@ suppressMessages({
   library("geofacet") # Plot facets arranged in approximate EU-shaped map
   library("ggpubr") # Decorate regression plots with coefficients
   library("ggrepel") # Add non-overlapping labels to plot
+  library("directlabels") # Label plot lines
   library("RColorBrewer") # Color gradients for plots
   library("scales") # graph scales (percent, comma, currency)
-
+  
   theme_set(theme_minimal()) # set minimalist theme as default for ggplot
 })
 

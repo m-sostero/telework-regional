@@ -2,8 +2,7 @@
 source("Code/0- Load common.R")
 
 # Import LFS data produced by John in Code/Regional2023.do
-LFS_raw <- read_dta("Data/LFSreg2018_22r.dta")
-LFS_raw_old <- read_dta("Data/LFSreg2018_21finalr.dta")
+LFS_raw <- read_dta("Data/LFSreg2018_22rec.dta")
 
 
 # Clean LFS data ----------------------------------------------------------
@@ -52,23 +51,20 @@ LFS <- LFS_raw %>%
     reg = str_replace_all(reg, "(?<=DE.)0", ""),
     # NL00 is just "NL"
     reg = str_replace_all(reg, "NL00", "NL")
-  ) 
-
-#TODO: process again when John encodes REGION2DW and COUNTRYW
-# %>% 
-#   # code work_location as the region or country of work vs residence
-#   mutate(
-#     work_location = case_when(
-#       # region of residence is the same as the region of residence (or includes it, in case the granularity of reg < regw)
-#       str_detect(regw, paste0("^", reg)) ~ "Region of residence",
-#       # Work in own MS, but different region than residence
-#       ctryw == "Work in own MS" & !str_detect(regw, paste0("^", reg)) ~ "Other region in country of residence",
-#       # Work in another MS
-#       ctryw %in% c("Work in another EU MS or UK", "Work in EEA", "Work in other European country", "Work in ROW", "Work in another country") ~ "Other country",
-#       # Missing region/country of residence, or no reply
-#       is.na(regw) | is.na(ctryw) | ctryw == "Not stated" ~ "Not stated"
-#     ) %>% factor(levels = c("Region of residence", "Other region in country of residence", "Other country", "Not stated"))
-#   ) 
+  ) %>% 
+  # code work_location as the region or country of work vs residence
+  mutate(
+    work_location = case_when(
+      # region of residence is the same as the region of residence (or includes it, in case the granularity of reg < regw)
+      str_detect(regw, paste0("^", reg)) ~ "Region of residence",
+      # Work in own MS, but different region than residence
+      ctryw == "Work in own MS" & !str_detect(regw, paste0("^", reg)) ~ "Other region in country of residence",
+      # Work in another MS
+      ctryw %in% c("Work in another EU MS or UK", "Work in EEA", "Work in other European country", "Work in ROW", "Work in another country") ~ "Other country",
+      # Missing region/country of residence, or no reply
+      is.na(regw) | is.na(ctryw) | ctryw == "Not stated" ~ "Not stated"
+    ) %>% factor(levels = c("Region of residence", "Other region in country of residence", "Other country", "Not stated"))
+  )
 
 # Export LFS in fast binary format .feather for use in the following scripts
 write_feather(LFS, "Data/LFS.feather")
