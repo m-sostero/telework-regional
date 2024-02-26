@@ -26,6 +26,11 @@ suppressMessages({
   library("RColorBrewer") # Color gradients for plots
   library("scales") # graph scales (percent, comma, currency)
   
+  library("eurostat") # Download maps (or data) from Eurostat
+  
+  library("fuzzyjoin") # join tables using regular expression, sometimes used for NUTS 2>1 codes
+  library("labelled") # add variable labels, to export Stata
+  
   theme_set(theme_minimal()) # set minimalist theme as default for ggplot
 })
 
@@ -38,7 +43,10 @@ labels_country <- geofacet::eu_grid1 %>%
   as_tibble() %>% 
   mutate(country_name = str_replace(country_name, "Czech Republic", "Czechia"))
 
-# Edit EU grid for cartogram to remove UK
+# Import NUTS codes and region names
+labels_nuts <- read_csv("Metadata/labels_NUTS.csv", col_types = "cc")
+
+# Edit EU grid to remove UK
 eu_grid <- eu_grid1 %>%
   as_tibble() %>% 
   filter(code != "UK") %>% 

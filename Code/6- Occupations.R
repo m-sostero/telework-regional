@@ -358,6 +358,7 @@ LFS <- LFS %>%
     ) %>% factor(levels = c("Construction, extractive & utilities", "Manufacturing", "Mainly public services", "Mainly private services"))
   )
 
+# Compute total population (sector x degurba) in 2021
 tw_sector_degurba <- LFS %>% 
   filter(year == 2021, homework_any >= 0) %>% 
   group_by(sector, degurba) %>% 
@@ -368,6 +369,7 @@ tw_sector_degurba <- LFS %>%
     sector = fct_rev(sector)
     ) 
 
+# Plot population of teleworking by sector x degurba
 tw_sector_degurba %>% 
   ggplot(aes(y = degurba, x = pop, fill = sector)) +
   geom_col(position = "fill") +

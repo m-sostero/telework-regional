@@ -1,9 +1,6 @@
 # Load common packages and labels ----
 source("Code/0- Load common.R")
 
-# Additional packages, for this script only 
-library("fuzzyjoin") # Regex-based matching, used for NUTS codes
-library("labelled") # work with variable labels (Stata)
 
 # Load data ---------------------------------------------------------------
 

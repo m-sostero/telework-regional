@@ -1,7 +1,6 @@
 # Load common packages and labels ----
 source("Code/0- Load common.R")
 
-library("broom")
 
 # Load LFS, regional telework data, and NUTS maps -------------------------
 
@@ -14,13 +13,6 @@ LFS <- read_feather("Data/LFS.feather") %>%
 
 # Maps for NUTS regions, created in '3- Import NUTS maps.R'
 map_nuts <- read_rds("Data/map_nuts.rds")
-
-# Retrieve NUTS region names and labels from the maps
-labels_nuts <- read_rds("Data/map_nuts.rds") %>% 
-  # remove map component, keep unique NUTS names and labels
-  st_drop_geometry() %>% as_tibble() %>% 
-  select(NUTS_ID, NUTS_name = NAME_LATN) %>% 
-  distinct(NUTS_ID, .keep_all = TRUE)
 
 # Load occupational teleworking indices
 teleworkability <- read_dta("Data/Teleworkability indices.dta") %>%
@@ -35,19 +27,20 @@ teleworkability <- read_dta("Data/Teleworkability indices.dta") %>%
 
 # Compute telework at national level --------------------------------------
 
-# Share teleworking, based on binary indicator homework_any
+# Compute share teleworking by year and country
 country_telework <- LFS %>% 
-  # Recode urbrur:  "Regions undifferentiated" and missing values as "whole country"
-  mutate(urbrur = urbrur %>% fct_recode("Whole country" = "Regions undifferentiated") %>% fct_na_value_to_level(level = "Whole country")) %>% 
-  compute_tw_share(year, country)
+   compute_tw_share(year, country)
 
+# Compute and plot 'convergence' in rates of telework: 2019 levels vs 2019-2022 growth
 country_telework %>% 
   select(-n_people) %>% 
   pivot_wider(names_from = year, values_from = telework_share) %>% 
   mutate(change = `2022`/`2019`-1) %>% 
   ggplot(aes(x = `2019`, y = change)) +
   geom_point() + geom_text_repel(aes(label = country)) +
+  # Add localised regression (LOESS) line
   geom_smooth(method = "loess") +
+  # Alternatively, use linear regression
   # geom_smooth(method = "lm", formula = y ~ poly(x, 2)) +
   # stat_regline_equation(aes(label =  paste(..eq.label.., ..rr.label.., sep = "~~~~")),  label.y = -1) +
   scale_x_continuous(labels = percent_format()) +
@@ -58,11 +51,13 @@ country_telework %>%
     y = "Relative growth in work from home 2019-2022",
   )
 
+ggsave("Figures/telework_convergence.pdf", width = 8, height = 6,  bg = "white")
 ggsave("Figures/telework_convergence.png", width = 8, height = 6,  bg = "white")
 ggsave("Figures/telework_convergence.svg", width = 8, height = 6,  bg = "white")
 
 
-LFS %>%
+# Compute summary statistics for country-level telework rates ----
+telework_country_stats <- LFS %>%
   group_by(year, country, reg) %>%
   mutate(total_group = sum(coeffy, na.rm = TRUE)) %>%  
   group_by(year, country, reg, homework_any) %>%
@@ -75,26 +70,29 @@ LFS %>%
   mutate(telework_share = n_people/pop) %>% 
   group_by(country, year) %>% 
   summarise(
-    n_nuts = n(),
-    tw_min = min(telework_share, na.rm = T),
-    tw_max = max(telework_share, na.rm = T),
+    n_nuts = n(), # number of NUTS regions
+    tw_min = min(telework_share, na.rm = T), # Lowest %TW across NUTS in the country
+    tw_max = max(telework_share, na.rm = T), # Highest %TW across NUTS in the country
+    # Coefficient of variation in %TW (weighted by population)
     tw_weigh_cv = weighted.mean(telework_share, pop, na.rm = TRUE)/sd(telework_share),
     .groups = "drop"
   ) %>% 
   left_join(country_telework, by = c("year", "country")) %>% 
-  rename(tw_country = telework_share) %>% 
-  write_xlsx("Tables/Telework_country.xlsx")
+  rename(tw_country = telework_share)
+
+# Export summery statistics in Excel
+write_xlsx(telework_country_stats, "Tables/Telework_country.xlsx")
 
 
 # Compute telework at regional level --------------------------------------
 
-# Share of people teleworking, based on binary indicator homework_any
+# Compute regional (NUTS) share of people teleworking, keep region type (URBRUR)
 regional_telework <- LFS %>% 
   # Recode urbrur:  "Regions undifferentiated" and missing values as "whole country"
   mutate(urbrur = urbrur %>% fct_recode("Whole country" = "Regions undifferentiated") %>% fct_na_value_to_level(level = "Whole country")) %>% 
   compute_tw_share(year, country, reg, reglab, urbrur)
 
-# Same, but by stapro
+# Same, but by stapro (employee/self-employed)
 regional_telework_stapro <- LFS %>% 
   compute_tw_share(year, reg, reglab, urbrur, stapro) %>% 
   select(year, reg, stapro, telework_share) %>% 
@@ -111,6 +109,7 @@ table_nuts <- regional_telework %>%
     `%TW` = telework_share, `%TW (Self-employed)` = `Self-employed`,  `%TW (Employees)` = Employee
   )
 
+# Compute regional change in %TW over different time periods
 table_nuts_change <- regional_telework %>%
   select(year, NUTS_ID = reg, urbrur, telework_share) %>%
   pivot_wider(names_from = year, values_from = telework_share) %>%
@@ -122,7 +121,7 @@ table_nuts_change <- regional_telework %>%
   left_join(labels_nuts, by = "NUTS_ID") %>% 
   select(NUTS_ID, NUTS_name, everything())
 
-# Export table Telework by NUTS
+# Export tables on telework by NUTS to Excel
 write_xlsx(
     list(
       "Telework NUTS stapro" = table_nuts,
@@ -146,12 +145,12 @@ table_nuts %>%
   summarise(mean(tw_range))
 
 
-# Regional telework map ---------------------------------------------------
+# Map regional telework ---------------------------------------------------
 
 # Ensure that all region names are correct (should return empty table)
 anti_join(regional_telework, map_nuts, by = c("reg" = "NUTS_ID"))
 
-# Join values for regional telework with map
+# Combine values for regional telework with NUTS map
 map_regional_telework <- inner_join(map_nuts, regional_telework, by = c("NUTS_ID" = "reg"), multiple = "all", relationship = "many-to-many") %>%
   select(-id, -LEVL_CODE, -NUTS_NAME, -FID, -geo, -ends_with("_TYPE")) 
 
@@ -170,9 +169,9 @@ map_regional_telework %>%
   coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
   theme(legend.position = "top", legend.key.width= unit(1, 'cm')) +
   labs(
-    # title = "Telework has increased, in some countries, mostly in capital regions",
-    # subtitle = "Regional share of the population working from home at least some of the time",
-    # caption = "Source: EU LFS.\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
+    title = "Telework has increased, in some countries, mostly in capital regions",
+    subtitle = "Regional share of the population working from home at least some of the time",
+    caption = "Source: EU LFS.\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
   )
 
 ggsave("Figures/Telework_nuts_map.pdf", width = 8, height = 5)
@@ -180,9 +179,12 @@ ggsave("Figures/Telework_nuts_map.png", width = 8, height = 5,  bg = "white")
 ggsave("Figures/Telework_nuts_map.svg", width = 8, height = 5,  bg = "white")
 
 # Export images for report
+# Suppress titles and caption from plot, to include bare graph in Word document
+ggplot2::last_plot() + labs(title = NULL, subtitle = NULL, caption = NULL)
 ggsave(path = path_report, filename = "Figure_12_map_telework_2019_2012.eps",  width = 8, height = 5)
 ggsave(path = path_report, filename = "Figure_12_map_telework_2019_2012.png",  width = 8, height = 5,  bg = "white")
 ggsave(path = path_report, filename = "Figure_12_map_telework_2019_2012.pdf",  width = 8, height = 5,  bg = "white")
+ggsave(path = path_report, filename = "Figure_12_map_telework_2019_2012.svg",  width = 8, height = 5,  bg = "white")
 
 
 # Interactive slider map
@@ -204,7 +206,7 @@ mapview(
   )
 
 
-# Regional change over time -----
+# Map regional change in telework over time -----
 
 map_regional_telework_change <- table_nuts_change %>% 
   select(NUTS_ID, starts_with("delta")) %>% 
@@ -219,6 +221,7 @@ map_regional_telework_change <- table_nuts_change %>%
 # compute range of % changes in TW, to center colour scale
 scale_limits <- max(abs(c(table_nuts_change$delta_hw_19_21, table_nuts_change$delta_hw_21_22)), na.rm = TRUE) * c(-1, 1)
 
+# Map change in regional telework
 map_regional_telework_change %>%
   st_as_sf() %>%
   ggplot() +
@@ -236,18 +239,22 @@ map_regional_telework_change %>%
     legend.position = "top"
     ) +
   labs(
-    # title = "Change in regional share of population working from home",
-    # caption = "Source: LFS;\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
+    title = "Change in regional share of population working from home",
+    caption = "Source: LFS;\nRegions are NUTS-2 where available, NUTS-1 (AT and DE), or country (NL)"
   )
 
 ggsave("Figures/Telework_nuts_change.pdf", width = 9, height = 4.5)
 ggsave("Figures/Telework_nuts_change.png", width = 9, height = 4.5, bg = "white")
+ggsave("Figures/Telework_nuts_change.svg", width = 9, height = 4.5, bg = "white")
 
 
 # Export images for report
+# Suppress titles and caption from plot, to include bare graph in Word document
+ggplot2::last_plot() + labs(title = NULL, subtitle = NULL, caption = NULL)
 ggsave(path = path_report, filename = "Figure_16_map_telework_change.eps",  width = 9, height = 4.2)
 ggsave(path = path_report, filename = "Figure_16_map_telework_change.png",  width = 9, height = 4.2,  bg = "white")
 ggsave(path = path_report, filename = "Figure_16_map_telework_change.pdf",  width = 9, height = 4.2,  bg = "white")
+ggsave(path = path_report, filename = "Figure_16_map_telework_change.svg",  width = 9, height = 4.2,  bg = "white")
 
 
 
@@ -313,10 +320,10 @@ telework_regions_top_2022 %>%
   guides(alpha = guide_legend(order = 1), fill = guide_legend(order = 2)) +
   theme(plot.caption.position = "plot") +
   labs(
-    # title = "Capital regions have some of the highest rates of telework",
-    # subtitle = "Regions with highest rate of people teleworking in 2021",
+    title = "Capital regions have some of the highest rates of telework",
+    subtitle = "Regions with highest rate of people teleworking in 2021",
     x = "Region", y = "Share of people working from home",
-    # caption = "Regions are NUTS-2, except for the Netherlands, which is reported at the country level.\n Luxembourg consists of a single NUTS-2 region."
+    caption = "Regions are NUTS-2, except for the Netherlands, which is reported at the country level.\n Luxembourg consists of a single NUTS-2 region."
   )
 
 # Export images to project folder
@@ -325,9 +332,12 @@ ggsave("Figures/Telework_nuts_top.png", height = 7, width = 6, bg = "white")
 ggsave("Figures/Telework_nuts_top.svg", height = 7, width = 6, bg = "white")
 
 # Export images for report
+# Suppress titles and caption from plot, to include bare graph in Word document
+ggplot2::last_plot() + labs(title = NULL, subtitle = NULL, caption = NULL)
 ggsave(path = path_report, filename = "Figure_17_top_NUTS_telework_2022.eps",  width = 7, height = 6)
 ggsave(path = path_report, filename = "Figure_17_top_NUTS_telework_2022.png",  width = 7, height = 6,  bg = "white")
 ggsave(path = path_report, filename = "Figure_17_top_NUTS_telework_2022.pdf",  width = 7, height = 6,  bg = "white")
+ggsave(path = path_report, filename = "Figure_17_top_NUTS_telework_2022.svg",  width = 7, height = 6,  bg = "white")
 
 
 # Telework intensity by country and NUTS ----------------------------------------------
@@ -443,19 +453,22 @@ regional_teleworkability %>%
   guides(size = "none") +
   geom_text(data = reg_year, aes(label = text, x = 0.4, y = 0.6), parse = TRUE, size = 3) +
   labs(
-    # title = "Regional uptake of telework ",
-    # title = "Correlation between technical teleworkability and actual telework for EU regions",
+    title = "Correlation between technical teleworkability and actual telework for EU regions",
     x = "Average regional technical teleworkability", y = "Regional share working from home"
   ) 
 
 # Export images to project folder
-ggsave("Figures/Regional_correlation_teleworkability_telework_urbrur.pdf", height = 3, width = 8)
 ggsave("Figures/Regional_correlation_teleworkability_telework_urbrur.png", height = 3, width = 8.5, bg = "white")
+ggsave("Figures/Regional_correlation_teleworkability_telework_urbrur.pdf", height = 3, width = 8)
+ggsave("Figures/Regional_correlation_teleworkability_telework_urbrur.svg", height = 3, width = 8.5, bg = "white")
 
 # Export images for report
+# Suppress titles and caption from plot, to include bare graph in Word document
+ggplot2::last_plot() + labs(title = NULL, subtitle = NULL, caption = NULL)
 ggsave(path = path_report, filename = "Figure_20_correlation_tech_telework.eps",  width = 8, height = 3)
 ggsave(path = path_report, filename = "Figure_20_correlation_tech_telework.png",  width = 8, height = 3,  bg = "white")
 ggsave(path = path_report, filename = "Figure_20_correlation_tech_telework.pdf",  width = 8, height = 3,  bg = "white")
+ggsave(path = path_report, filename = "Figure_20_correlation_tech_telework.svg",  width = 8, height = 3,  bg = "white")
 
 
 # Interactive version

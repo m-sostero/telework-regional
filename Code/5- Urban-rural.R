@@ -38,7 +38,7 @@ hw_degurba_EU <- LFS %>%
   arrange(year, desc(degurba))
 
 
-# Share of telework by degurba; EU and national figures
+# Combine and export EU and national values for share of telework by degurba
 bind_rows(
   hw_degurba_EU,
   arrange(hw_degurba, country, year, desc(degurba))
@@ -50,7 +50,7 @@ bind_rows(
   write_xlsx("Tables/Telework_degurba.xlsx")
 
 
-# Geofacet, grouped by degurba
+# Plot geofacet, grouped by degurba
 hw_degurba %>% 
   mutate(year = factor(year)) %>% 
   ggplot(aes(x = year, y = telework_share, group = degurba, color = degurba)) +
@@ -66,11 +66,11 @@ hw_degurba %>%
     legend.box.background = element_rect(colour = "grey40")
   ) +
   labs(
-    # title = "Telework has become more common, especially in cities, since 2020",
-    # subtitle = "Share of people teleworking by degree of urbanisation, over the years",
+    title = "Telework has become more common, especially in cities, since 2020",
+    subtitle = "Share of people teleworking by degree of urbanisation, over the years",
     x = NULL,
     y = "Share of working population \n(different scales)",
-    # caption = "Source: EU Labour Force Survey,\n own elaboration"
+    caption = "Source: EU Labour Force Survey,\n own elaboration"
   )
 
 # Export images to project folder
@@ -80,9 +80,12 @@ ggsave("Figures/Telework_degurba_eu.svg", height = 7, width = 10, bg = "white")
 ggsave("Presentation/Telework_degurba_eu.png", height = 7, width = 10, bg = "white")
 
 # Export images for report
+# Suppress titles and caption from plot, to include bare graph in Word document
+ggplot2::last_plot() + labs(title = NULL, subtitle = NULL, caption = NULL)
 ggsave(path = path_report, filename = "Figure_19_telework_degurba_map.eps", height = 7, width = 10)
 ggsave(path = path_report, filename = "Figure_19_telework_degurba_map.png", height = 7, width = 10, bg = "white")
 ggsave(path = path_report, filename = "Figure_19_telework_degurba_map.pdf", height = 7, width = 10, bg = "white")
+ggsave(path = path_report, filename = "Figure_19_telework_degurba_map.svg", height = 7, width = 10, bg = "white")
 
 
 
@@ -125,18 +128,21 @@ telework_intensity_degurba %>%
   guides(alpha = guide_legend(order = 1), fill = guide_none()) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
-    # title = "Share of employees working from home by territorial typology pre and post-COVID (2019 and 2021)",
+    title = "Share of employees working from home by degree of urbanisation)",
     x = NULL, y = "Share of people working from home"
   )
 
 # Export images to project folder
-ggsave("Figures/Telework_degurba.svg", height = 4, width = 8, bg = "white")
 ggsave("Figures/Telework_degurba.png", height = 4, width = 8, bg = "white")
+ggsave("Figures/Telework_degurba.svg", height = 4, width = 8, bg = "white")
 
 # Export images for report
+# Suppress titles and caption from plot, to include bare graph in Word document
+ggplot2::last_plot() + labs(title = NULL, subtitle = NULL, caption = NULL)
 ggsave(path = path_report, filename = "Figure_18_telework_intensity_degurba.eps", height = 4, width = 8)
 ggsave(path = path_report, filename = "Figure_18_telework_intensity_degurba.png", height = 4, width = 8, bg = "white")
 ggsave(path = path_report, filename = "Figure_18_telework_intensity_degurba.pdf", height = 4, width = 8, bg = "white")
+ggsave(path = path_report, filename = "Figure_18_telework_intensity_degurba.svg", height = 4, width = 8, bg = "white")
 
 
 # Phase plot growth in cities vs rest ----
@@ -170,6 +176,7 @@ hw_cities_rest %>%
 
 ggsave("Figures/Telework_changes_urban_rest.pdf", height = 5, width = 8.4)
 ggsave("Figures/Telework_changes_urban_rest.png", height = 5, width = 8.4, bg = "white")
+ggsave("Figures/Telework_changes_urban_rest.svg", height = 5, width = 8.4, bg = "white")
 
 
 

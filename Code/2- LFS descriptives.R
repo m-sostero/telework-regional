@@ -13,12 +13,14 @@ LFS_respondents <- LFS %>%
   summarise(n_obs = n(), .groups = "drop") %>% 
   left_join(labels_country, by = c("country" = "country_code"))
 
+# Compute total population, based on sample weights
 LFS_population <- LFS %>%
   group_by(year, country) %>%
   summarise(pop = sum(coeffy, na.rm = TRUE), .groups = "drop") %>% 
   left_join(labels_country, by = c("country" = "country_code")) %>% 
   pivot_wider(names_from = year, values_from = pop) 
 
+# Plot trends in number of respondents over the years
 LFS_respondents %>%
   ggplot(aes(x = year, y = n_obs)) +
   geom_point() +
@@ -39,6 +41,8 @@ LFS_respondents %>%
 ggsave("Figures/LFS_respondents_time.pdf", height = 8, width = 11)
 ggsave("Figures/LFS_respondents_time.png", height = 8, width = 11, bg = "white")
 
+
+# Export Excel tables of LFS respondents and population
 LFS_respondents_change <- LFS_respondents %>%
   pivot_wider(names_from = year, values_from = n_obs) %>% 
   rowwise() %>% 
@@ -68,17 +72,20 @@ LFS %>%
 
 # Missing values on homeworking variable ----------------------------------
 
+# Count observations by country are missing the value for 'homeworking'
 missing_homework_pop <- LFS %>%
   group_by(country, homework) %>%
   summarise(n_people = sum(coeffy, na.rm = TRUE)) %>%
   pivot_wider(names_from = homework, values_from = n_people, values_fill = 0) %>% 
   rename(Missing = `NA`)
 
+# Count total respondents by country
 missing_homework_resp <- LFS %>%
   count(country, homework) %>%
   pivot_wider(names_from = homework, values_from = n, values_fill = 0) %>% 
   rename(Missing = `NA`) 
 
+# Compute share of respondents missing 'homeworking' value
 missing_homework_pc <- LFS %>%
   mutate(homework = homework %>% fct_na_value_to_level("Missing")) %>% 
   group_by(year, country, homework) %>%
@@ -88,6 +95,7 @@ missing_homework_pc <- LFS %>%
   select(-n_people) %>% 
   pivot_wider(names_from = homework, values_from = pc_pop, values_fill = 0)
 
+# Export Excel table about missing values for homeworking
 write_xlsx(
   list(Population =  missing_homework_pop, Respondents = missing_homework_resp),
   "Tables/Telework_intensity_response.xlsx"
@@ -95,18 +103,25 @@ write_xlsx(
   
 
 # Telework by country --------------------------------------------
+# Compute number of people teleworking by country,
+# also in terms of telework intensity (never, sometimes, usually)
 
+# Compute total EU population by country and year
 LFS_total <- LFS %>%
   group_by(year, country) %>% 
   summarise(total_pop = sum(coeffy, na.rm = T), .groups = "drop") 
 
-# Compute EU totals 
-LFS %>%
+# Compute total EU population teleworking, by frequency
+hw_freq_EU <- LFS %>%
   filter(!is.na(homework_any)) %>% 
   group_by(year, homework) %>% 
   summarise(total = sum(coeffy, na.rm = TRUE), .groups = "drop") %>% 
-  spread(homework, total) 
+  spread(homework, total)
 
+# Export table to Excel
+write_xlsx(hw_freq_EU, "Tables/Telework_EU.xlsx")
+
+# Compute telework intensity by country
 hw_freq <- LFS %>%
   group_by(year, country, homework) %>% 
   summarise(total = sum(coeffy, na.rm = TRUE), .groups = "drop") %>%
@@ -117,6 +132,7 @@ hw_freq <- LFS %>%
   ) %>% 
   left_join(labels_country, by = c("country" = "country_code"))
 
+# Plot telework intensity by country
 hw_freq %>%
   filter(homework != "never") %>%
   mutate(year = factor(year)) %>%
@@ -127,7 +143,8 @@ hw_freq %>%
   scale_y_continuous(labels = percent_format(), limits = c(0, 0.60)) +
   theme(
     axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
-    legend.position = c(0.92, 0.5),
+    # legend.position = c(0.92, 0.5),
+    legend.position = c(0.05, 0.05),
     legend.box.background = element_rect(colour = "grey40")
     ) +
   labs(
@@ -136,17 +153,15 @@ hw_freq %>%
     caption = "Source: EU-LFS."
   )
 
+# Export plot in multiple formats (for print and web)
+
+# Suppress titles and caption from plot, to include bare graph in Word document
+ggplot2::last_plot() + labs(title = NULL, subtitle = NULL, caption = NULL)
+
 ggsave("Figures/Telework_intensity_eu.pdf", height = 7, width = 9)
 ggsave("Figures/Telework_intensity_eu.png", height = 7, width = 10, bg = "white")
-
-ggplot2::last_plot() +
-  scale_y_continuous(labels = percent_format(), limits = c(0, 0.6)) +
-  theme(
-    legend.position = c(0.05, 0.05),
-    legend.box.background = element_rect(colour = "grey40")
-  ) +
-  labs(title = NULL)
 ggsave("Figures/Telework_intensity_eu.svg", height = 6, width = 8, bg = "white")
+ggsave("Figures/Telework_intensity_eu.eps", height = 6, width = 8, bg = "white")
 
 
 # Employees vs self-employed ----------------------------------------------
@@ -166,12 +181,20 @@ LFS %>%
     x = NULL
   )
 
+# Export plot in multiple formats (for print and web)
+
+# Suppress titles and caption from plot, to include bare graph in Word document
+ggplot2::last_plot() + labs(title = NULL, subtitle = NULL, caption = NULL)
+
 ggsave("Figures/LFS_stapro_eu.pdf", height = 8, width = 11)
 ggsave("Figures/LFS_stapro_eu.png", height = 8, width = 11, bg = "white")
+ggsave("Figures/LFS_stapro_eu.svg", height = 8, width = 11, bg = "white")
+ggsave("Figures/LFS_stapro_eu.eps", height = 8, width = 11, bg = "white")
 
 
 # degurba --------------------------------------------------------
-# share of population pre-COVID living in cities, towns, or rural areas
+
+# share of working (empl, self-empl) population pre-COVID living in cities, towns, or rural areas
 
 LFS_pop_degurba <- LFS %>%
   filter(year == 2019) %>% 
@@ -191,6 +214,7 @@ LFS_pop_degurba %>%
 
 
 # urbrur ---------------------------------------------------------
+
 # Total population by NUTS-2 pre-COVID, with prevailing urban-rural region type
 
 LFS %>%
@@ -314,15 +338,13 @@ LFS_raw <- list.files("R:/SpssStata/EJM_DO_NOT_DELETE/DATA/LFS_For_Researchers_1
 write_rds(LFS_raw, "Data/LFS_raw.rds")
 
 
-# Minimally clean LFS
-LFS_raw <- read_rds("Data/LFS_raw.rds")
-
-LFS <- LFS_raw %>% 
+# Import minimally clean LFS, add URBRUR values
+LFS_pop <- read_rds("Data/LFS_raw.rds") %>% 
   mutate(reg = paste0(COUNTRY, REGION_2D), REGION_2D = NULL) %>%
   left_join(reg_urbrur, by = "reg")
 
 # Compute population by employment status by URBRUR
-total_urbrur <- LFS %>% 
+total_urbrur <- LFS_pop %>% 
   # Exclude Norway
   filter(COUNTRY != "NO") %>% 
   # Keep only relevant age groups
@@ -339,6 +361,10 @@ empl_rate_urbrur <- total_urbrur %>%
   spread(empl, people) %>% 
   rowwise() %>% 
   mutate(empl_rate = c(`Employed` / (`Employed` + `Not employed`))) 
+
+# Export employment rate by urbrur in Excel
+write_xlsx(empl_rate_urbrur, "Tables/LFS_employment_rate_urbrur.xlsx")
+
 
 # Plot employment rate by urbrur, by country and year
 empl_rate_urbrur %>% 

@@ -4,13 +4,6 @@ source("Code/0- Load common.R")
 
 map_nuts <- read_rds("Data/map_nuts.rds")
 
-# Retrieve NUTS region names and labels from the maps
-labels_nuts <- map_nuts %>% 
-  # remove map component, keep unique NUTS names and labels
-  st_drop_geometry() %>% as_tibble() %>% 
-  select(NUTS_ID, NUTS_name = NAME_LATN) %>% 
-  distinct(NUTS_ID, .keep_all = TRUE)
-
 # JRC connectivity data by NUTS x Degurba ---
 
 # Read all files speed_NUTS_DGURBA_.*.csv and append them in a single table
@@ -31,7 +24,10 @@ speed_nuts_degurba <- list.files(path = "Data/", pattern = "speed_NUTS_DGURBA_.*
   mutate(year = as.numeric(year))
 
 # Preview the data
-speed_nuts_degurba %>% 
+speed_nuts_degurba %>%
+  # Add NUTS region names
+  left_join(labels_nuts, by = "NUTS_ID") %>% 
+  relocate(NUTS_name, .after = NUTS_ID) %>%  
   spread(degurba, avg_speed_mbps) %>% 
   arrange(NUTS_ID) %>% 
   view()
@@ -41,6 +37,8 @@ speed_nuts_degurba %>%
 write_rds(speed_nuts_degurba, "Data/speed_nuts_degurba.rds")
 
 # Plot EU map of internet speeds by NUTS and degurba --- 
+
+speed_nuts_degurba <- read_rds("Data/speed_nuts_degurba.rds")
 
 # Create dummy NUTS Level-2 maps for different degurba
 map_nuts2_degurba <- bind_rows(
@@ -87,8 +85,9 @@ inner_join(map_nuts2_degurba, speed_nuts_degurba, by = c("NUTS_ID", "degurba"), 
   coord_sf(xlim = c(2.6e+6, 6.4e+6), ylim = c(5.5e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
   theme_bw() +
   labs(
-    # title = "Internet speed by region and territorial typology over the years",
-    # subtitle = "NUTS-2 regions x Degurba territorial typology, 2019 and 2022"
+    title = "Internet speed by region and degree of urbanisation over the years",
+    subtitle = "Average internet speed",
+    caption = "Source: Ookla Speedtest Intelligence® data, elaborated by JRC"
   ) +
   theme(legend.position = "top")
 
@@ -97,9 +96,12 @@ ggsave("Figures/internet_nuts_degurba.pdf", height = 16, width = 20, units = "cm
 ggsave("Figures/internet_nuts_degurba.eps", height = 16, width = 20, units = "cm", bg = "white")
 
 # Export images for report
+# Suppress titles and caption from plot, to include bare graph in Word document
+ggplot2::last_plot() + labs(title = NULL, subtitle = NULL, caption = NULL)
 ggsave(path = path_report, filename = "Figure_21_broadband_nuts_degurba.eps", height = 16, width = 20, units = "cm")
 ggsave(path = path_report, filename = "Figure_21_broadband_nuts_degurba.png", height = 16, width = 20, units = "cm", bg = "white")
 ggsave(path = path_report, filename = "Figure_21_broadband_nuts_degurba.pdf", height = 16, width = 20, units = "cm", bg = "white")
+ggsave(path = path_report, filename = "Figure_21_broadband_nuts_degurba.svg", height = 16, width = 20, units = "cm", bg = "white")
 
 
 # Export as table
@@ -132,6 +134,8 @@ speed_nuts_degurba %>%
     y = "Internet speed (Mbps)"
   )
 ggsave("Figures/Internet_speed_degurba.png", height = 6, width = 9, bg = "white")
+ggsave("Figures/Internet_speed_degurba.svg", height = 6, width = 9, bg = "white")
+ggsave("Figures/Internet_speed_degurba.pdf", height = 6, width = 9, bg = "white")
 
 speed_nuts_degurba %>% 
   mutate(country = str_sub(NUTS_ID, 1, 2)) %>% 
@@ -153,8 +157,9 @@ speed_nuts_degurba %>%
     y = "Internet speed (Mbps)"
   )
 
-# ggsave("Figures/Internet_speed_degurba.pdf", height = 6, width = 9)
+ggsave("Figures/Internet_speed_degurba_EU.pdf", height = 6, width = 9)
 ggsave("Figures/Internet_speed_degurba_EU.png", height = 7, width = 10, bg = "white")
+ggsave("Figures/Internet_speed_degurba_EU.svg", height = 7, width = 10, bg = "white")
 
 
 # Table of speed tiers by region ----------------
