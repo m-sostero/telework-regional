@@ -78,4 +78,4 @@ compute_tw_share <- function(data, ...){
     return(.)
 }
 
-
+path_report <- "~/Eurofound/Regional perspective of labour market change during and after COVID-19 - Documents/Drafts/Report/Final figures tables and charts/R"

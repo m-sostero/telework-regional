@@ -363,24 +363,3 @@ empl_rate_urbrur %>%
 ggsave("Figures/LFS_empl_urbrur.png", height = 6, width = 9, bg = "white")
 ggsave("Figures/LFS_empl_urbrur.svg", height = 6, width = 9, bg = "white")
 
-
-#TODO: Telework by country and age ----------------------------------
- 
-LFS %>% 
-  mutate(year = factor(year)) %>% 
-  group_by(year, country, age) %>% 
-  summarise(telework_share = weighted.mean(homework_any, wt = coeffy, na.rm = TRUE), .groups = "drop") %>% 
-  ggplot(aes(x = year, y = telework_share, group = age, color = age)) +
-  geom_point() + geom_line() +
-  facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
-  scale_y_continuous(labels = percent_format()) +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-  labs(
-    title = "Telework has become more common among employees, catching up with the self-employed",
-    subtitle = "Share of people teleworking at least some of the time, by professional status",
-    y = "Share of people teleworking\n(different scales)"
-  )
-
-ggsave("Figures/Telework_stapro_eu.pdf", height = 8, width = 11)
-ggsave("Figures/Telework_stapro_eu.png", height = 8, width = 11, bg = "white")
-

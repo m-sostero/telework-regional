@@ -41,25 +41,28 @@ full_join(table_tw, table_tw_stapro, by = c("year", "country")) %>%
   write_xlsx("Tables/LFS_telework_stapro.xlsx")
 
 
-# Telework by country and professional status ----------------------------------
+# Telework by professional status ----------------------------------
 
 LFS %>%
   mutate(year = factor(year)) %>% 
-  compute_tw_share(year, country, stapro) %>% 
+  compute_tw_share(year, stapro) %>% 
   ggplot(aes(x = year, y = telework_share, group = stapro, color = stapro)) +
   geom_point() + geom_line() +
-  facet_geo(~ country, grid = eu_grid, label = "name", scales = "free_y") +
-  scale_y_continuous(labels = percent_format()) +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
-  scale_color_brewer("Professional status", palette = "Set1") +
+  # Label line ends
+  geom_dl(aes(label = stapro), method = list(dl.trans(x = x + .3), "last.qp")) +
+  # scale_x_continuous(limits = c(2018, 2022.5), labels = c(2018:2022, "")) +
+  scale_y_continuous(labels = percent_format(), limits = c(0, NA)) +
+  # theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  scale_color_brewer("Professional status", palette = "Set1", guide = NULL) +
   labs(
-    title = "Telework has become more common among employees, catching up with the self-employed",
+    title = "Telework has become more common among employees, narrowing the gap with the self-employed",
     subtitle = "Share of people teleworking at least some of the time, by professional status",
-    y = "Share of people teleworking\n(different scales)"
+    y = "Share of people teleworking\n(different scales)", x = NULL
   )
 
-ggsave("Figures/Telework_stapro_eu.pdf", height = 8, width = 11)
-ggsave("Figures/Telework_stapro_eu.png", height = 8, width = 11, bg = "white")
+ggsave("Figures/Telework_stapro.pdf", height = 5, width = 8)
+ggsave("Figures/Telework_stapro.png", height = 5, width = 9, bg = "white")
+ggsave("Figures/Telework_stapro.svg", height = 5, width = 9, bg = "white")
 
 
 # Table: Telework by country and professional status
@@ -89,38 +92,6 @@ bind_rows(
 ) %>% 
   select(country, country_name, year, everything()) %>% 
   write_xlsx("Tables/Telework_stapro.xlsx")
-
-
-# Telework by professional status and degurba -----------------------------
-
-# Zoom in on selected countries
-selected_countries <- c("DE", "FR", "IT", "ES", "IE", "NL", "SE", "RO")
-
-LFS %>% 
-  filter(country %in% selected_countries) %>% 
-  left_join(labels_country, by = c("country" = "country_code")) %>% 
-  mutate(
-    year = factor(year),
-    stapro = fct_rev(stapro)
-    ) %>% 
-  compute_tw_share(year, country_name, stapro, degurba) %>% 
-  ggplot(aes(x = year, y = telework_share, group = interaction(degurba, stapro), color = degurba, shape = stapro)) +
-  geom_point() + geom_line() +
-  facet_wrap( ~ country_name, nrow = 2) +
-  scale_y_continuous(labels = percent_format()) +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-  scale_color_brewer("Degree of urbanisation", palette = "Set2") +
-  scale_shape_manual("Professional status", values = c(19, 0)) +
-  theme(legend.position = "top") +
-  labs(
-    title = "Telework has become more common among employees, catching up with the self-employed",
-    subtitle = "Share of people teleworking at least some of the time, by professional status",
-    y = "Share of people teleworking"
-  )
-
-ggsave("Figures/Telework_stapro_degurba_selected.pdf", height = 8, width = 11)
-ggsave("Figures/Telework_stapro_degurba_selected.png", height = 8, width = 11, bg = "white")
-
 
 
 # Regional telework vs teleworkability by professional status ----------------------------------
@@ -169,6 +140,7 @@ tw_hw_stapro %>%
 
 ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.pdf", height = 3.5, width = 9)
 ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.png", height = 3.5, width = 9, bg = "white")
+ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.svg", height = 3.5, width = 9, bg = "white")
 
   
 tw_hw_stapro %>%  
@@ -193,7 +165,7 @@ tw_hw_stapro %>%
 ggplot2::last_plot() +
   labs(subtitle = "Correlation of technical teleworkability and telework for NUTS-2 regions")
 ggsave("Presentation/Regional_correlation_teleworkability_telework_stapro_small.png", height = 4, width = 6, bg = "white")
-ggsave("Figures/Regional_correlation_teleworkability_telework_stapro.svg", height = 5, width = 7, bg = "white")
+ggsave("Presentation/Regional_correlation_teleworkability_telework_stapro_small.svg", height = 5, width = 7, bg = "white")
 
 
 # Occupational telework vs teleworkability --------------------------------

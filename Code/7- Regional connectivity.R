@@ -37,9 +37,8 @@ speed_nuts_degurba %>%
   view()
   
 
-# Export table of internet speeds by NUTS x Degurba
+# Export data of internet speeds by NUTS x Degurba
 write_rds(speed_nuts_degurba, "Data/speed_nuts_degurba.rds")
-
 
 # Plot EU map of internet speeds by NUTS and degurba --- 
 
@@ -76,27 +75,46 @@ inner_join(map_nuts2_degurba, speed_nuts_degurba, by = c("NUTS_ID", "degurba"), 
 # Same, but keep only 2019 and 2022
 inner_join(map_nuts2_degurba, speed_nuts_degurba, by = c("NUTS_ID", "degurba"), relationship = "many-to-many") %>% 
   filter(!is.na(degurba), ) %>% 
-  filter(year %in% c(2019, 2023)) %>% 
+  filter(year %in% c(2019, 2022)) %>% 
   ggplot() +
   # Plot all countries in background in grey, (including those not in LFS)
-  geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0) %>% crossing(year = c(2019, 2023)) %>% sf::st_as_sf(), fill = "grey70") +
+  geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0) %>% crossing(year = c(2019, 2022)) %>% sf::st_as_sf(), fill = "grey70") +
   geom_sf(aes(fill = avg_speed_mbps)) +
   # Plot country boundaries (NUTS-0), for all countries
   geom_sf(data = map_nuts %>% filter(LEVL_CODE == 0), fill = NA, linewidth = 0.5, color = "grey20") +
   facet_grid(year ~ degurba) +
   scale_fill_fermenter("Internet speed\n(Mbps)", palette = "Blues", direction = 1, na.value = "grey70", breaks = c(1, 30, 100)) +
-  coord_sf(xlim = c(2.3e+6, 6.3e+6), ylim = c(5.4e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
+  coord_sf(xlim = c(2.6e+6, 6.4e+6), ylim = c(5.5e+6, 1.4e+6), crs = sf::st_crs(3035), datum = NA) +
   theme_bw() +
   labs(
-    title = "Internet speed by region and territorial typology over the years",
-    subtitle = "NUTS-2 regions x Degurba territorial typology, 2019 and 2022"
+    # title = "Internet speed by region and territorial typology over the years",
+    # subtitle = "NUTS-2 regions x Degurba territorial typology, 2019 and 2022"
   ) +
   theme(legend.position = "top")
 
-ggsave("Figures/internet_nuts_degurba.png", width = 20, height = 20, units = "cm", bg = "white")
+ggsave("Figures/internet_nuts_degurba.png", height = 16, width = 20, units = "cm", bg = "white")
+ggsave("Figures/internet_nuts_degurba.pdf", height = 16, width = 20, units = "cm", bg = "white")
+ggsave("Figures/internet_nuts_degurba.eps", height = 16, width = 20, units = "cm", bg = "white")
 
-ggplot2::last_plot() + labs(title = NULL, subtitle = NULL)
-ggsave("Figures/internet_nuts_degurba.svg", width = 20, height = 15, units = "cm", bg = "white")
+# Export images for report
+ggsave(path = path_report, filename = "Figure_21_broadband_nuts_degurba.eps", height = 16, width = 20, units = "cm")
+ggsave(path = path_report, filename = "Figure_21_broadband_nuts_degurba.png", height = 16, width = 20, units = "cm", bg = "white")
+ggsave(path = path_report, filename = "Figure_21_broadband_nuts_degurba.pdf", height = 16, width = 20, units = "cm", bg = "white")
+
+
+# Export as table
+speed_nuts_degurba %>% 
+  mutate(
+    broadband_tier = cut(
+      avg_speed_mbps,
+      breaks = c(0, 30, 100, Inf),
+      labels = c("<30 Mbs", "30-100 Mbs", "> 100 Mbps")
+      # labels = 1:3
+      )) %>% 
+  select(NUTS_ID, degurba, year, broadband_tier) %>%
+  filter(year %in% c(2019, 2022)) %>% 
+  spread(degurba, broadband_tier) %>% 
+  write_xlsx("Tables/NUTS_broadband.xlsx")
 
 
 

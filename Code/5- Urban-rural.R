@@ -70,53 +70,26 @@ hw_degurba %>%
     # subtitle = "Share of people teleworking by degree of urbanisation, over the years",
     x = NULL,
     y = "Share of working population \n(different scales)",
-    caption = "Source: EU Labour Force Survey,\n own elaboration"
+    # caption = "Source: EU Labour Force Survey,\n own elaboration"
   )
 
-ggsave("Figures/Telework_degurba_eu.pdf", height = 7, width = 13)
+# Export images to project folder
+ggsave("Figures/Telework_degurba_eu.pdf", height = 7, width = 10)
 ggsave("Figures/Telework_degurba_eu.png", height = 7, width = 10, bg = "white")
 ggsave("Figures/Telework_degurba_eu.svg", height = 7, width = 10, bg = "white")
 ggsave("Presentation/Telework_degurba_eu.png", height = 7, width = 10, bg = "white")
 
-
-# Zoom in on selected countries
-selected_countries <- c("DE", "FR", "IT", "ES", "IE", "NL", "SE", "RO")
-
-plot_hw_degurba <- hw_degurba %>% 
-  filter(country %in% selected_countries) %>% 
-  mutate(
-    year = factor(year),
-    country = factor(country, levels = selected_countries),
-    ) %>% 
-  arrange(country) %>% 
-  mutate(country_name = fct_inorder(country_name)) %>% 
-  ggplot(aes(x = year, y = telework_share, group = degurba, color = degurba)) +
-  geom_point(aes(size = n_people), shape = 1) + geom_line() +
-  facet_wrap(country_name ~ ., nrow = 2) + 
-  # scale_color_manual(values = c("#33A02C", "#A6CEE3", "#1F78B4"), breaks = c("Rural areas", "Towns and suburbs", "Cities"))
-  scale_color_brewer("Degree of urbanisation", palette = "Set2") +
-  scale_size_area("Population", labels = comma) +
-  scale_y_continuous(labels = percent_format()) +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
-  labs(
-    title = "Telework increased, particularly in cities, but country differences remain",
-    subtitle = "Share of population teleworking by degree of urbanisation, over the years, selected countries",
-    x = "Degree of urbanisation",
-    y = "Share of population teleworking",
-    caption = "Source: EU Labour Force Survey,\n own elaboration"
-  )
-
-plot_hw_degurba + guides(color = guide_legend(reverse = TRUE), size = guide_legend(label.hjust = 1)) 
-
-ggsave("Figures/Telework_degurba_selected.pdf", height = 6, width = 9)
-ggsave("Figures/Telework_degurba_selected.png", height = 6, width = 9, bg = "white")
-
-ggplotly(plot_hw_degurba)
+# Export images for report
+ggsave(path = path_report, filename = "Figure_19_telework_degurba_map.eps", height = 7, width = 10)
+ggsave(path = path_report, filename = "Figure_19_telework_degurba_map.png", height = 7, width = 10, bg = "white")
+ggsave(path = path_report, filename = "Figure_19_telework_degurba_map.pdf", height = 7, width = 10, bg = "white")
 
 
-# Telework by degurba  --------------------------------------------
 
-telework_degurba <- LFS %>%
+# Telework intensity by degurba  --------------------------------------------
+
+# Compute telework intensity by Degurba across EU
+telework_intensity_degurba <- LFS %>%
   group_by(year, degurba) %>%
   summarise(
     total_pop = sum(coeffy, na.rm = TRUE),
@@ -128,11 +101,19 @@ telework_degurba <- LFS %>%
     .groups = "drop"
   ) 
 
-telework_degurba %>% 
+# Export table
+telework_intensity_degurba %>% 
+  select(degurba, year, Sometimes, Usually, Total = tw_any) %>% 
+  arrange(degurba, year) %>% 
+  write_xlsx("Tables/Telework_degurba_intensity_EU.xlsx")
+
+# Reshape table, plot stacked bar chart
+telework_intensity_degurba %>% 
   select(year, degurba, Sometimes, Usually) %>% 
   pivot_longer(cols = c(Sometimes, Usually), names_to = "frequency") %>%
-  ggplot(aes(x = year, y = value, fill = degurba, label = percent(value, accuracy  = 0.1, suffix = ""))) +
-  geom_col(aes(alpha = frequency), position = "stack") +
+  mutate(frequency = factor(frequency, levels = c("Sometimes", "Usually"))) %>% 
+  ggplot(aes(x = year, y = value, group = frequency, fill = degurba, label = percent(value, accuracy  = 0.1, suffix = ""))) +
+  geom_col(aes(alpha = frequency), position = position_stack()) +
   # Add values inside stacked columns
   geom_text(position = position_stack(vjust = 0.5), colour = "white") +
   # Add total values on top of stacked columns
@@ -148,29 +129,14 @@ telework_degurba %>%
     x = NULL, y = "Share of people working from home"
   )
 
-telework_degurba %>% 
-  select(year, degurba, Sometimes, Usually) %>% 
-  pivot_longer(cols = c(Sometimes, Usually), names_to = "frequency") %>%
-  ggplot(aes(x = year, y = value, fill = degurba, label = percent(value, accuracy  = 0.1, suffix = ""))) +
-  geom_col(aes(alpha = frequency), position = "stack") +
-  # Add values inside stacked columns
-  geom_text(position = position_stack(vjust = 0.5), colour = "white") +
-  # Add total values on top of stacked columns
-  geom_text(aes(label = percent(after_stat(y), accuracy  = 0.1, suffix = ""), group = degurba), stat = 'summary', fun = sum, vjust = 0, colour = "grey50") +
-  facet_wrap(~ degurba) +
-  scale_y_continuous(labels = scales::percent, limits = c(0, 0.31)) +
-  scale_fill_brewer("Degree of urbanisation", palette = "Set2", direction = -1) +
-  scale_alpha_manual("Work from home", breaks = c("Sometimes", "Usually"), values = c(0.4, 1)) +
-  guides(alpha = guide_legend(order = 1), fill = guide_none()) +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-  labs(
-    # title = "Share of employees working from home by territorial typology pre and post-COVID (2019 and 2021)",
-    x = NULL, y = "Share of people working from home"
-  )
+# Export images to project folder
+ggsave("Figures/Telework_degurba.svg", height = 4, width = 8, bg = "white")
+ggsave("Figures/Telework_degurba.png", height = 4, width = 8, bg = "white")
 
-ggsave("Figures/Telework_urbrur.svg", height = 4, width = 8, bg = "white")
-ggsave("Figures/Telework_urbrur.png", height = 4, width = 8, bg = "white")
-
+# Export images for report
+ggsave(path = path_report, filename = "Figure_18_telework_intensity_degurba.eps", height = 4, width = 8)
+ggsave(path = path_report, filename = "Figure_18_telework_intensity_degurba.png", height = 4, width = 8, bg = "white")
+ggsave(path = path_report, filename = "Figure_18_telework_intensity_degurba.pdf", height = 4, width = 8, bg = "white")
 
 
 # Phase plot growth in cities vs rest ----
