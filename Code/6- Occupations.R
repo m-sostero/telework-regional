@@ -44,25 +44,27 @@ full_join(table_tw, table_tw_stapro, by = c("year", "country")) %>%
 # Telework by professional status ----------------------------------
 
 LFS %>%
-  mutate(year = factor(year)) %>% 
   compute_tw_share(year, stapro) %>% 
   ggplot(aes(x = year, y = telework_share, group = stapro, color = stapro)) +
   geom_point() + geom_line() +
   # Label line ends
   geom_dl(aes(label = stapro), method = list(dl.trans(x = x + .3), "last.qp")) +
-  # scale_x_continuous(limits = c(2018, 2022.5), labels = c(2018:2022, "")) +
+  scale_x_continuous(limits = c(2018, 2022.5), labels = c(2018:2022, "")) +
   scale_y_continuous(labels = percent_format(), limits = c(0, NA)) +
   # theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
   scale_color_brewer("Professional status", palette = "Set1", guide = NULL) +
   labs(
     title = "Telework has become more common among employees, narrowing the gap with the self-employed",
     subtitle = "Share of people teleworking at least some of the time, by professional status",
-    y = "Share of people teleworking\n(different scales)", x = NULL
+    y = "Share of working population", x = NULL
   )
 
-ggsave("Figures/Telework_stapro.pdf", height = 5, width = 8)
-ggsave("Figures/Telework_stapro.png", height = 5, width = 9, bg = "white")
-ggsave("Figures/Telework_stapro.svg", height = 5, width = 9, bg = "white")
+
+# Suppress titles and caption from plot, to include bare graph in Word document
+ggplot2::last_plot() + labs(title = NULL, subtitle = NULL, caption = NULL)
+ggsave("Figures/Telework_stapro.pdf", height = 4, width = 6)
+ggsave("Figures/Telework_stapro.png", height = 4, width = 6, bg = "white")
+ggsave("Figures/Telework_stapro.svg", height = 4, width = 6, bg = "white")
 
 
 # Table: Telework by country and professional status

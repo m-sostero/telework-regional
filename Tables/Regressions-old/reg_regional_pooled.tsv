@@ -1,0 +1,81 @@
+
+	(1)	(2)	(3)
+
+YEAR=2018	0	0	0
+	(.)	(.)	(.)
+
+YEAR=2019	0.00882	-0.0107	0.0118
+	(0.0180)	(0.0586)	(0.0320)
+
+YEAR=2020	0.0719***	-0.0453	0.00380
+	(0.0175)	(0.0490)	(0.0283)
+
+YEAR=2021	0.106***	-0.133*	-0.0784*
+	(0.0217)	(0.0598)	(0.0358)
+
+(mean) physicalinteraction		0.737***	0.442***
+		(0.130)	(0.0805)
+
+YEAR=2018 # (mean) physicalinteraction		0	0
+		(.)	(.)
+
+YEAR=2019 # (mean) physicalinteraction		0.0500	0.00251
+		(0.190)	(0.0950)
+
+YEAR=2020 # (mean) physicalinteraction		0.275	0.201*
+		(0.157)	(0.0824)
+
+YEAR=2021 # (mean) physicalinteraction		0.568**	0.487***
+		(0.189)	(0.100)
+
+(mean) city			-0.0478**
+			(0.0185)
+
+(mean) rural			0.0930***
+			(0.0178)
+
+(mean) capital=0			0
+			(.)
+
+(mean) capital=1			0.0246*
+			(0.0118)
+
+(mean) broadband_shh			-0.000793
+			(0.000491)
+
+(mean) work_other_region			0.0312
+			(0.0311)
+
+(mean) work_other_country			0.00650
+			(0.0880)
+
+(mean) female			0.565***
+			(0.104)
+
+(mean) lowed			0.0938**
+			(0.0332)
+
+(mean) highed			0.180***
+			(0.0385)
+
+(mean) pt			0.391***
+			(0.0365)
+
+(mean) self			0.217***
+			(0.0499)
+
+(mean) temporary			0.116*
+			(0.0517)
+
+(mean) nonnat			-0.0900*
+			(0.0444)
+
+(mean) agecont			-0.0320***
+			(0.00247)
+
+Constant	0.140***	-0.129**	0.953***
+	(0.0124)	(0.0396)	(0.105)
+
+R-squared	0.144	0.577	0.832
+Observations	766	766	766
+

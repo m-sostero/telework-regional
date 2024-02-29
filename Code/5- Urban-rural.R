@@ -67,7 +67,7 @@ hw_degurba %>%
   ) +
   labs(
     title = "Telework has become more common, especially in cities, since 2020",
-    subtitle = "Share of people teleworking by degree of urbanisation, over the years",
+    subtitle = "Rates of telework among workers by degree of urbanisation, over the years",
     x = NULL,
     y = "Share of working population \n(different scales)",
     caption = "Source: EU Labour Force Survey,\n own elaboration"
@@ -128,8 +128,9 @@ telework_intensity_degurba %>%
   guides(alpha = guide_legend(order = 1), fill = guide_none()) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
   labs(
-    title = "Share of employees working from home by degree of urbanisation)",
-    x = NULL, y = "Share of people working from home"
+    title = "Telework intensity by degree of urbanisation",
+    subtitle = "Percentage of of workers working from home at least some of the time",
+    x = NULL, y = "Rate of telework"
   )
 
 # Export images to project folder
@@ -145,39 +146,103 @@ ggsave(path = path_report, filename = "Figure_18_telework_intensity_degurba.pdf"
 ggsave(path = path_report, filename = "Figure_18_telework_intensity_degurba.svg", height = 4, width = 8, bg = "white")
 
 
-# Phase plot growth in cities vs rest ----
+# Scatter plots of growth in telework by degurba ----
 
-hw_cities_rest <- LFS %>%
+# (Cities) vs (Towns and suburbs, rural areas)
+delta_cities_rest <- LFS %>%
+  filter(year %in% c(2019, 2022)) %>% 
   mutate(cities = degurba %>% fct_recode("Rest" = "Towns and suburbs", "Rest" = "Rural areas")) %>% 
   compute_tw_share(year, country, cities) %>% 
-  left_join(labels_country, by = c("country" = "country_code"))
-
-
-hw_cities_rest %>%
-  filter(year %in% c(2019, 2021)) %>% 
+  left_join(labels_country, by = c("country" = "country_code")) %>% 
   pivot_wider(id_cols = c(country, country_name), names_from = c(cities, year), values_from = telework_share) %>% 
   mutate(
-    urban_delta = (`Cities_2021`-`Cities_2019`)/Cities_2019,
-    rest_delta = (`Rest_2021`-`Rest_2019`)/`Rest_2019`
-  ) %>% 
+    urban_delta = (`Cities_2022`-`Cities_2019`)/Cities_2019,
+    rest_delta = (`Rest_2022`-`Rest_2019`)/`Rest_2019`
+  )
+
+delta_cities_rest %>% 
   ggplot(aes(x = urban_delta, y = rest_delta, label = country)) +
   geom_abline(intercept = 0, slope = 1, linetype = "dotted",  color = "grey50") +
   geom_point() + geom_text_repel(seed = 1235) +
   annotate("text", x = 3.4, y = 3.7, label = "Larger increase\nin towns, suburbs and rural areas", color = "grey50", hjust = 1) +
-  annotate("text", x = 4.1, y = 3.7, label = "Larger increase in cities", color = "grey50", hjust = 0) +
+  annotate("text", x = 3, y = 2.8, label = "Larger increase\nin cities", color = "grey50", hjust = 0) +
   scale_x_continuous(labels = label_percent(prefix = "+")) +
   scale_y_continuous(labels = label_percent(prefix = "+")) +
   coord_equal() + 
   labs(
-    title = "Relative changes in telework 2019–2021: cities vs towns, suburbs, and rural areas",
+    title = "Relative changes in telework 2019–2022: cities vs towns, suburbs, and rural areas",
     x = "Cities",
     y = "Towns, suburbs and rural areas areas"
   )
 
-ggsave("Figures/Telework_changes_urban_rest.pdf", height = 5, width = 8.4)
-ggsave("Figures/Telework_changes_urban_rest.png", height = 5, width = 8.4, bg = "white")
-ggsave("Figures/Telework_changes_urban_rest.svg", height = 5, width = 8.4, bg = "white")
+ggplot2::last_plot() + labs(title = NULL, subtitle = NULL, caption = NULL)
+ggsave("Figures/Telework_changes_cities_rest.png", height = 5, width = 5, bg = "white")
+ggsave("Figures/Telework_changes_cities_rest.svg", height = 5, width = 5, bg = "white")
 
+
+# (Cities, Towns and suburbs) vs  (rural areas)
+delta_urban_rural <- LFS %>%
+  filter(year %in% c(2019, 2022)) %>% 
+  mutate(urban_rural = degurba %>% fct_recode("Urban" = "Towns and suburbs", "Urban" = "Cities", "Rural" = "Rural areas")) %>% 
+  compute_tw_share(year, country, urban_rural) %>% 
+  left_join(labels_country, by = c("country" = "country_code")) %>% 
+  pivot_wider(id_cols = c(country, country_name), names_from = c(urban_rural, year), values_from = telework_share) %>% 
+  mutate(
+    urban_delta = (`Urban_2022`-`Urban_2019`)/Urban_2019,
+    rural_delta = (`Rural_2022`-`Rural_2019`)/`Rural_2019`
+  ) 
+
+delta_urban_rural %>% 
+  ggplot(aes(x = urban_delta, y = rural_delta, label = country)) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dotted",  color = "grey50") +
+  geom_point() + geom_text_repel(seed = 1235) +
+  annotate("text", x = 2.0, y = 2.5, label = "Larger increase\nin  rural areas", color = "grey50", hjust = 1) +
+  annotate("text", x = 2.0, y = 1.5, label = "Larger increase\nin cities, towns\nand subrurbs", color = "grey50", hjust = 0) +
+  scale_x_continuous(labels = label_percent(prefix = "+")) +
+  scale_y_continuous(labels = label_percent(prefix = "+")) +
+  coord_equal() + 
+  labs(
+    title = "Relative changes in telework 2019–2022: cities vs towns, suburbs, and rural areas",
+    x = "Cities, towns and suburbs",
+    y = "Rural areas"
+  )
+# Suppress titles and caption from plot, to include bare graph in Word document
+ggplot2::last_plot() + labs(title = NULL, subtitle = NULL, caption = NULL)
+ggsave("Figures/Telework_changes_urban_rural.png", height = 6, width = 5, bg = "white")
+ggsave("Figures/Telework_changes_urban_rural.svg", height = 6, width = 5, bg = "white")
+
+
+# (Cities) vs (Towns and suburbs) 
+hw_cities_townsub <- LFS %>%
+  filter(year %in% c(2019, 2022)) %>% 
+  mutate(cities_townsub = degurba %>% fct_recode("TownSub" = "Towns and suburbs")) %>% 
+  compute_tw_share(year, country, cities_townsub) %>% 
+  left_join(labels_country, by = c("country" = "country_code")) %>% 
+  pivot_wider(id_cols = c(country, country_name), names_from = c(cities_townsub, year), values_from = telework_share) %>% 
+  mutate(
+    cities_delta = (`Cities_2022`-`Cities_2019`)/Cities_2019,
+    townsub_delta = (`TownSub_2022`-`TownSub_2019`)/`TownSub_2019`
+  ) 
+
+hw_cities_townsub %>% 
+  ggplot(aes(x = cities_delta, y = townsub_delta, label = country)) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dotted",  color = "grey50") +
+  geom_point() + geom_text_repel(seed = 1235) +
+  annotate("text", x = 3.0, y = 3.5, label = "Larger increase\nin towns\nand subrurbs", color = "grey50", hjust = 1) +
+  annotate("text", x = 2.9, y = 2.5, label = "Larger increase\nin cities", color = "grey50", hjust = 0) +
+  scale_x_continuous(labels = label_percent(prefix = "+")) +
+  scale_y_continuous(labels = label_percent(prefix = "+")) +
+  coord_equal() + 
+  labs(
+    title = "Relative changes in telework 2019–2022: cities vs towns, suburbs, and rural areas",
+    x = "Cities",
+    y = "Towns and suburbs"
+  )
+
+# Suppress titles and caption from plot, to include bare graph in Word document
+ggplot2::last_plot() + labs(title = NULL, subtitle = NULL, caption = NULL)
+ggsave("Figures/Telework_changes_cities_townsubs.png", height = 5, width = 6, bg = "white")
+ggsave("Figures/Telework_changes_cities_townsubs.svg", height = 5, width = 6, bg = "white")
 
 
 # Population relocation vs telework ---------------------------------------

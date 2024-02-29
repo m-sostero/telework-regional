@@ -2,6 +2,7 @@
 
 source("Code/0- Load common.R")
 
+# Load map of NUTS regions, prepared in 3-.R
 map_nuts <- read_rds("Data/map_nuts.rds")
 
 # JRC connectivity data by NUTS x Degurba ---
@@ -96,8 +97,7 @@ ggsave("Figures/internet_nuts_degurba.pdf", height = 16, width = 20, units = "cm
 ggsave("Figures/internet_nuts_degurba.eps", height = 16, width = 20, units = "cm", bg = "white")
 
 # Export images for report
-# Suppress titles and caption from plot, to include bare graph in Word document
-ggplot2::last_plot() + labs(title = NULL, subtitle = NULL, caption = NULL)
+
 ggsave(path = path_report, filename = "Figure_21_broadband_nuts_degurba.eps", height = 16, width = 20, units = "cm")
 ggsave(path = path_report, filename = "Figure_21_broadband_nuts_degurba.png", height = 16, width = 20, units = "cm", bg = "white")
 ggsave(path = path_report, filename = "Figure_21_broadband_nuts_degurba.pdf", height = 16, width = 20, units = "cm", bg = "white")
@@ -127,15 +127,20 @@ speed_nuts_degurba %>%
   summarise(med_reg = mean(avg_speed_mbps, na.rm = TRUE)) %>% 
   ggplot(aes(x = year, y = med_reg, colour = degurba, group = degurba)) +
   geom_point() + geom_line() +
-  scale_color_brewer("Degree of urbanisation", palette = "Set2", direction = -1) +
+  geom_dl(aes(label = degurba), method = list(dl.trans(x = x + .3), "last.qp")) +
+  scale_x_continuous(limits = c(2019, 2022.5), labels = c(2019:2022, "")) +
+  scale_color_brewer(palette = "Set2", direction = -1, guide = NULL) +
   labs(
     title = "Internet speeds have increased across degrees of urbanisation, but the urban-rural gap remains",
     subtitle = "Average internet speed across EU NUTS regions, by degree of urbanisation",
-    y = "Internet speed (Mbps)"
+    x = "Year", y = "Internet speed (Mbps)"
   )
-ggsave("Figures/Internet_speed_degurba.png", height = 6, width = 9, bg = "white")
-ggsave("Figures/Internet_speed_degurba.svg", height = 6, width = 9, bg = "white")
-ggsave("Figures/Internet_speed_degurba.pdf", height = 6, width = 9, bg = "white")
+
+# Suppress titles and caption from plot, to include bare graph in Word document
+ggplot2::last_plot() + labs(title = NULL, subtitle = NULL, caption = NULL)
+ggsave("Figures/Internet_speed_degurba.png", height = 4, width = 7, bg = "white")
+ggsave("Figures/Internet_speed_degurba.svg", height = 4, width = 7, bg = "white")
+ggsave("Figures/Internet_speed_degurba.pdf", height = 4, width = 7, bg = "white")
 
 speed_nuts_degurba %>% 
   mutate(country = str_sub(NUTS_ID, 1, 2)) %>% 

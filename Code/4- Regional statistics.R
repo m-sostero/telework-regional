@@ -321,7 +321,7 @@ telework_regions_top_2022 %>%
   theme(plot.caption.position = "plot") +
   labs(
     title = "Capital regions have some of the highest rates of telework",
-    subtitle = "Regions with highest rate of people teleworking in 2021",
+    subtitle = "Regions with highest rates of telework in 2022",
     x = "Region", y = "Share of people working from home",
     caption = "Regions are NUTS-2, except for the Netherlands, which is reported at the country level.\n Luxembourg consists of a single NUTS-2 region."
   )

@@ -1,81 +1,71 @@
 
 	(1)	(2)	(3)
 
-YEAR=2018	0	0	0
-	(.)	(.)	(.)
+Constant	0.204***	0.0736***	0.434***
+	(0.0121)	(0.0155)	(0.0848)
 
-YEAR=2019	0.00882	-0.0107	0.0118
-	(0.0180)	(0.0586)	(0.0320)
+YEAR=2019	0.00873	-0.00718	-0.00196
+	(0.00484)	(0.0167)	(0.0169)
 
-YEAR=2020	0.0719***	-0.0453	0.00380
-	(0.0175)	(0.0490)	(0.0283)
+YEAR=2020	0.0712***	-0.0401*	-0.0399*
+	(0.00664)	(0.0188)	(0.0158)
 
-YEAR=2021	0.106***	-0.133*	-0.0784*
-	(0.0217)	(0.0598)	(0.0358)
+YEAR=2021	0.105***	-0.115***	-0.0901***
+	(0.00765)	(0.0173)	(0.0166)
 
-(mean) physicalinteraction		0.737***	0.442***
-		(0.130)	(0.0805)
+YEAR=2022	0.0882***	-0.121***	-0.0820***
+	(0.00775)	(0.0208)	(0.0222)
 
-YEAR=2018 # (mean) physicalinteraction		0	0
-		(.)	(.)
+(mean) physicalinteraction		0.351***	0.342***
+		(0.0409)	(0.0659)
 
-YEAR=2019 # (mean) physicalinteraction		0.0500	0.00251
-		(0.190)	(0.0950)
+YEAR=2019 # (mean) physicalinteraction		0.0420	0.0314
+		(0.0487)	(0.0492)
 
-YEAR=2020 # (mean) physicalinteraction		0.275	0.201*
-		(0.157)	(0.0824)
+YEAR=2020 # (mean) physicalinteraction		0.277***	0.300***
+		(0.0566)	(0.0455)
 
-YEAR=2021 # (mean) physicalinteraction		0.568**	0.487***
-		(0.189)	(0.100)
+YEAR=2021 # (mean) physicalinteraction		0.544***	0.497***
+		(0.0487)	(0.0460)
 
-(mean) city			-0.0478**
-			(0.0185)
+YEAR=2022 # (mean) physicalinteraction		0.523***	0.441***
+		(0.0593)	(0.0576)
 
-(mean) rural			0.0930***
-			(0.0178)
+(mean) cities			-0.0182
+			(0.0106)
 
-(mean) capital=0			0
-			(.)
+(mean) capital=1			0.0126
+			(0.00669)
 
-(mean) capital=1			0.0246*
-			(0.0118)
+(mean) internet_speed			-0.0000502
+			(0.0000645)
 
-(mean) broadband_shh			-0.000793
-			(0.000491)
+(mean) work_other_region			-0.0369
+			(0.0189)
 
-(mean) work_other_region			0.0312
-			(0.0311)
+(mean) work_other_country			-0.0865
+			(0.0495)
 
-(mean) work_other_country			0.00650
-			(0.0880)
+(mean) agecont			-0.0106***
+			(0.00189)
 
-(mean) female			0.565***
-			(0.104)
+(mean) female			-0.0705
+			(0.0725)
 
-(mean) lowed			0.0938**
-			(0.0332)
+(mean) highed			0.0731
+			(0.0411)
 
-(mean) highed			0.180***
-			(0.0385)
+(mean) pt			0.172**
+			(0.0531)
 
-(mean) pt			0.391***
-			(0.0365)
+(mean) self			0.256***
+			(0.0382)
 
-(mean) self			0.217***
-			(0.0499)
+(mean) temporary			0.0954
+			(0.0488)
 
-(mean) temporary			0.116*
-			(0.0517)
+R-squared	0.816	0.947	0.947
+Observations	965	965	885
 
-(mean) nonnat			-0.0900*
-			(0.0444)
-
-(mean) agecont			-0.0320***
-			(0.00247)
-
-Constant	0.140***	-0.129**	0.953***
-	(0.0124)	(0.0396)	(0.105)
-
-R-squared	0.144	0.577	0.832
-Observations	766	766	766
-
+Standard errors in parentheses
+* p<0.05, ** p<0.01, *** p<0.001
